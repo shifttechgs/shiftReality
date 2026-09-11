@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    {{-- ── Primary Meta ─────────────────────────────────────────────── --}}
+    <title>@yield('title', config('shiftreality.name') . ' — ' . config('shiftreality.tagline'))</title>
+    <meta name="description" content="@yield('description', config('shiftreality.description'))">
+    <link rel="canonical" href="@yield('canonical', url()->current())">
+    <meta name="robots" content="@yield('robots', 'index, follow')">
+
+    {{-- ── Open Graph ──────────────────────────────────────────────── --}}
+    <meta property="og:type"        content="website">
+    <meta property="og:url"         content="{{ url()->current() }}">
+    <meta property="og:title"       content="@yield('og_title', config('shiftreality.name') . ' — ' . config('shiftreality.tagline'))">
+    <meta property="og:description" content="@yield('og_description', config('shiftreality.description'))">
+    <meta property="og:image"       content="@yield('og_image', asset('images/og-default.jpg'))">
+    <meta property="og:locale"      content="en_ZW">
+    <meta property="og:site_name"   content="{{ config('shiftreality.name') }}">
+
+    {{-- ── Twitter / X ─────────────────────────────────────────────── --}}
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="@yield('og_title', config('shiftreality.name'))">
+    <meta name="twitter:description" content="@yield('og_description', config('shiftreality.description'))">
+    <meta name="twitter:image"       content="@yield('og_image', asset('images/og-default.jpg'))">
+
+    {{-- ── Fonts ──────────────────────────────────────────────────── --}}
+    {{-- Bunny Fonts — GDPR-friendly alternative to Google Fonts --}}
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.bunny.net/css?family=syne:600,700,800|dm-sans:300,400,500&display=swap">
+
+    {{-- ── Favicon & Manifest ─────────────────────────────────────── --}}
+    {{-- Replace these with actual brand assets when available --}}
+    <link rel="icon"             href="{{ asset('favicon.ico') }}"             type="image/x-icon">
+    <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
+    <link rel="manifest"         href="{{ asset('site.webmanifest') }}">
+    <meta name="theme-color"     content="#080807">
+
+    {{-- ── Structured Data ────────────────────────────────────────── --}}
+    @yield('structured_data')
+
+    {{-- ── Vite Assets ────────────────────────────────────────────── --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- ── Analytics placeholder ─────────────────────────────────── --}}
+    {{-- Insert Google Tag Manager / Meta Pixel snippet here --}}
+    {{-- @include('partials.analytics') --}}
+
+    @stack('head')
+</head>
+<body>
+
+    {{-- Custom cursor + glow (desktop only — hidden via CSS on touch devices) --}}
+    <div class="cursor"      aria-hidden="true"></div>
+    <div class="cursor-ring" aria-hidden="true"></div>
+    <div class="cursor-glow" aria-hidden="true"></div>
+
+    {{-- Page transition overlay --}}
+    <div class="page-transition" aria-hidden="true"></div>
+
+    {{-- ── Navigation ────────────────────────────────────────────── --}}
+    @include('components.nav')
+
+    {{-- ── Page Content ─────────────────────────────────────────── --}}
+    <main id="main-content">
+        @yield('content')
+    </main>
+
+    {{-- ── Footer ─────────────────────────────────────────────────── --}}
+    @include('components.footer')
+
+    @stack('scripts')
+
+    <script>
+        document.documentElement.classList.remove('no-js');
+    </script>
+</body>
+</html>

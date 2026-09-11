@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Block admin and internal paths
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /_ignition/
+Disallow: /telescope/
+
+Sitemap: https://shiftreality.co.zw/sitemap.xml
