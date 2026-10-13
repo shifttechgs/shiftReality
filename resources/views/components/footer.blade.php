@@ -1,4 +1,10 @@
 <footer class="footer" role="contentinfo">
+
+    {{-- Watermark --}}
+    <div class="footer__watermark" aria-hidden="true">
+        <span>Reality Shift</span>
+    </div>
+
     <div class="container">
         <div class="footer__inner">
 

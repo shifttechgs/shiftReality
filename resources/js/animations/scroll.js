@@ -4,13 +4,24 @@ import { prefersReducedMotion } from '../utils/motion.js';
  * Nav scroll behaviour — adds .nav--scrolled class when page is scrolled.
  */
 function initNavScroll() {
-    const nav = document.querySelector('.nav');
+    const nav    = document.querySelector('.nav');
+    const banner = document.getElementById('top-banner');
     if (!nav) return;
 
-    const threshold = 60;
+    const FLOAT_THRESHOLD  = 80;   // px before nav becomes floating island
+    const BANNER_THRESHOLD = 40;   // px before banner auto-collapses
 
     const update = () => {
-        nav.classList.toggle('nav--scrolled', window.scrollY > threshold);
+        const sy = window.scrollY;
+
+        // Floating island
+        nav.classList.toggle('nav--scrolled', sy > FLOAT_THRESHOLD);
+
+        // Auto-collapse banner on scroll — keeps it as a seen signal, clears space
+        if (banner && sy > BANNER_THRESHOLD && !banner.classList.contains('is-hidden')) {
+            banner.classList.add('is-hidden');
+            sessionStorage.setItem('banner-dismissed', '1');
+        }
     };
 
     window.addEventListener('scroll', update, { passive: true });

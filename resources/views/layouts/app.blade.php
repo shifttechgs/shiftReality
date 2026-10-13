@@ -26,11 +26,7 @@
     <meta name="twitter:description" content="@yield('og_description', config('shiftreality.description'))">
     <meta name="twitter:image"       content="@yield('og_image', asset('images/og-default.jpg'))">
 
-    {{-- ── Fonts ──────────────────────────────────────────────────── --}}
-    {{-- Bunny Fonts — GDPR-friendly alternative to Google Fonts --}}
-    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
-    <link rel="stylesheet"
-          href="https://fonts.bunny.net/css?family=syne:600,700,800|dm-sans:300,400,500&display=swap">
+    {{-- Fonts: Geist Variable — self-hosted via npm, no external CDN --}}
 
     {{-- ── Favicon & Manifest ─────────────────────────────────────── --}}
     {{-- Replace these with actual brand assets when available --}}
@@ -53,6 +49,9 @@
 </head>
 <body>
 
+    {{-- Intro screen (homepage only — pushed via @push('intro') in home.blade.php) --}}
+    @stack('intro')
+
     {{-- Custom cursor + glow (desktop only — hidden via CSS on touch devices) --}}
     <div class="cursor"      aria-hidden="true"></div>
     <div class="cursor-ring" aria-hidden="true"></div>
@@ -60,6 +59,9 @@
 
     {{-- Page transition overlay --}}
     <div class="page-transition" aria-hidden="true"></div>
+
+    {{-- ── Top banner ───────────────────────────────────────────── --}}
+    @include('components.banner')
 
     {{-- ── Navigation ────────────────────────────────────────────── --}}
     @include('components.nav')
@@ -76,6 +78,7 @@
 
     <script>
         document.documentElement.classList.remove('no-js');
+        document.documentElement.classList.add('js');
     </script>
 </body>
 </html>

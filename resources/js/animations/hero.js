@@ -20,7 +20,7 @@ function splitChars(el) {
         if (ch === ' ') {
             const sp = document.createElement('span');
             sp.className = 'hero__char-space';
-            sp.textContent = ' ';
+            sp.textContent = ' ';
             el.appendChild(sp);
         } else {
             const wrap = document.createElement('span');
@@ -62,15 +62,18 @@ function scrambleChar(el, delayMs) {
  */
 class HeroCanvas {
     constructor(canvas) {
-        this.canvas = canvas;
-        this.ctx    = canvas.getContext('2d');
-        this.mouse  = { x: 0.5, y: 0.5 };
-        this.target = { x: 0.5, y: 0.5 };
-        this.raf    = null;
+        this.canvas  = canvas;
+        this.ctx     = canvas.getContext('2d');
+        this.mouse   = { x: 0.5, y: 0.5 };
+        this.target  = { x: 0.5, y: 0.5 };
+        this.raf     = null;
+        this.active  = true;
+        this.lastTs  = 0;
         this.reduced = prefersReducedMotion();
 
         this.resize();
         this.bindEvents();
+        this.watchVisibility();
         this.animate();
     }
 
@@ -91,6 +94,14 @@ class HeroCanvas {
                 this.target.y = e.clientY / window.innerHeight;
             }, { passive: true });
         }
+    }
+
+    watchVisibility() {
+        const observer = new IntersectionObserver(
+            ([entry]) => { this.active = entry.isIntersecting; },
+            { threshold: 0 }
+        );
+        observer.observe(this.canvas);
     }
 
     draw() {
@@ -139,9 +150,12 @@ class HeroCanvas {
         }
     }
 
-    animate() {
+    animate(ts = 0) {
+        this.raf = requestAnimationFrame((ts) => this.animate(ts));
+        if (!this.active) return;           // paused when hero off-screen
+        if (ts - this.lastTs < 33) return;  // cap at ~30fps
+        this.lastTs = ts;
         this.draw();
-        this.raf = requestAnimationFrame(() => this.animate());
     }
 
     destroy() {
@@ -149,11 +163,15 @@ class HeroCanvas {
     }
 }
 
-export function initHero() {
+/**
+ * Phase 1: set up canvas + split chars + set initial hidden states.
+ * Safe to call immediately on DOMContentLoaded, even before intro completes.
+ */
+export function initHeroCanvas() {
     const canvas = document.getElementById('hero-canvas');
     if (canvas) new HeroCanvas(canvas);
 
-    // ── Scroll progress counter ──────────────────────────────────────────────
+    // Scroll progress counter
     const progressEl = document.querySelector('.hero__progress-value');
     if (progressEl) {
         lenis.on('scroll', ({ progress }) => {
@@ -161,6 +179,22 @@ export function initHero() {
         });
     }
 
+    if (prefersReducedMotion()) return;
+
+    // Split headline lines into individual character spans
+    document.querySelectorAll('.hero__line').forEach(splitChars);
+
+    // Hide all hero animated elements — revealHero() will bring them in
+    gsap.set([...document.querySelectorAll('.hero__char')], { y: '110%' });
+    gsap.set(['.hero__eyebrow', '.hero__footer', '.hero__marquee'], { opacity: 0 });
+}
+
+/**
+ * Phase 2: run the hero reveal timeline.
+ * Called by initIntro's onComplete callback so it fires the moment
+ * the intro screen finishes tearing open.
+ */
+export function revealHero() {
     if (prefersReducedMotion()) {
         document.querySelectorAll('.hero__line, .hero__eyebrow, .hero__footer, .hero__marquee').forEach(el => {
             el.style.opacity   = '1';
@@ -169,28 +203,22 @@ export function initHero() {
         return;
     }
 
-    // ── Split each headline line into character spans ────────────────────────
-    document.querySelectorAll('.hero__line').forEach(splitChars);
-
     const charEls = [...document.querySelectorAll('.hero__char')];
-    const total   = charEls.length;
-    const STAGGER_WINDOW = 0.9; // seconds over which all chars stagger
+    if (!charEls.length) return;
 
-    // Initial state
-    gsap.set(charEls, { y: '110%' });
-    gsap.set(['.hero__eyebrow', '.hero__footer', '.hero__marquee'], { opacity: 0 });
+    const total          = charEls.length;
+    const STAGGER_WINDOW = 0.9;
 
     // ── Eyebrow fade ─────────────────────────────────────────────────────────
     gsap.to('.hero__eyebrow', {
         opacity: 1,
         duration: 0.7,
-        delay: 0.2,
         ease: 'power2.out',
     });
 
     // ── Per-character clip reveal + scramble ─────────────────────────────────
     charEls.forEach((el, i) => {
-        const charDelay = 0.35 + (i / Math.max(total - 1, 1)) * STAGGER_WINDOW;
+        const charDelay = 0.15 + (i / Math.max(total - 1, 1)) * STAGGER_WINDOW;
 
         gsap.to(el, {
             y: '0%',
@@ -202,7 +230,7 @@ export function initHero() {
     });
 
     // ── Footer + marquee follow after chars ──────────────────────────────────
-    const footerDelay = 0.35 + STAGGER_WINDOW * 0.6;
+    const footerDelay = 0.15 + STAGGER_WINDOW * 0.6;
     gsap.to('.hero__footer',  { opacity: 1, duration: 0.9, delay: footerDelay,       ease: 'power3.out' });
     gsap.to('.hero__marquee', { opacity: 1, duration: 0.6, delay: footerDelay + 0.1, ease: 'power2.out' });
 

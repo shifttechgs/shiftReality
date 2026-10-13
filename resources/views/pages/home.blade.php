@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', config('shiftreality.name') . ' — Your eyes are lying to you.')
-@section('description', 'ShiftReality is an immersive optical illusion and perception experience in Zimbabwe. Challenge what you see. Book your experience today.')
+@section('title', 'Reality Shift — Zimbabwe\'s Optical Illusion Experience · Harare')
+@section('description', 'Your brain is about to be lied to. 4 mind-bending rooms at Westgate Shopping Complex, Harare. Zimbabwe\'s first optical illusion experience. Entry from $15. Book now.')
 
 @push('head')
 <script type="application/ld+json">
@@ -13,16 +13,12 @@
     'url'        => config('shiftreality.url'),
     'address'    => [
         '@type'           => 'PostalAddress',
+        'streetAddress'   => config('shiftreality.location.address'),
         'addressLocality' => config('shiftreality.location.city'),
-        'addressRegion'   => config('shiftreality.location.region'),
         'addressCountry'  => config('shiftreality.location.country_code'),
     ],
-    'openingHoursSpecification' => [
-        ['@type' => 'OpeningHoursSpecification', 'dayOfWeek' => ['Tuesday','Wednesday','Thursday','Friday'], 'opens' => '10:00', 'closes' => '19:00'],
-        ['@type' => 'OpeningHoursSpecification', 'dayOfWeek' => ['Saturday','Sunday'], 'opens' => '09:00', 'closes' => '20:00'],
-    ],
-    'touristType'       => ['Family','Groups','Couples','Friends'],
-    'isAccessibleForFree' => false,
+    'priceRange' => '$15',
+    'telephone'  => config('shiftreality.contact.phone'),
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES); @endphp
 </script>
 @endpush
@@ -31,499 +27,421 @@
 
 {{-- ══════════════════════════════════════════════════════════
      01 — HERO
-     The first perception shift. The website begins here.
      ══════════════════════════════════════════════════════════ --}}
-<section class="hero" id="hero" aria-label="Hero">
+<section class="wh-hero" id="hero" aria-label="Hero">
 
-    {{-- Perspective grid canvas — cursor-reactive depth illusion --}}
-    <canvas id="hero-canvas" class="hero-canvas" aria-hidden="true"></canvas>
+    <div class="wh-hero__inner">
 
-    {{-- Film grain texture --}}
-    <div class="hero__grain" aria-hidden="true"></div>
+        {{-- LEFT --}}
+        <div class="wh-hero__text">
 
-    {{-- Editorial index strip --}}
-    <div class="hero__eyebrow" aria-hidden="true">
-        <span class="hero__eyebrow-index">01</span>
-        <span class="hero__eyebrow-rule"></span>
-        <span class="hero__eyebrow-tag">ShiftReality &middot; Harare, ZW</span>
-    </div>
+            <p class="wh-hero__tag">Westgate Shopping Complex, Harare</p>
 
-    {{-- The primary message. Short. Direct. Provocative. --}}
-    <div class="hero__content">
-        <div class="hero__headline" aria-label="Your eyes are lying to you">
-            <div class="hero__line-wrap">
-                <span class="hero__line">YOUR EYES</span>
-            </div>
-            <div class="hero__line-wrap">
-                <span class="hero__line hero__line--accent hero__line--right">ARE LYING</span>
-            </div>
-            <div class="hero__line-wrap hero__line-wrap--indent">
-                <span class="hero__line">TO YOU.</span>
-            </div>
-        </div>
-    </div>
+            <h1 class="wh-hero__headline">
+                Your brain<br>
+                is about to<br>
+                <em>be lied to.</em>
+            </h1>
 
-    {{-- Hero footer: description · scroll · rotating badge --}}
-    <div class="hero__footer">
-
-        <div class="hero__footer-info">
-            <div class="hero__progress" aria-hidden="true">
-                <span class="hero__progress-value">00</span>
-                <span class="hero__progress-sep"></span>
-                <span>Scroll to discover</span>
-            </div>
-            <p class="hero__footer-desc">
-                An immersive optical illusion<br>
-                experience in Zimbabwe.
+            <p class="wh-hero__desc">
+                4 rooms of optical illusions that make your eyes
+                contradict your mind. Entry from $15.
             </p>
-            <a
-                href="{{ route('book') }}"
-                class="btn btn-primary btn-arrow hero__cta"
-                data-magnetic
-                aria-label="Book your ShiftReality experience"
-            >
-                Book Your Experience
-                <span class="arrow" aria-hidden="true">→</span>
-            </a>
-        </div>
 
-        <div class="hero__scroll" aria-hidden="true">
-            <div class="hero__scroll-line"></div>
-            <span class="hero__scroll-label">SCROLL</span>
-        </div>
-
-        {{-- Rotating circular badge --}}
-        <div class="hero__badge" aria-hidden="true">
-            <svg viewBox="0 0 120 120" class="hero__badge-svg">
-                <defs>
-                    <path id="hero-badge-path" d="M60,60 m-42,0 a42,42 0 1,1 84,0 a42,42 0 1,1 -84,0" />
-                </defs>
-                <text class="hero__badge-text" font-size="8">
-                    <textPath href="#hero-badge-path">SHIFTREALITY · HARARE · ZW · EST.2025 · </textPath>
-                </text>
-            </svg>
-            <span class="hero__badge-icon">◈</span>
-        </div>
-
-    </div>
-
-    {{-- Marquee ticker --}}
-    <div class="hero__marquee" aria-hidden="true">
-        <div class="hero__marquee-track">
-            <span class="hero__marquee-item">Shift Your Reality</span>
-            <span class="hero__marquee-sep">◈</span>
-            <span class="hero__marquee-item">Optical Illusion Experience</span>
-            <span class="hero__marquee-sep">◈</span>
-            <span class="hero__marquee-item">Harare, Zimbabwe</span>
-            <span class="hero__marquee-sep">◈</span>
-            <span class="hero__marquee-item">Est. 2025</span>
-            <span class="hero__marquee-sep">◈</span>
-            <span class="hero__marquee-item">Shift Your Reality</span>
-            <span class="hero__marquee-sep">◈</span>
-            <span class="hero__marquee-item">Optical Illusion Experience</span>
-            <span class="hero__marquee-sep">◈</span>
-            <span class="hero__marquee-item">Harare, Zimbabwe</span>
-            <span class="hero__marquee-sep">◈</span>
-            <span class="hero__marquee-item">Est. 2025</span>
-            <span class="hero__marquee-sep">◈</span>
-        </div>
-    </div>
-
-</section>
-
-{{-- ══════════════════════════════════════════════════════════
-     02 — THE INVITATION
-     Explain the feeling. Not the facts.
-     ══════════════════════════════════════════════════════════ --}}
-<section class="section invitation" id="invitation" aria-labelledby="invitation-heading">
-    <div class="container">
-        <div class="invitation__inner">
-
-            <div>
-                <h1
-                    id="invitation-heading"
-                    class="invitation__headline"
-                    data-reveal="left"
-                >
-                    Reality isn't<br>always what<br>it <em>looks like</em>.
-                </h1>
-            </div>
-
-            <div class="invitation__body" data-reveal="right" data-reveal-delay="2">
-                <p class="invitation__text">
-                    ShiftReality is an immersive experience in Zimbabwe built around optical
-                    illusions, perception tricks, and environments that challenge everything
-                    your brain takes for granted.
-                </p>
-                <p class="invitation__text">
-                    Step inside. Explore rooms that shouldn't work. Question what you think
-                    you know. Leave with something you can't quite explain.
-                </p>
-                <a href="{{ route('experience') }}" class="btn btn-ghost btn-arrow">
-                    Explore the experience
-                    <span class="arrow" aria-hidden="true">→</span>
+            <div class="wh-hero__actions">
+                <a href="{{ route('book') }}" class="pill pill--amber pill--lg" data-magnetic>
+                    <svg class="pill__ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z"/><path d="M13 5v2M13 17v2M13 11v2"/></svg>
+                    <span>Book Your Spot</span>
+                    <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
+                <a href="#rooms" class="wh-hero__link">Explore the rooms ↓</a>
             </div>
 
         </div>
-    </div>
-</section>
 
-{{-- ══════════════════════════════════════════════════════════
-     03 — THE SHIFTS
-     Four experience types. Each its own visual world.
-     ══════════════════════════════════════════════════════════ --}}
-<section class="section shifts" id="shifts" aria-labelledby="shifts-heading">
-    <div class="shifts__header container">
-        <div class="section-header" data-reveal>
-            <div>
-                <p class="section-header__eyebrow">What awaits</p>
-                <h2 class="section-header__title" id="shifts-heading">The Shifts</h2>
-            </div>
-            <a href="{{ route('experience') }}" class="btn btn-ghost btn-arrow" style="flex-shrink:0">
-                See all <span class="arrow" aria-hidden="true">→</span>
-            </a>
-        </div>
-    </div>
-
-    <div class="shifts__track">
-        <div class="shifts__grid">
-
-            @foreach($shifts as $i => $shift)
-            <article class="shift-card" data-reveal data-reveal-delay="{{ $i + 1 }}">
-
-                {{-- Giant background number --}}
-                <div class="shift-card__number" aria-hidden="true">{{ $shift['number'] }}</div>
-
-                {{-- CSS optical illusion illustration --}}
-                <div class="shift-card__illusion" aria-hidden="true">
-                    @if($shift['slug'] === 'perspective')
-                        {{-- Ambiguous wireframe cube — appears to flip between two orientations --}}
-                        <div class="illusion-cube">
-                            <div class="illusion-cube__face illusion-cube__face--back"></div>
-                            <div class="illusion-cube__face illusion-cube__face--front"></div>
-                        </div>
-
-                    @elseif($shift['slug'] === 'gravity')
-                        {{-- Ball that rolls uphill against the gradient slope --}}
-                        <div class="illusion-gravity">
-                            <div class="illusion-gravity__track"></div>
-                            <div class="illusion-gravity__ball"></div>
-                        </div>
-
-                    @elseif($shift['slug'] === 'scale')
-                        {{-- Ponzo illusion — two identical bars appear different sizes --}}
-                        <div class="illusion-ponzo">
-                            <div class="illusion-ponzo__rail illusion-ponzo__rail--left"></div>
-                            <div class="illusion-ponzo__rail illusion-ponzo__rail--right"></div>
-                            <div class="illusion-ponzo__bar illusion-ponzo__bar--top"></div>
-                            <div class="illusion-ponzo__bar illusion-ponzo__bar--bottom"></div>
-                        </div>
-
-                    @elseif($shift['slug'] === 'perception')
-                        {{-- Checker shadow — two squares appear different but are the same shade --}}
-                        <div class="illusion-checker" aria-label="Checker shadow illusion: two squares that appear different shades are actually identical">
-                            @php
-                                $pattern = [
-                                    ['a','b','a','b','a','b'],
-                                    ['b','a','b','a','b','a'],
-                                    ['a','b','a','x','a','b'],
-                                    ['b','a','b','a','b','a'],
-                                    ['a','b','a','b','a','b'],
-                                ];
-                            @endphp
-                            @foreach($pattern as $row)
-                                @foreach($row as $cell)
-                                    <div class="illusion-checker__cell illusion-checker__cell--{{ $cell }}"></div>
-                                @endforeach
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-
-                {{-- Text content --}}
-                <div class="shift-card__content">
-                    <p class="shift-card__label">{{ $shift['number'] }} / {{ $shift['title'] }}</p>
-                    <h3 class="shift-card__title">{{ $shift['title'] }}</h3>
-                    <p class="shift-card__desc">{{ $shift['tagline'] }}</p>
-                </div>
-
-            </article>
-            @endforeach
-
-        </div>{{-- .shifts__grid --}}
-    </div>{{-- .shifts__track --}}
-</section>
-
-{{-- ══════════════════════════════════════════════════════════
-     04 — THE EXPERIENCE
-     Photography / video will live here.
-     Insert actual ShiftReality imagery into the media-block elements.
-     ══════════════════════════════════════════════════════════ --}}
-<section class="section experience" id="experience" aria-labelledby="experience-heading">
-    <div class="container">
-        <div class="section-header" data-reveal>
-            <div>
-                <p class="section-header__eyebrow">Inside ShiftReality</p>
-                <h2 class="section-header__title" id="experience-heading">See for yourself</h2>
-            </div>
-        </div>
-
-        <p style="font-size: clamp(1rem, 1.75vw, 1.1875rem); color: var(--color-sr-muted); max-width: 50ch; margin-bottom: clamp(3rem, 5vw, 4rem);" data-reveal data-reveal-delay="2">
-            Discover rooms designed to challenge everything you think you know about
-            space, size, gravity, and perception.
-        </p>
-
-        <div class="experience__media-grid" data-reveal="scale" data-reveal-delay="1">
-
-            {{-- Primary (large) media block — replace placeholder with hero photography --}}
-            <div class="media-block media-block--primary">
-                <div class="media-block__inner">
-                    <div class="media-block__placeholder">
-                        {{-- Replace: <img src="{{ asset('images/experience-hero.jpg') }}" alt="Visitors experiencing ShiftReality" loading="lazy"> --}}
-                        <div class="media-block__placeholder-icon" aria-hidden="true">◻</div>
-                        <p class="media-block__placeholder-text">Hero photograph</p>
-                    </div>
-                </div>
-                <span class="media-block__label" aria-hidden="true">Insert main experience photo</span>
-            </div>
-
-            {{-- Secondary media — top right --}}
-            <div class="media-block media-block--secondary">
-                <div class="media-block__inner">
-                    <div class="media-block__placeholder">
-                        {{-- Replace: <img src="{{ asset('images/experience-2.jpg') }}" alt="..." loading="lazy"> --}}
-                        <div class="media-block__placeholder-icon" aria-hidden="true">◻</div>
-                        <p class="media-block__placeholder-text">Experience photo 2</p>
-                    </div>
-                </div>
-                <span class="media-block__label" aria-hidden="true">Insert photo</span>
-            </div>
-
-            {{-- Secondary media — bottom right --}}
-            <div class="media-block media-block--secondary">
-                <div class="media-block__inner">
-                    <div class="media-block__placeholder">
-                        {{-- Replace: <img src="{{ asset('images/experience-3.jpg') }}" alt="..." loading="lazy"> --}}
-                        <div class="media-block__placeholder-icon" aria-hidden="true">◻</div>
-                        <p class="media-block__placeholder-text">Experience photo 3</p>
-                    </div>
-                </div>
-                <span class="media-block__label" aria-hidden="true">Insert photo</span>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-{{-- ══════════════════════════════════════════════════════════
-     05 — THE REACTION
-     Social proof. Real people. Real reactions.
-     Replace mock data with verified reviews when available.
-     ══════════════════════════════════════════════════════════ --}}
-<section class="section reaction" id="reaction" aria-labelledby="reaction-heading">
-    <div class="container">
-        <div class="section-header" data-reveal>
-            <div>
-                <p class="section-header__eyebrow">Visitor reactions</p>
-                <h2 class="section-header__title" id="reaction-heading">The Reaction</h2>
-            </div>
-        </div>
-
-        <div class="reaction__grid">
-            @foreach($testimonials as $i => $t)
-            <article class="testimonial" data-reveal data-reveal-delay="{{ $i + 1 }}">
-                <div class="testimonial__stars" aria-label="{{ $t['rating'] }} out of 5 stars">
-                    @for($s = 0; $s < $t['rating']; $s++)
-                        <span class="testimonial__star" aria-hidden="true">★</span>
-                    @endfor
-                </div>
-                <blockquote class="testimonial__quote">
-                    {{ $t['quote'] }}
-                </blockquote>
-                <div class="testimonial__meta">
-                    <cite class="testimonial__name">{{ $t['name'] }}</cite>
-                    <p class="testimonial__detail">{{ $t['detail'] }}</p>
-                </div>
-            </article>
-            @endforeach
-        </div>
-
-    </div>
-</section>
-
-{{-- ══════════════════════════════════════════════════════════
-     06 — WHO IS IT FOR
-     Typographic audience display. Not an icon grid.
-     ══════════════════════════════════════════════════════════ --}}
-<section class="section for-you" id="for-you" aria-labelledby="for-you-heading">
-    <div class="container">
-        <div class="section-header" data-reveal>
-            <div>
-                <p class="section-header__eyebrow">For everyone who</p>
-                <h2 class="section-header__title" id="for-you-heading">Who is it for?</h2>
-            </div>
-        </div>
-
-        <div class="for-you__grid" role="list" data-reveal>
-            @foreach($audiences as $audience)
-                <span class="for-you__tag" role="listitem">{{ $audience }}</span>
-            @endforeach
-        </div>
-
-        <div style="margin-top: clamp(3rem, 6vw, 5rem);" data-reveal>
-            <a href="{{ route('groups') }}" class="btn btn-outline btn-arrow">
-                Group &amp; corporate bookings
-                <span class="arrow" aria-hidden="true">→</span>
-            </a>
-        </div>
-    </div>
-</section>
-
-{{-- ══════════════════════════════════════════════════════════
-     07 — PLAN YOUR VISIT
-     Practical information. Left: hours + details. Right: FAQ.
-     ══════════════════════════════════════════════════════════ --}}
-<section class="section visit-section" id="visit" aria-labelledby="visit-heading">
-    <div class="container">
-        <div class="section-header" data-reveal>
-            <div>
-                <p class="section-header__eyebrow">Before you arrive</p>
-                <h2 class="section-header__title" id="visit-heading">Plan Your Visit</h2>
-            </div>
-            <a href="{{ route('visit') }}" class="btn btn-ghost btn-arrow" style="flex-shrink:0">
-                Full details <span class="arrow" aria-hidden="true">→</span>
-            </a>
-        </div>
-
-        <div class="visit-section__inner">
-
-            {{-- Visit info --}}
-            <div class="visit-info" data-reveal="left">
-
-                <div class="visit-info__block">
-                    <p class="visit-info__label">Location</p>
-                    <p class="visit-info__value">
-                        {{ config('shiftreality.location.city') }},
-                        {{ config('shiftreality.location.country') }}
+        {{-- RIGHT: image --}}
+        <div class="wh-hero__media">
+            @if(file_exists(public_path('images/hero.jpg')))
+                <img
+                    src="{{ asset('images/hero.jpg') }}"
+                    alt="Inside Reality Shift — optical illusion experience, Harare"
+                    class="wh-hero__media-img"
+                    fetchpriority="high"
+                    decoding="async"
+                >
+            @elseif(file_exists(public_path('images/hero.webp')))
+                <img
+                    src="{{ asset('images/hero.webp') }}"
+                    alt="Inside Reality Shift — optical illusion experience, Harare"
+                    class="wh-hero__media-img"
+                    fetchpriority="high"
+                    decoding="async"
+                >
+            @else
+                {{-- Placeholder until photo is added --}}
+                <div class="wh-hero__placeholder" aria-hidden="true">
+                    <div class="wh-hero__placeholder-grid"></div>
+                    <p class="wh-hero__placeholder-label">
+                        Drop your photo at<br>
+                        <code>public/images/hero.jpg</code>
                     </p>
-                    @if(!config('shiftreality.location.address'))
-                        <p class="visit-info__sub">Full address to be confirmed</p>
-                    @endif
                 </div>
+            @endif
 
-                <div class="visit-info__block">
-                    <p class="visit-info__label">Opening Hours</p>
-                    <div class="hours-list">
-                        @foreach($hours as $slot)
-                        <div class="hours-row">
-                            <span class="hours-row__days">{{ $slot['days'] }}</span>
-                            <span class="hours-row__time">{{ $slot['time'] }}</span>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                <div class="visit-info__block">
-                    <p class="visit-info__label">Duration</p>
-                    <p class="visit-info__value">{{ $visit['duration'] }}</p>
-                    <p class="visit-info__sub">No rush — explore at your own pace</p>
-                </div>
-
-                <div class="visit-info__block">
-                    <p class="visit-info__label">Minimum Age</p>
-                    <p class="visit-info__value">{{ $visit['min_age'] }}+ years</p>
-                    <p class="visit-info__sub">Suitable for the whole family</p>
-                </div>
-
-                <div class="visit-info__block">
-                    <p class="visit-info__label">Tickets</p>
-                    @if($visit['price_from'])
-                        <p class="visit-info__value">From ${{ $visit['price_from'] }}</p>
-                    @else
-                        <p class="visit-info__value">Pricing coming soon</p>
-                        <p class="visit-info__sub">Online booking available</p>
-                    @endif
-                </div>
-
+            <div class="wh-hero__media-tag" aria-label="Currently open">
+                <span class="wh-hero__media-tag-dot"></span>
+                Open Now · Limited Slots
             </div>
-
-            {{-- FAQ --}}
-            <div data-reveal="right" data-reveal-delay="2">
-                <div class="faq" role="list">
-                    @foreach($faq as $i => $item)
-                    <div class="faq__item" role="listitem">
-                        <button
-                            class="faq__question"
-                            aria-expanded="false"
-                            aria-controls="faq-answer-{{ $i }}"
-                            id="faq-q-{{ $i }}"
-                        >
-                            {{ $item['question'] }}
-                            <span class="faq__icon" aria-hidden="true">+</span>
-                        </button>
-                        <div
-                            class="faq__answer"
-                            id="faq-answer-{{ $i }}"
-                            role="region"
-                            aria-labelledby="faq-q-{{ $i }}"
-                        >
-                            <p class="faq__answer-inner">{{ $item['answer'] }}</p>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-
-                <div style="margin-top: 2.5rem;">
-                    <a
-                        href="{{ route('faq') }}"
-                        class="btn btn-ghost btn-arrow"
-                    >
-                        See all questions
-                        <span class="arrow" aria-hidden="true">→</span>
-                    </a>
-                </div>
-            </div>
-
         </div>
+
+    </div>
+
+    {{-- Footer bar --}}
+    <div class="wh-hero__footer">
+        <div class="wh-hero__footer-facts">
+            <span>4 Rooms</span>
+            <span class="wh-hero__footer-dot" aria-hidden="true">·</span>
+            <span>From $15</span>
+            <span class="wh-hero__footer-dot" aria-hidden="true">·</span>
+            <span>1.5 – 2.5 hours</span>
+            <span class="wh-hero__footer-dot" aria-hidden="true">·</span>
+            <span>Harare, Zimbabwe</span>
+        </div>
+        <div class="wh-hero__footer-rating" aria-label="5 star rated">
+            <span style="color:var(--color-rs-blue)">★★★★★</span>
+            <span>5-star rated</span>
+        </div>
+    </div>
+
+</section>
+
+{{-- ══════════════════════════════════════════════════════════
+     02 — TRUST STRIP
+     Instant credibility below the fold.
+     ══════════════════════════════════════════════════════════ --}}
+<div class="proof-strip" aria-label="Why visitors love it">
+    <div class="proof-strip__item">
+        <span class="proof-strip__val" style="color:var(--color-rs-gold)">★★★★★</span>
+        <span class="proof-strip__label">5-Star Rated</span>
+    </div>
+    <div class="proof-strip__item">
+        <span class="proof-strip__val">Zimbabwe's First</span>
+        <span class="proof-strip__label">Optical Illusion Experience</span>
+    </div>
+    <div class="proof-strip__item">
+        <span class="proof-strip__val" style="color:var(--color-rs-blue)">100+</span>
+        <span class="proof-strip__label">Visitors Every Weekend</span>
+    </div>
+    <div class="proof-strip__item">
+        <span class="proof-strip__val">Ages 5+</span>
+        <span class="proof-strip__label">Perfect for Everyone</span>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════════════════════
+     03 — MARQUEE
+     ══════════════════════════════════════════════════════════ --}}
+<div class="marquee-strip" aria-hidden="true">
+    <div class="marquee-strip__track">
+        <span class="marquee-strip__item">Your Eyes Will Lie to You</span>
+        <span class="marquee-strip__sep">◈</span>
+        <span class="marquee-strip__item marquee-strip__item--accent">Book Before the Weekend Fills</span>
+        <span class="marquee-strip__sep">◈</span>
+        <span class="marquee-strip__item">Nothing Looks Real In Here</span>
+        <span class="marquee-strip__sep">◈</span>
+        <span class="marquee-strip__item marquee-strip__item--accent">From $15 · Harare</span>
+        <span class="marquee-strip__sep">◈</span>
+        <span class="marquee-strip__item">4 Rooms · Zero Explanations</span>
+        <span class="marquee-strip__sep">◈</span>
+        <span class="marquee-strip__item">Your Eyes Will Lie to You</span>
+        <span class="marquee-strip__sep">◈</span>
+        <span class="marquee-strip__item marquee-strip__item--accent">Book Before the Weekend Fills</span>
+        <span class="marquee-strip__sep">◈</span>
+        <span class="marquee-strip__item">Nothing Looks Real In Here</span>
+        <span class="marquee-strip__sep">◈</span>
+        <span class="marquee-strip__item marquee-strip__item--accent">From $15 · Harare</span>
+        <span class="marquee-strip__sep">◈</span>
+        <span class="marquee-strip__item">4 Rooms · Zero Explanations</span>
+        <span class="marquee-strip__sep">◈</span>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════════════════════
+     04 — WHAT HAPPENS INSIDE
+     Make them feel the rooms before they arrive.
+     ══════════════════════════════════════════════════════════ --}}
+<section class="tease-section" id="rooms" aria-labelledby="tease-heading">
+    <div class="container">
+
+        <div class="editorial-header" data-reveal aria-hidden="true">
+            <span class="editorial-header__col">Reality Shift · Harare</span>
+            <span class="editorial-header__col">4 Installations</span>
+            <span class="editorial-header__col">All Active Now</span>
+        </div>
+
+        <div class="tease-section__header" data-reveal>
+            <h2 class="tease-section__title" id="tease-heading">
+                Four rooms.<br>Zero explanations.
+            </h2>
+            <p class="tease-section__sub">
+                Each room is designed to make you question something you've taken for granted your entire life.
+                You'll walk out differently than you walked in.
+            </p>
+        </div>
+
+        <div class="tease-grid">
+            @foreach($shifts as $i => $shift)
+            <article class="tease-card" data-reveal data-reveal-delay="{{ $i + 1 }}">
+                <div class="tease-card__number" aria-hidden="true">{{ $shift['number'] }}</div>
+                <div class="tease-card__live">
+                    <span class="tease-card__live-dot"></span>
+                    Open Now
+                </div>
+                <h3 class="tease-card__title">{{ $shift['title'] }}</h3>
+                <p class="tease-card__tagline">{{ $shift['tagline'] }}</p>
+                <p class="tease-card__desc">{{ $shift['description'] }}</p>
+                <a href="{{ route('book') }}" class="tease-card__cta">
+                    Book to experience this →
+                </a>
+            </article>
+            @endforeach
+        </div>
+
     </div>
 </section>
 
 {{-- ══════════════════════════════════════════════════════════
-     08 — FINAL CTA
-     The climax. The inevitable booking moment.
+     05 — SOCIAL PROOF
+     Other people loved it. You will too. Don't miss out.
      ══════════════════════════════════════════════════════════ --}}
-<section class="final-cta" id="book" aria-labelledby="final-cta-heading">
+<section class="reviews-section section" id="reviews" aria-labelledby="reviews-heading">
+    <div class="container">
 
-    <div class="final-cta__bg" aria-hidden="true"></div>
+        <div class="editorial-header" data-reveal aria-hidden="true">
+            <span class="editorial-header__col">Visitor Reviews</span>
+            <span class="editorial-header__col">★★★★★ Rated</span>
+            <span class="editorial-header__col">Google · Facebook</span>
+        </div>
 
-    <div class="final-cta__inner">
+        <div class="reviews-section__intro" data-reveal>
+            <h2 class="reviews-section__title" id="reviews-heading">
+                Harare can't stop<br>talking about it.
+            </h2>
+            <p class="reviews-section__tagline">
+                Every weekend, hundreds of people walk in sceptical and walk out amazed.
+                Here's what they said.
+            </p>
+        </div>
 
-        <h2 class="final-cta__headline" id="final-cta-heading" data-reveal>
-            <span>Ready to shift</span>
-            <span class="accent">your reality?</span>
+        <div class="reviews-grid">
+            @foreach($testimonials as $i => $t)
+            <article class="review-card" data-reveal data-reveal-delay="{{ $i + 1 }}">
+                <div class="review-card__stars" aria-label="{{ $t['rating'] }} out of 5 stars">
+                    @for($s = 0; $s < $t['rating']; $s++)<span aria-hidden="true">★</span>@endfor
+                </div>
+                <blockquote class="review-card__quote">{{ $t['quote'] }}</blockquote>
+                <div class="review-card__meta">
+                    <cite class="review-card__name">{{ $t['name'] }}</cite>
+                    <span class="review-card__detail">{{ $t['detail'] }}</span>
+                </div>
+            </article>
+            @endforeach
+        </div>
+
+    </div>
+</section>
+
+{{-- ══════════════════════════════════════════════════════════
+     06 — INLINE CTA
+     Momentum break — catch them at peak desire.
+     ══════════════════════════════════════════════════════════ --}}
+<div class="inline-cta" data-reveal>
+    <p class="inline-cta__overline">Don't wait until it's sold out</p>
+    <h2 class="inline-cta__headline">
+        Your spot is one click away.
+    </h2>
+    <p class="inline-cta__sub">
+        Most people who visit say they wish they'd come sooner.
+        Walk-ins are welcome but weekends fill up — secure yours now.
+    </p>
+    <a href="{{ route('book') }}" class="pill pill--amber pill--xl" data-magnetic>
+        <svg class="pill__ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z"/><path d="M13 5v2M13 17v2M13 11v2"/></svg>
+        <span>Book Now — From $15</span>
+        <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <p class="inline-cta__note">
+        Westgate Shopping Complex, Harare · Tue–Fri 10:00–19:00 · Sat–Sun 09:00–20:00
+    </p>
+</div>
+
+{{-- ══════════════════════════════════════════════════════════
+     07 — WHO IS IT FOR
+     No one should feel left out.
+     ══════════════════════════════════════════════════════════ --}}
+<section class="audience-section" aria-labelledby="audience-heading">
+    <div class="container">
+
+        <div class="editorial-header" data-reveal aria-hidden="true">
+            <span class="editorial-header__col">Who It's For</span>
+            <span class="editorial-header__col">Everyone</span>
+            <span class="editorial-header__col">Ages 5+</span>
+        </div>
+
+        <h2 class="audience-section__title" id="audience-heading" data-reveal>
+            Built for everyone.<br>Forget nobody.
         </h2>
 
-        <p class="final-cta__sub" data-reveal data-reveal-delay="2">
-            Tickets available online. Walk-ins subject to availability.<br>
-            {{ config('shiftreality.location.city') }}, {{ config('shiftreality.location.country') }}.
-        </p>
-
-        <div data-reveal data-reveal-delay="3">
-            <a
-                href="{{ route('book') }}"
-                class="btn btn-primary btn-arrow"
-                data-magnetic
-                aria-label="Book your ShiftReality experience"
-                style="font-size: 1rem; padding: 1.25rem 3rem;"
-            >
-                Book Your Experience
-                <span class="arrow" aria-hidden="true">→</span>
-            </a>
+        <div class="audience-cloud" data-reveal>
+            @foreach($audiences as $audience)
+            <span class="audience-pill">{{ $audience }}</span>
+            @endforeach
         </div>
 
     </div>
+</section>
 
+{{-- ══════════════════════════════════════════════════════════
+     08 — GROUPS + EVENTS
+     ══════════════════════════════════════════════════════════ --}}
+<section class="split-section" id="groups" aria-labelledby="groups-heading">
+    <div class="split-section__media">
+        <div class="split-section__media-placeholder" aria-hidden="true"></div>
+    </div>
+    <div class="split-section__content" data-reveal="right">
+        <p class="eyebrow">Schools · Corporates · Birthdays</p>
+        <h2 class="split-section__title" id="groups-heading">
+            Make it a group<br>they'll never forget.
+        </h2>
+        <p class="split-section__body">
+            Group bookings get priority entry and exclusive rates.
+            Perfect for team-building, school trips, birthday celebrations, and corporate events.
+            Spaces fill fast — enquire early.
+        </p>
+        <a href="{{ route('groups') }}" class="pill pill--amber">
+            <svg class="pill__ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Enquire for Groups</span>
+            <svg class="pill__arr" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+    </div>
+</section>
+
+{{-- ══════════════════════════════════════════════════════════
+     09 — VISIT ESSENTIALS
+     Remove every last booking objection.
+     ══════════════════════════════════════════════════════════ --}}
+<section class="essentials-section section" id="visit" aria-labelledby="essentials-heading">
+    <div class="container">
+
+        <div class="editorial-header" data-reveal aria-hidden="true">
+            <span class="editorial-header__col">Before You Arrive</span>
+            <span class="editorial-header__col">Everything You Need</span>
+            <span class="editorial-header__col">Reality Shift · HRE</span>
+        </div>
+
+        <div class="section-header" data-reveal>
+            <h2 class="section-header__title" id="essentials-heading">Plan your visit</h2>
+            <a href="{{ route('visit') }}" class="pill pill--outline" style="flex-shrink:0">Full Details</a>
+        </div>
+
+        <div class="essentials-grid" data-reveal>
+            <div class="essential-cell">
+                <p class="essential-cell__label">Location</p>
+                <p class="essential-cell__value">Westgate Shopping Complex</p>
+                <p class="essential-cell__sub">Harare, Zimbabwe</p>
+            </div>
+            <div class="essential-cell">
+                <p class="essential-cell__label">Opening Hours</p>
+                <p class="essential-cell__value">Tue – Fri</p>
+                <p class="essential-cell__sub">10:00 – 19:00</p>
+                <p class="essential-cell__sub" style="margin-top:0.3rem">Sat–Sun: 09:00 – 20:00</p>
+            </div>
+            <div class="essential-cell">
+                <p class="essential-cell__label">Duration</p>
+                <p class="essential-cell__value">{{ $visit['duration'] }}</p>
+                <p class="essential-cell__sub">Go at your own pace</p>
+            </div>
+            <div class="essential-cell">
+                <p class="essential-cell__label">Tickets</p>
+                <p class="essential-cell__value" style="color:var(--color-rs-gold)">From $15</p>
+                <p class="essential-cell__sub">Book online to guarantee your slot</p>
+            </div>
+        </div>
+
+        <div class="faq" role="list" style="margin-top:clamp(2.5rem,5vw,4rem);" data-reveal>
+            @foreach(array_slice($faq, 0, 4) as $i => $item)
+            <div class="faq__item" role="listitem">
+                <button class="faq__question" aria-expanded="false" aria-controls="faq-a-{{ $i }}" id="faq-q-{{ $i }}">
+                    {{ $item['question'] }}
+                    <span class="faq__icon" aria-hidden="true">+</span>
+                </button>
+                <div class="faq__answer" id="faq-a-{{ $i }}" role="region" aria-labelledby="faq-q-{{ $i }}">
+                    <p class="faq__answer-inner">{{ $item['answer'] }}</p>
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        <div style="margin-top:1.5rem;" data-reveal>
+            <a href="{{ route('faq') }}" class="pill pill--outline">More Questions Answered</a>
+        </div>
+
+    </div>
+</section>
+
+{{-- ══════════════════════════════════════════════════════════
+     10 — BRAND BANNER
+     ══════════════════════════════════════════════════════════ --}}
+<div class="brand-banner" aria-hidden="true">
+    <div class="brand-banner__track">
+        <span class="brand-banner__word brand-banner__word--filled">Reality</span>
+        <span class="brand-banner__sep">◈</span>
+        <span class="brand-banner__word brand-banner__word--gold">Shift</span>
+        <span class="brand-banner__sep">◈</span>
+        <span class="brand-banner__word">Zimbabwe</span>
+        <span class="brand-banner__sep">◈</span>
+        <span class="brand-banner__word brand-banner__word--filled">Reality</span>
+        <span class="brand-banner__sep">◈</span>
+        <span class="brand-banner__word brand-banner__word--gold">Shift</span>
+        <span class="brand-banner__sep">◈</span>
+        <span class="brand-banner__word">Zimbabwe</span>
+        <span class="brand-banner__sep">◈</span>
+    </div>
+</div>
+
+{{-- ══════════════════════════════════════════════════════════
+     11 — FINAL CTA
+     The urgency close. Make them feel the cost of waiting.
+     ══════════════════════════════════════════════════════════ --}}
+<section class="final-booking" id="book" aria-label="Book your experience">
+    <div class="container">
+
+        <p class="final-booking__overline" data-reveal>Everyone in Harare is talking about this.</p>
+
+        <h2 class="final-booking__title" data-reveal>
+            Don't be the last<br><em>one to find out.</em>
+        </h2>
+
+        <p class="final-booking__sub" data-reveal data-reveal-delay="2">
+            Weekends book out. Walk-ins are welcome but a spot isn't guaranteed.<br>
+            From $15 per person · Westgate Shopping Complex, Harare.
+        </p>
+
+        <div class="final-booking__actions" data-reveal data-reveal-delay="3">
+            <a href="{{ route('book') }}" class="pill pill--amber pill--xl" data-magnetic>
+                <svg class="pill__ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2z"/><path d="M13 5v2M13 17v2M13 11v2"/></svg>
+                <span>Secure Your Spot Now</span>
+                <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="https://wa.me/{{ config('shiftreality.contact.whatsapp') }}" class="pill pill--outline pill--xl" target="_blank" rel="noopener">
+                WhatsApp Us
+            </a>
+        </div>
+
+        <p class="final-booking__reassurance" data-reveal data-reveal-delay="4">
+            ★★★★★ &nbsp;·&nbsp; 5-star rated &nbsp;·&nbsp; Ages 5 and up &nbsp;·&nbsp; Photography welcome
+        </p>
+
+    </div>
 </section>
 
 @endsection

@@ -50,8 +50,8 @@ function exitTransition(href) {
 }
 
 export function initTransitions() {
-    enterTransition();
-
+    // No enter transition — page is visible immediately on load.
+    // Exit transition only: covers screen when navigating away.
     document.addEventListener('click', (e) => {
         const link = e.target.closest('a[href]');
         if (!link || link.target === '_blank') return;
