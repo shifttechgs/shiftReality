@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\OpeningHours;
+
 class HomeController extends Controller
 {
     public function index()
@@ -11,7 +13,7 @@ class HomeController extends Controller
             'audiences'    => config('shiftreality.audiences'),
             'testimonials' => config('shiftreality.testimonials'),
             'faq'          => config('shiftreality.faq'),
-            'hours'        => config('shiftreality.hours'),
+            'openingHours' => OpeningHours::fromConfig(),
             'visit'        => config('shiftreality.visit'),
         ]);
     }

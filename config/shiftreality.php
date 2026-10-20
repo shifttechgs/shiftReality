@@ -10,8 +10,15 @@ return [
     'contact' => [
         'email'    => 'info@realityshift.co.zw',
         'phone'    => '0790034005',
-        'whatsapp' => '0790034005',
+        'whatsapp' => '263790034005',   // international format, no + or leading 0 — wa.me needs this
     ],
+
+    // Overall Google rating shown in the home hero and reviews — update when it changes
+    'google_rating' => 4.8,
+
+    // Public link to the Google reviews. The "Read all reviews on Google" link only
+    // appears once this is set, so the page never points at a made-up address.
+    'google_reviews_url' => null,
 
     'location' => [
         'name'         => 'Reality Shift Zimbabwe',
@@ -26,10 +33,18 @@ return [
         ],
     ],
 
+    // Opening hours by ISO weekday (1 = Monday … 7 = Sunday), venue local time.
+    // null = closed. Drives the live "Open now" status, the hours list and
+    // Google's structured data — see App\Support\OpeningHours.
+    'timezone' => 'Africa/Harare',
     'hours' => [
-        ['days' => 'Tuesday – Friday', 'time' => '10:00 – 19:00'],
-        ['days' => 'Saturday – Sunday', 'time' => '09:00 – 20:00'],
-        ['days' => 'Monday',            'time' => 'Closed'],
+        1 => null,
+        2 => ['10:00', '19:00'],
+        3 => ['10:00', '19:00'],
+        4 => ['10:00', '19:00'],
+        5 => ['10:00', '19:00'],
+        6 => ['09:00', '20:00'],
+        7 => ['09:00', '20:00'],
     ],
 
     'visit' => [
@@ -46,6 +61,7 @@ return [
             'title'       => 'Upside Down Room',
             'slug'        => 'upside-down',
             'tagline'     => 'Walk on the ceiling. Question which way is up.',
+            'hint'        => 'Scroll — the room turns, you don\'t',
             'description' => 'An entire room flipped 180°. Furniture on the ceiling, lights on the floor — and you standing in the middle of it all.',
         ],
         [
@@ -53,6 +69,7 @@ return [
             'title'       => 'Stranger in the Mirror',
             'slug'        => 'mirror',
             'tagline'     => 'Your reflection isn\'t doing what you\'re doing.',
+            'hint'        => 'Move around — watch them disobey',
             'description' => 'A multi-mirror installation that splits, multiplies and distorts your image in ways your brain cannot reconcile.',
         ],
         [
@@ -60,6 +77,7 @@ return [
             'title'       => 'Infinity Room',
             'slug'        => 'infinity',
             'tagline'     => 'A universe that stretches forever in every direction.',
+            'hint'        => 'Move to bend the horizon',
             'description' => 'Floor-to-ceiling LED lights reflected in infinite mirrors. You are both at the centre of everything and impossibly small.',
         ],
         [
@@ -67,23 +85,88 @@ return [
             'title'       => 'Beuchet Chair',
             'slug'        => 'beuchet',
             'tagline'     => 'One person looks giant. The other looks tiny. Same chair.',
+            'hint'        => 'Scroll to line up the chair',
             'description' => 'A forced-perspective illusion that makes two people the wrong size — simultaneously. Perfect for photos.',
         ],
     ],
 
+    // Homepage "Who It's For" card pile — 'route' is where the card leads.
+    // Images are stand-ins (hero shots) until real audience photos are added.
     'audiences' => [
-        'Friends',
-        'Couples',
-        'Families',
-        'Tourists',
-        'School Groups',
-        'Corporate Teams',
-        'Birthday Groups',
-        'Content Creators',
-        'Date Nights',
-        'Curious Minds',
+        [
+            'name'  => 'Friends',
+            'line'  => 'You\'ll be arguing about what you saw for weeks.',
+            'route' => 'book',
+            'image' => 'images/hero/hero-1-1200.webp',
+        ],
+        [
+            'name'  => 'Date Nights',
+            'line'  => 'A first date that never runs out of things to talk about.',
+            'route' => 'book',
+            'image' => 'images/hero/hero-2-1200.webp',
+        ],
+        [
+            'name'  => 'Families',
+            'line'  => 'Ages 5 and up — the grown-ups get fooled just as badly.',
+            'route' => 'book',
+            'image' => 'images/hero/hero-3-1200.webp',
+        ],
+        [
+            'name'  => 'Content Creators',
+            'line'  => 'Every room is built for the camera. Bring a full battery.',
+            'route' => 'book',
+            'image' => 'images/hero/hero-1-1200.webp',
+        ],
+        [
+            'name'  => 'Tourists',
+            'line'  => 'Zimbabwe\'s first optical illusion experience — a Harare must.',
+            'route' => 'book',
+            'image' => 'images/hero/hero-2-1200.webp',
+        ],
+        [
+            'name'  => 'Groups & Birthdays',
+            'line'  => 'Schools, teams and parties get group rates and priority entry.',
+            'route' => 'groups',
+            'image' => 'images/hero/hero-3-1200.webp',
+        ],
     ],
 
+    // Homepage pricing section: the ticket. 'price' is a number (shown as $N) or null
+    // for "On request". :price, :duration and :min_age are filled from 'visit' above,
+    // so the price only ever lives in one place. Groups are pitched in their own section.
+    'pricing' => [
+        'name'     => 'General entry',
+        'price'    => ':price',
+        'unit'     => 'per person',
+        'includes' => [
+            'All four rooms',
+            'Go at your own pace — most visits take :duration',
+            'Photos encouraged',
+            'Ages :min_age and up',
+        ],
+    ],
+
+    // Homepage groups section. The image is a stand-in until a real group photo is added.
+    'groups' => [
+        'image'     => 'images/hero/hero-1-1200.webp',
+        'occasions' => [
+            [
+                'title' => 'School Trips',
+                'line'  => 'The science of perception, hands-on. A field trip they\'ll actually talk about.',
+            ],
+            [
+                'title' => 'Team Building',
+                'line'  => 'Nothing breaks the ice like watching your boss shrink in the Beuchet Chair.',
+            ],
+            [
+                'title' => 'Birthdays',
+                'line'  => 'Party photos nobody else has — every room is a backdrop.',
+            ],
+        ],
+    ],
+
+    // ⚠ STAND-INS — replace with real reviews (from Google) before launch.
+    // The first one is shown large as the featured quote; each appears once.
     'testimonials' => [
         [
             'quote'  => 'I\'ve never felt so genuinely confused by a room. We stayed two hours longer than planned. Mind completely blown.',

@@ -1,5 +1,9 @@
 // ─── Critical path — no GSAP, runs immediately ───────────────────────────────
 import { initScroll }  from './animations/scroll.js';
+import { initHeroSlider } from './animations/hero-slider.js';
+import { initCountUp } from './animations/count-up.js';
+import { initLocalClock } from './local-clock.js';
+import { initLazyEmbeds } from './lazy-embeds.js';
 import { isTouchDevice } from './utils/motion.js';
 
 // ─── Custom Cursor (no GSAP — pure rAF) ──────────────────────────────────────
@@ -8,11 +12,9 @@ function initCursor() {
 
     const dot  = document.querySelector('.cursor');
     const ring = document.querySelector('.cursor-ring');
-    const glow = document.querySelector('.cursor-glow');
     if (!dot || !ring) return;
 
     let dotX = 0, dotY = 0, ringX = 0, ringY = 0;
-    let glowX = window.innerWidth / 2, glowY = window.innerHeight / 2;
     let mouseX = 0, mouseY = 0;
 
     document.addEventListener('mousemove', (e) => {
@@ -25,18 +27,15 @@ function initCursor() {
         dotY   = mouseY;
         ringX += (mouseX - ringX) * 0.15;
         ringY += (mouseY - ringY) * 0.15;
-        glowX += (mouseX - glowX) * 0.055;
-        glowY += (mouseY - glowY) * 0.055;
 
         dot.style.transform  = `translate(${dotX}px,${dotY}px) translate(-50%,-50%)`;
         ring.style.transform = `translate(${ringX}px,${ringY}px) translate(-50%,-50%)`;
-        if (glow) glow.style.transform = `translate(${glowX}px,${glowY}px) translate(-50%,-50%)`;
 
         requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
 
-    document.querySelectorAll('a, button, [data-magnetic], .faq__question').forEach(el => {
+    document.querySelectorAll('a, button, .faq__question').forEach(el => {
         el.addEventListener('mouseenter', () => document.body.classList.add('cursor--hovering'),    { passive: true });
         el.addEventListener('mouseleave', () => document.body.classList.remove('cursor--hovering'), { passive: true });
     });
@@ -71,20 +70,44 @@ function initNav() {
 
 // ─── FAQ accordion (no GSAP) ─────────────────────────────────────────────────
 function initFaq() {
-    document.querySelectorAll('.faq__question').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const item   = btn.closest('.faq__item');
-            const isOpen = item.classList.contains('is-open');
+    const items = [...document.querySelectorAll('.faq__item')];
+    if (!items.length) return;
 
-            document.querySelectorAll('.faq__item').forEach(i => {
-                i.classList.remove('is-open');
-                i.querySelector('.faq__question').setAttribute('aria-expanded', 'false');
-            });
+    // Opens one item (or none), closing the rest
+    const openOnly = (target) => {
+        items.forEach(i => {
+            const open = i === target;
+            i.classList.toggle('is-open', open);
+            i.querySelector('.faq__question').setAttribute('aria-expanded', String(open));
+        });
+    };
 
-            if (!isOpen) {
-                item.classList.add('is-open');
-                btn.setAttribute('aria-expanded', 'true');
-            }
+    // Click / tap / keyboard: toggle
+    items.forEach(item => {
+        item.querySelector('.faq__question').addEventListener('click', () => {
+            openOnly(item.classList.contains('is-open') ? null : item);
+        });
+    });
+
+    // Mouse: hovering a question opens its answer. Opening one row shifts the
+    // others under a still cursor, so only real pointer movement counts, after
+    // a short rest; leaving the list closes it again.
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    let timer;
+    const later = (fn, ms) => { clearTimeout(timer); timer = setTimeout(fn, ms); };
+
+    items.forEach(item => {
+        item.addEventListener('pointermove', (e) => {
+            if (e.pointerType !== 'mouse' || (!e.movementX && !e.movementY)) return;
+            if (item.classList.contains('is-open')) { clearTimeout(timer); return; }
+            later(() => openOnly(item), 140);
+        });
+    });
+
+    document.querySelectorAll('.faq').forEach(list => {
+        list.addEventListener('pointerleave', (e) => {
+            if (e.pointerType === 'mouse') later(() => openOnly(null), 250);
         });
     });
 }
@@ -112,6 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initNav();
     initFaq();
     initScroll();   // nav scroll class + parallax — no GSAP
+    initHeroSlider();
+    initCountUp();
+    initLocalClock();
+    initLazyEmbeds();
 
     // ── Defer GSAP bundle until after page is visible and idle ────────────────
     const loadAnimations = async () => {
@@ -126,20 +153,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const [
             { initReveals },
-            { initMagnetic },
-            { initHorizontal },
+            { initRooms },
             { initTransitions },
+            { initAudienceStack },
+            { initHeroLens },
+            { initBrandBanner },
+            { initFooterMotion },
+            { initSplitHeadings },
+            { initScrubReveal },
+            { initHeroParallax },
         ] = await Promise.all([
             import('./animations/reveals.js'),
-            import('./animations/magnetic.js'),
-            import('./animations/horizontal.js'),
+            import('./animations/rooms.js'),
             import('./animations/transitions.js'),
+            import('./animations/audience-stack.js'),
+            import('./animations/hero-lens.js'),
+            import('./animations/brand-banner.js'),
+            import('./animations/footer-motion.js'),
+            import('./animations/split-headings.js'),
+            import('./animations/scrub-reveal.js'),
+            import('./animations/hero-parallax.js'),
         ]);
 
         initTransitions();
-        initMagnetic();
-        initHorizontal();
+        initRooms();
+        initAudienceStack();
+        initHeroLens();
+        initBrandBanner();
+        initFooterMotion();
+        initSplitHeadings();
+        initScrubReveal();
+        initHeroParallax();
         initReveals();
+
+        // Arriving with a #hash (e.g. "Pricing" from another page): jump only now,
+        // once the pinned sections have added their height, so the target stays put
+        const target = location.hash.length > 1 && document.getElementById(location.hash.slice(1));
+        if (target) {
+            // measure against the browser's real scroll position, not Lenis's (stale after a refresh)
+            // and leave room for the fixed bar only when the section's own padding can't
+            const jump = () => {
+                const bar = document.querySelector('.nav')?.getBoundingClientRect().bottom ?? 0;
+                const room = parseFloat(getComputedStyle(target).paddingTop) || 0;
+                const y = target.getBoundingClientRect().top + window.scrollY - Math.max(0, bar + 16 - room);
+                lenis.scrollTo(y, { immediate: true, force: true });
+            };
+            ScrollTrigger.refresh();
+            jump();
+            // late layout shifts (fonts, lazy images, pin refresh) can nudge it: settle once more
+            setTimeout(() => { ScrollTrigger.refresh(); jump(); }, 450);
+        }
     };
 
     // requestIdleCallback fires when the browser has spare cycles

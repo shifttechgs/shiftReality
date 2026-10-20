@@ -6,6 +6,7 @@ const lenis = new Lenis({
     smoothWheel: true,
     wheelMultiplier: 1,
     touchMultiplier: 2,
+    anchors: true,   // native #hash jumps get cancelled by Lenis — let it handle them
 });
 
 export default lenis;

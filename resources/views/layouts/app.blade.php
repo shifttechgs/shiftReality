@@ -47,15 +47,14 @@
 
     @stack('head')
 </head>
-<body>
+<body class="@yield('body_class')">
 
     {{-- Intro screen (homepage only — pushed via @push('intro') in home.blade.php) --}}
     @stack('intro')
 
-    {{-- Custom cursor + glow (desktop only — hidden via CSS on touch devices) --}}
+    {{-- Custom cursor (desktop only — hidden via CSS on touch devices) --}}
     <div class="cursor"      aria-hidden="true"></div>
     <div class="cursor-ring" aria-hidden="true"></div>
-    <div class="cursor-glow" aria-hidden="true"></div>
 
     {{-- Page transition overlay --}}
     <div class="page-transition" aria-hidden="true"></div>

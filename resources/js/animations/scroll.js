@@ -1,20 +1,20 @@
 import { prefersReducedMotion } from '../utils/motion.js';
 
 /**
- * Nav scroll behaviour — adds .nav--scrolled class when page is scrolled.
+ * Nav scroll behaviour — the header stays pinned at all times.
+ * .nav--scrolled once the page leaves the top: the flat, frosted inset bar.
  */
 function initNavScroll() {
     const nav    = document.querySelector('.nav');
     const banner = document.getElementById('top-banner');
     if (!nav) return;
 
-    const FLOAT_THRESHOLD  = 80;   // px before nav becomes floating island
+    const FLOAT_THRESHOLD  = 80;   // px before the bar style kicks in
     const BANNER_THRESHOLD = 40;   // px before banner auto-collapses
 
     const update = () => {
         const sy = window.scrollY;
 
-        // Floating island
         nav.classList.toggle('nav--scrolled', sy > FLOAT_THRESHOLD);
 
         // Auto-collapse banner on scroll — keeps it as a seen signal, clears space

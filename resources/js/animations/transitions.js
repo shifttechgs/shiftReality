@@ -49,7 +49,23 @@ function exitTransition(href) {
     );
 }
 
+// Back/forward cache restores the page exactly as it was left — overlay
+// covering the screen and Lenis stopped. Undo the exit state.
+function resetFromCache(e) {
+    if (!e.persisted) return;
+
+    const overlay = document.querySelector(SELECTOR);
+    if (overlay) {
+        gsap.killTweensOf(overlay);
+        gsap.set(overlay, { clipPath: 'inset(100% 0 0% 0)' });
+        overlay.style.pointerEvents = 'none';
+    }
+    lenis.start();
+}
+
 export function initTransitions() {
+    window.addEventListener('pageshow', resetFromCache);
+
     // No enter transition — page is visible immediately on load.
     // Exit transition only: covers screen when navigating away.
     document.addEventListener('click', (e) => {
