@@ -1,5 +1,7 @@
 // ─── Critical path — no GSAP, runs immediately ───────────────────────────────
 import { initScroll }  from './animations/scroll.js';
+import { initHeroTunnel } from './animations/hero-tunnel.js';
+import { initHeroStrip } from './animations/hero-strip.js';
 import { initCountUp } from './animations/count-up.js';
 import { initLocalClock } from './local-clock.js';
 import { initLazyEmbeds } from './lazy-embeds.js';
@@ -135,6 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initNav();
     initFaq();
     initScroll();   // nav scroll class + parallax — no GSAP
+    initHeroTunnel();
+    initHeroStrip();
     initCountUp();
     initLocalClock();
     initLazyEmbeds();
@@ -160,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { initFooterMotion },
             { initSplitHeadings },
             { initScrubReveal },
-            { initHeroParallax },
         ] = await Promise.all([
             import('./animations/reveals.js'),
             import('./animations/rooms.js'),
@@ -170,7 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
             import('./animations/footer-motion.js'),
             import('./animations/split-headings.js'),
             import('./animations/scrub-reveal.js'),
-            import('./animations/hero-parallax.js'),
         ]);
 
         initTransitions();
@@ -180,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
         initFooterMotion();
         initSplitHeadings();
         initScrubReveal();
-        initHeroParallax();
         initReveals();
 
         // Arriving with a #hash (e.g. "Pricing" from another page): jump only now,

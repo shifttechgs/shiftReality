@@ -3,6 +3,11 @@ import { segment, pointerTracker } from './shared.js';
 /**
  * Infinity Room — LED points strung around nested mirror frames, flying
  * endlessly toward the viewer. The pointer drags the vanishing point.
+ *
+ * Options: `fit` stretches the frames to the canvas's own shape (the home hero's
+ * tall window) instead of squares; `track` is the element whose pointer moves
+ * the vanishing point (default: the room panel, else the stage); `colors` swaps
+ * the two LED blues.
  */
 const FRAMES   = 16;   // nested mirror frames in flight
 const PER_SIDE = 9;    // LEDs per frame edge
@@ -10,10 +15,10 @@ const SPEED    = 0.9;  // frames travelled per second
 const BLUES    = ['#1855e8', '#3d74f5'];   // the two palette blues
 const GLINT    = '#ffffff';  // highlight frames
 
-export default function infinity(stage, { reduced }) {
+export default function infinity(stage, { reduced, fit = false, track = null, colors = BLUES }) {
     const canvas  = stage.querySelector('[data-infinity]');
     const ctx     = canvas.getContext('2d');
-    const pointer = pointerTracker(stage.closest('[data-room]') ?? stage);
+    const pointer = pointerTracker(track ?? stage.closest('[data-room]') ?? stage);
 
     let w = 0, h = 0;
     let raf = 0;
@@ -43,6 +48,9 @@ export default function infinity(stage, { reduced }) {
             const depth = 1 - z;
             const scale = 1 / (1 + depth * 7);
             const half  = reach * scale;
+            // Square frames, or stretched to the canvas's shape when fitting it
+            const hx    = fit ? half * (w / Math.max(w, h)) : half;
+            const hy    = fit ? half * (h / Math.max(w, h)) : half;
 
             // Far frames sit on the vanishing point, near frames on the stage centre
             const fx = w / 2 + vp.x * w * 0.2 * depth;
@@ -52,14 +60,14 @@ export default function infinity(stage, { reduced }) {
             const alpha = fade * intensity;
             if (alpha <= 0.01) continue;
 
-            const color  = k % 5 === 0 ? GLINT : BLUES[k % BLUES.length];
+            const color  = k % 5 === 0 ? GLINT : colors[k % colors.length];
             const radius = Math.max(0.6, 3.4 * scale + 0.4);
 
             // Faint mirror edge
             ctx.globalAlpha = alpha * 0.07;
-            ctx.strokeStyle = '#3d74f5';
+            ctx.strokeStyle = colors[colors.length - 1];
             ctx.lineWidth   = 1;
-            ctx.strokeRect(fx - half, fy - half, half * 2, half * 2);
+            ctx.strokeRect(fx - hx, fy - hy, hx * 2, hy * 2);
 
             ctx.fillStyle = color;
             for (let side = 0; side < 4; side++) {
@@ -67,8 +75,8 @@ export default function infinity(stage, { reduced }) {
                     const u = (i / PER_SIDE) * 2 - 1;
                     const x = side === 0 ? u : side === 1 ? 1 : side === 2 ? -u : -1;
                     const y = side === 0 ? -1 : side === 1 ? u : side === 2 ? 1 : -u;
-                    const px = fx + x * half;
-                    const py = fy + y * half;
+                    const px = fx + x * hx;
+                    const py = fy + y * hy;
 
                     ctx.globalAlpha = alpha * 0.16;   // glow
                     ctx.beginPath();

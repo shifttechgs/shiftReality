@@ -3581,124 +3581,165 @@ body.cursor--hovering .cursor-ring {
 
 /* ============================================================
    HOME HERO
-   One photo edge to edge, behind the top bar and nav too. The
-   headline runs the full width along the bottom, a thin row under
-   it (rating · offer · actions). One soft shade at the very bottom
-   keeps the white type readable — nothing else on the photo.
-   The photo settles from a slight zoom on load, then only drifts
-   with the cursor (hero-parallax.js).
+   Light and type-led (after CargoFlow), in three bands: the intro
+   and a small navy visit card; the tagline giant across the full
+   width; an edge-to-edge strip of the four rooms taking whatever
+   height is left. One thing moves at rest — the card's tunnel; the
+   tiles hold still and play on hover. Fits one screen.
+   Palette: #002459 navy · #5382C7 soft blue · white · #7F858B grey.
    ============================================================ */
 .wh-hero {
-    --hero-ease: cubic-bezier(0.77, 0, 0.175, 1);
-    --hero-header: 160px; /* top bar 52px + nav 108px, over the photo */
-    --hero-x: clamp(1.25rem, 3vw, 3rem);  /* side padding: the type nearly meets the edges */
+    --hero-navy:  #002459;
+    --hero-blue:  #5382c7;
+    --hero-grey:  #7f858b;
+    --hero-ease:  cubic-bezier(0.77, 0, 0.175, 1);
+    --hero-header: 160px; /* top bar 52px + nav 108px */
+    --hero-x: clamp(1.25rem, 3.5vw, 3.5rem);
+    --hero-gap: clamp(0.75rem, 2.4svh, 1.75rem);
 
-    position: relative;
     height: 100svh;
-    min-height: 560px;
+    min-height: 620px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    gap: var(--hero-gap);
+    padding: calc(var(--hero-header) + 0.75rem) 0 clamp(1rem, 2.5svh, 1.75rem);
     overflow: hidden;
-    isolation: isolate;
-    background: var(--color-sr-deep);
+    background: #dce3ee;   /* the palette's pale blue-grey, a touch lighter */
+    color: var(--hero-navy);
+}
+
+/* ── Top row: the intro, and the visit card ───────────────── */
+.wh-hero__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-inline: var(--hero-x);
+}
+
+.wh-hero__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875rem;
+}
+
+/* The visit card: live tunnel thumbnail + live status, links to booking */
+.wh-hero__card {
+    display: flex;
+    gap: 0.875rem;
+    width: min(23rem, 100%);
+    padding: 0.5rem;
+    border-radius: var(--radius-card);
+    background: var(--hero-navy);
     color: #ffffff;
 }
 
-/* ── The photo ─────────────────────────────────────────────── */
-.wh-hero__photo {
-    position: absolute;
-    inset: 0;
-    z-index: -2;
+.wh-hero__card-media {
+    position: relative;
+    flex-shrink: 0;
+    width: clamp(5.5rem, 13svh, 7.5rem);
+    aspect-ratio: 1;
+    border-radius: var(--radius-inner);
+    overflow: hidden;
+    background: #000b1e;
 }
 
-.wh-hero__img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.js .wh-hero__img {
-    scale: 1.08;
-    animation: wh-settle 2.2s var(--ease-out) forwards;
-}
-
-@keyframes wh-settle { to { scale: 1; } }
-
-/* The one shade: low and soft, only under the type */
-.wh-hero__shade {
-    position: absolute;
-    inset: auto 0 0 0;
-    height: 60%;
-    z-index: -1;
-    background: linear-gradient(to top, rgba(6, 11, 31, 0.72) 0%, rgba(6, 11, 31, 0.35) 45%, rgba(6, 11, 31, 0) 100%);
-    pointer-events: none;
-}
-
-/* ── The type ──────────────────────────────────────────────── */
-.wh-hero__text {
+.wh-hero__card-body {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: clamp(1rem, 2.5svh, 1.75rem);
-    padding: var(--hero-header) var(--hero-x) clamp(1.25rem, 3svh, 2rem);
+    padding: 0.25rem 0.25rem 0.125rem 0;
 }
 
-.wh-hero__headline {
-    font-family: var(--font-heading);
-    font-weight: 400;
-    /* Line 1, "Your brain is about to", is ~8.8em wide: sized so it spans the
-       screen edge to edge. Short screens cap it by height. */
-    font-size: min(calc((100vw - var(--hero-x) * 2) / 8.9), 19svh);
-    line-height: 0.92;
-    letter-spacing: -0.05em;
-    color: #ffffff;
-}
-
-/* Each line rises out of its own mask on load */
-.wh-hero__mask {
-    display: block;
-    overflow: hidden;
-    padding: 0 0.04em 0.08em 0;  /* room for descenders */
-    margin-bottom: -0.08em;
-}
-
-.wh-hero__line {
-    display: block;
-    white-space: nowrap;
-}
-
-.wh-hero__line--accent {
-    color: var(--color-sr-accent-light);  /* brand blue lifted for contrast on the photo; upright, no italic */
-}
-
-/* The thin row under the headline */
-.wh-hero__bottom {
+.wh-hero__card-kicker {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem 2rem;
-    padding-top: clamp(1rem, 2.5svh, 1.5rem);
-    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
 }
 
-.wh-hero__meta {
+/* The arrow chip, as on the Book Your Spot pill: a round white chip that turns
+   to point up-right on hover */
+.wh-hero__card-arr {
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: 30px;
+    height: 30px;
+    padding: 7px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: var(--hero-navy);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wh-hero__card:hover .wh-hero__card-arr { transform: rotate(-45deg); }
+
+.wh-hero__card-status {
+    margin-top: auto;
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.wh-hero__card-status.is-open { color: #9cb9e4; }   /* the soft blue, lifted for the navy card */
+
+.wh-hero__card-meta {
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* ── The tagline, giant, edge to edge ─────────────────────── */
+.wh-hero__headline {
+    margin-top: auto;   /* the tagline and the strip sit together at the foot of the screen */
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 1.5rem;
-    font-size: 0.9375rem;
-    letter-spacing: -0.01em;
-    color: rgba(255, 255, 255, 0.85);
+    justify-content: space-between;
+    gap: 0.25em;
+    padding-inline: var(--hero-x);
+    font-family: var(--font-heading);
+    font-weight: 800;
+    /* "QUESTION EVERYTHING" in heavy caps is ~11.6em wide: sized to span the
+       screen; short screens cap it by height so the strip keeps its share */
+    font-size: min(calc((100vw - var(--hero-x) * 2) / 11.9), 17svh);
+    line-height: 0.86;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+    color: var(--hero-navy);
 }
 
-/* Google rating — G mark, score, partial stars */
+.wh-hero__word {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.04em;
+}
+
+.wh-hero__word > span { display: block; }
+
+/* ── The intro: a line of copy, and the proof ─────────────── */
+.wh-hero__desc {
+    max-width: 34ch;
+    font-family: var(--font-heading);
+    font-size: clamp(1.0625rem, min(1.6vw, 2.6svh), 1.375rem);
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: var(--hero-navy);
+}
+
 .wh-hero__rating {
     display: inline-flex;
+    flex-shrink: 0;
     align-items: center;
     gap: 0.45rem;
-    --stars-fill: var(--color-sr-accent-light);
-    --stars-track: rgba(255, 255, 255, 0.3);
+    font-size: 0.875rem;
+    color: #3b4a66;
+    --stars-fill: var(--hero-navy);
+    --stars-track: rgba(0, 36, 89, 0.2);
 }
 
 .wh-hero__rating-g { flex-shrink: 0; }
@@ -3706,85 +3747,134 @@ body.cursor--hovering .cursor-ring {
 .wh-hero__rating-score {
     font-family: var(--font-heading);
     font-weight: 600;
-    color: #ffffff;
+    color: var(--hero-navy);
     font-variant-numeric: tabular-nums;
 }
 
-.wh-hero__actions {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
+/* ── The strip: a marquee of small tiles, edge to edge ─────── */
+.wh-hero__strip {
+    --tile-gap: 0.75rem;
 
-.wh-hero__link {
     position: relative;
-    display: inline-block;
-    padding-bottom: 3px;
-    font-size: 0.9375rem;
-    letter-spacing: -0.01em;
-    color: rgba(255, 255, 255, 0.85);
-    transition: color 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+    flex-shrink: 0;
+    height: clamp(160px, 28svh, 280px);
+    overflow: hidden;
+    /* tiles fade in and out at the screen edges */
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
 }
 
-/* Underline wipes out to the right, then redraws from the left */
-.wh-hero__link::after {
-    content: '';
+/* Three identical sets of tiles; sliding by exactly one set loops seamlessly */
+.wh-hero__track {
+    display: flex;
+    gap: var(--tile-gap);
+    width: max-content;
+    height: 100%;
+    animation: wh-marquee 60s linear infinite;
+}
+
+.wh-hero__strip:hover .wh-hero__track { animation-play-state: paused; }
+
+@keyframes wh-marquee {
+    to { transform: translateX(calc(-100% / 3 - var(--tile-gap) / 3)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wh-hero__track { animation: none; }
+}
+
+.wh-hero__tile {
+    position: relative;
+    display: block;
+    flex-shrink: 0;
+    height: 100%;
+    aspect-ratio: 4 / 3;
+}
+
+.wh-hero__stage {
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 1px;
-    background: currentColor;
-    opacity: 0.55;
-    transform-origin: right;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: #0c1433;   /* the rooms section's stage colour */
 }
 
-.wh-hero__link:hover { color: #ffffff; }
+.wh-hero__tile--dark .wh-hero__stage { background: #02040c; }
 
-.wh-hero__link:hover::after {
-    opacity: 1;
-    animation: link-redraw 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+/* A room with a real photo: it fills the tile; on hover it eases in a touch
+   (the photo's one hover, in place of an illusion playing) */
+.wh-hero__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 1.2s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-@keyframes link-redraw {
-    0%   { transform: scaleX(1); transform-origin: right; }
-    45%  { transform: scaleX(0); transform-origin: right; }
-    46%  { transform: scaleX(0); transform-origin: left; }
-    100% { transform: scaleX(1); transform-origin: left; }
+.wh-hero__tile--photo:hover .wh-hero__photo { scale: 1.05; }
+
+/* On a photo the label could land on a bright patch: it sits on a small solid tag */
+.wh-hero__tile--photo .wh-hero__tile-label {
+    left: 0.625rem;
+    bottom: 0.625rem;
+    padding: 0.3rem 0.55rem;
+    border-radius: var(--radius-tag);
+    background: var(--hero-navy);
 }
 
-/* White pill on the photo */
-.wh-hero .pill--amber {
-    --pill-bg: #ffffff;
-    --pill-fg: var(--color-sr-text);
+/* As thumbnails, the illusions drop their small in-picture labels */
+.wh-hero__stage .ud__label,
+.wh-hero__stage .mirror__label,
+.wh-hero__stage .bc__caption,
+.wh-hero__stage .bc__truth text { display: none; }
+
+.wh-hero__tile-label {
+    position: absolute;
+    left: 0.875rem;
+    bottom: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.85);
 }
 
-/* ── Load-in: the lines rise, then the row ─────────────────── */
-.js .wh-hero__line {
-    transform: translateY(110%);
-    animation: wh-line-up 1.1s var(--hero-ease) 0.15s forwards;
+.wh-hero__tile-label span { color: #9cb9e4; font-variant-numeric: tabular-nums; }
+
+/* ── Load-in: the words rise, the rest follows ─────────────── */
+.js .wh-hero__word > span {
+    transform: translateY(105%);
+    animation: wh-line-up 1.1s var(--hero-ease) 0.1s forwards;
 }
 
-.js .wh-hero__mask + .wh-hero__mask .wh-hero__line { animation-delay: 0.27s; }
+.js .wh-hero__word + .wh-hero__word > span { animation-delay: 0.2s; }
 
-.js .wh-hero__bottom {
+.js .wh-hero__top,
+.js .wh-hero__strip {
     opacity: 0;
-    animation: wh-fade-up 0.9s var(--ease-out) 0.6s forwards;
+    animation: wh-fade-up 0.9s var(--ease-out) 0.25s forwards;
 }
+
+.js .wh-hero__strip { animation-delay: 0.3s; }
 
 @keyframes wh-line-up  { to { transform: translateY(0); } }
 @keyframes wh-fade-up  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
-@media (prefers-reduced-motion: reduce) {
-    .js .wh-hero__img { scale: 1; animation: none; }
-}
-
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 900px) {
-    .wh-hero__shade { height: 70%; }
-    .wh-hero__headline { font-size: min(calc((100vw - var(--hero-x) * 2) / 9.2), 14svh); }
-    .wh-hero__bottom { align-items: flex-start; flex-direction: column; }
+    .wh-hero__top { flex-direction: column; gap: var(--hero-gap); }
+    .wh-hero__card { width: 100%; }
+
+    /* The two words stack, each across the width */
+    .wh-hero__headline {
+        flex-direction: column;
+        gap: 0;
+        font-size: min(calc((100vw - var(--hero-x) * 2) / 6.9), 13svh);
+    }
+
+    .wh-hero__strip { --tile-gap: 0.5rem; height: clamp(150px, 24svh, 220px); }
 }
 
 /* Short screens (landscape phones): reclaim header space so the hero fits.
@@ -3796,12 +3886,8 @@ body.cursor--hovering .cursor-ring {
         height: 64px;
     }
     .nav:not(.nav--scrolled) .nav__logo-img { height: 52px; }
-    .wh-hero { --hero-header: 64px; }
-    .wh-hero .pill--lg,
-    .nav__cta {
-        padding: 0.625rem 1.25rem;
-        font-size: 0.875rem;
-    }
+    .wh-hero { --hero-header: 64px; min-height: 0; }
+    .wh-hero__top { display: none; }
 }
 
 /* ============================================================

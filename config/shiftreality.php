@@ -90,6 +90,9 @@ return [
             'title'       => 'Infinity Room',
             'slug'        => 'infinity',
             'image'       => 'images/hero/hero-3-1200.webp',
+            // Hero strip photo (an -800 file with a -1600 twin), in place of the drawn illusion.
+            // Experiment / stand-in: "Infinity Window" by Karl Martin Saetren on Unsplash (Unsplash License).
+            'photo'       => 'images/rooms/infinity-800.webp',
             'tagline'     => 'A universe that stretches forever in every direction.',
             'hint'        => 'Move to bend the horizon',
             'description' => 'Floor-to-ceiling LED lights reflected in infinite mirrors. You are both at the centre of everything and impossibly small.',
