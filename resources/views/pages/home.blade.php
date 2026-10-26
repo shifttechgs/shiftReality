@@ -40,12 +40,12 @@
 {{-- Hero after Vox AI's layout: dark navy, the name split into two giant words —
      "Reality" top-left, "Shift" bottom-right — around a man doing a handstand on
      the ceiling over a set table (the Upside Down Room, in one picture). He's cut
-     out of the room, in natural colour, and runs the full height of the hero, legs
-     off the top. Badge, line and actions sit low on the left. Fits one screen.
+     out of the room, in natural colour, standing from under the nav to the floor.
+     One line, one action and the rating sit low on the left (opening hours live
+     in the top bar). Fits one screen.
      Photo: stand-in, Duong Huynh on Unsplash (Unsplash License), background removed. --}}
 @php
-    $heroStatus = $openingHours->status();
-    $rating     = config('shiftreality.google_rating');
+    $rating = config('shiftreality.google_rating');
 @endphp
 <section class="wh-hero" id="hero" aria-labelledby="hero-heading">
 
@@ -53,7 +53,7 @@
         <img
             src="{{ asset('images/hero/handstand-2200.webp') }}"
             srcset="{{ asset('images/hero/handstand-1100.webp') }} 671w, {{ asset('images/hero/handstand-2200.webp') }} 1342w"
-            sizes="61svh"
+            sizes="calc((100svh - 160px) * 0.61)"
             width="1342"
             height="2200"
             alt=""
@@ -72,31 +72,17 @@
     </h1>
 
     <div class="wh-hero__side">
-        <p @class(['wh-hero__badge', 'is-open' => $heroStatus['open']])>
-            <span class="wh-hero__badge-dot" aria-hidden="true"></span>
-            {{ $heroStatus['label'] }}&nbsp;· {{ $heroStatus['detail'] }}
-        </p>
+        <p class="wh-hero__desc">Your brain is about to be lied to.</p>
 
-        <p class="wh-hero__desc">
-            Your brain is about to be lied to. {{ count($shifts) }} rooms of optical illusions at
-            {{ config('shiftreality.location.address') }}, {{ config('shiftreality.location.city') }} — entry from ${{ $visit['price_from'] }}.
-        </p>
-
-        <div class="wh-hero__actions">
-            <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
-                <span>Book Your Spot</span>
-                <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-            <a href="{{ route('pricing') }}" class="pill pill--lg wh-hero__pill-alt">
-                <span>View Pricing</span>
-                <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-        </div>
+        <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
+            <span>Book Your Spot</span>
+            <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
 
         <span class="wh-hero__rating" role="img" aria-label="Rated {{ $rating }} out of 5, based on Google Reviews">
-            @include('partials.google-g', ['size' => 16, 'class' => 'wh-hero__rating-g'])
+            @include('partials.google-g', ['size' => 12, 'class' => 'wh-hero__rating-g'])
             <span class="wh-hero__rating-score">{{ number_format($rating, 1) }}</span>
-            @include('partials.stars', ['rating' => $rating, 'size' => 12])
+            @include('partials.stars', ['rating' => $rating, 'size' => 10])
             <span>Google Reviews</span>
         </span>
     </div>
