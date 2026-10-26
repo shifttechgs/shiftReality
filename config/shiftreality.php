@@ -47,6 +47,16 @@ return [
         7 => ['09:00', '20:00'],
     ],
 
+    // Booking requests (/book): visitors pick a day, an entry slot and a group size,
+    // then the request opens in WhatsApp for the team to confirm. Nothing is paid online.
+    // ⚠ Slot length, last entry and the group-size cap are first guesses — confirm them.
+    'booking' => [
+        'days_ahead'         => 14,   // how far ahead the date picker reaches, today included
+        'slot_minutes'       => 60,   // an entry slot every hour from opening…
+        'last_entry_minutes' => 60,   // …until this long before closing
+        'max_people'         => 10,   // more than this is a group: pointed to group enquiries
+    ],
+
     'visit' => [
         'duration'    => '1.5 – 2.5 hours',
         'min_age'     => 5,
@@ -55,11 +65,13 @@ return [
     ],
 
     // Actual rooms at Reality Shift Harare
+    // 'image' is a stand-in (hero shots) until real photos of each room are added
     'shifts' => [
         [
             'number'      => '01',
             'title'       => 'Upside Down Room',
             'slug'        => 'upside-down',
+            'image'       => 'images/hero/hero-1-1200.webp',
             'tagline'     => 'Walk on the ceiling. Question which way is up.',
             'hint'        => 'Scroll — the room turns, you don\'t',
             'description' => 'An entire room flipped 180°. Furniture on the ceiling, lights on the floor — and you standing in the middle of it all.',
@@ -68,6 +80,7 @@ return [
             'number'      => '02',
             'title'       => 'Stranger in the Mirror',
             'slug'        => 'mirror',
+            'image'       => 'images/hero/hero-2-1200.webp',
             'tagline'     => 'Your reflection isn\'t doing what you\'re doing.',
             'hint'        => 'Move around — watch them disobey',
             'description' => 'A multi-mirror installation that splits, multiplies and distorts your image in ways your brain cannot reconcile.',
@@ -76,6 +89,7 @@ return [
             'number'      => '03',
             'title'       => 'Infinity Room',
             'slug'        => 'infinity',
+            'image'       => 'images/hero/hero-3-1200.webp',
             'tagline'     => 'A universe that stretches forever in every direction.',
             'hint'        => 'Move to bend the horizon',
             'description' => 'Floor-to-ceiling LED lights reflected in infinite mirrors. You are both at the centre of everything and impossibly small.',
@@ -84,6 +98,7 @@ return [
             'number'      => '04',
             'title'       => 'Beuchet Chair',
             'slug'        => 'beuchet',
+            'image'       => 'images/hero/hero-1-1200.webp',
             'tagline'     => 'One person looks giant. The other looks tiny. Same chair.',
             'hint'        => 'Scroll to line up the chair',
             'description' => 'A forced-perspective illusion that makes two people the wrong size — simultaneously. Perfect for photos.',

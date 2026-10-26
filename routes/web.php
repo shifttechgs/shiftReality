@@ -1,9 +1,13 @@
 <?php
 
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PricingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/pricing', [PricingController::class, 'index'])->name('pricing');
 
 Route::get('/experience', fn () => view('pages.placeholder', [
     'title' => 'The Experience',
@@ -25,7 +29,5 @@ Route::get('/faq', fn () => view('pages.placeholder', [
     'message' => 'Your questions, answered.',
 ]))->name('faq');
 
-Route::get('/book', fn () => view('pages.placeholder', [
-    'title' => 'Book Your Experience',
-    'message' => 'Online booking is coming soon. In the meantime, please contact us directly.',
-]))->name('book');
+Route::get('/book', [BookingController::class, 'show'])->name('book');
+Route::post('/book', [BookingController::class, 'send'])->middleware('throttle:10,1')->name('book.send');

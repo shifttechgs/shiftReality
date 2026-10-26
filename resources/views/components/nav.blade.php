@@ -14,7 +14,7 @@
     {{-- CENTRE: links --}}
     <ul class="nav__menu" role="list">
         <li><a href="{{ route('experience') }}" class="nav__link">Exhibits</a></li>
-        <li><a href="{{ route('home') }}#pricing" class="nav__link">Pricing</a></li>
+        <li><a href="{{ route('pricing') }}"   class="nav__link">Pricing</a></li>
         <li><a href="{{ route('groups') }}"     class="nav__link">Group Visits</a></li>
         <li><a href="{{ route('visit') }}"      class="nav__link">Current Events</a></li>
         <li><a href="{{ route('book') }}"       class="nav__link">Membership</a></li>
@@ -62,7 +62,7 @@
 
     <ul class="nav-overlay__list" role="list">
         <li class="nav-overlay__item"><a href="{{ route('experience') }}" class="nav-overlay__link">Exhibits</a></li>
-        <li class="nav-overlay__item"><a href="{{ route('home') }}#pricing" class="nav-overlay__link">Pricing</a></li>
+        <li class="nav-overlay__item"><a href="{{ route('pricing') }}"   class="nav-overlay__link">Pricing</a></li>
         <li class="nav-overlay__item"><a href="{{ route('groups') }}"     class="nav-overlay__link">Group Visits</a></li>
         <li class="nav-overlay__item"><a href="{{ route('visit') }}"      class="nav-overlay__link">Current Events</a></li>
         <li class="nav-overlay__item"><a href="{{ route('book') }}"       class="nav-overlay__link">Membership</a></li>

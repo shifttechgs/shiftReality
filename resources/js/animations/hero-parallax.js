@@ -4,15 +4,14 @@ import { prefersReducedMotion, isTouchDevice } from '../utils/motion.js';
  * Hero background follows the cursor, like the headline's letters do:
  * the photo layer drifts a few pixels toward the pointer (a hair of depth
  * behind the copy) and eases back to centre when the mouse leaves.
- * It's scaled up slightly so the edges never show. The lens samples the
- * photo's real position, so it stays aligned. Mouse only; off for reduced motion.
+ * It's scaled up slightly so the edges never show. Mouse only; off for reduced motion.
  */
 const RANGE_X = 18;   // px each way
 const RANGE_Y = 12;
 
 export function initHeroParallax() {
     const layer = document.querySelector('[data-hero-parallax]');
-    const stage = layer?.closest('[data-hero-slider]');
+    const stage = layer?.closest('[data-hero-stage]');
     if (!layer || !stage || prefersReducedMotion() || isTouchDevice()) return;
 
     const target = { x: 0, y: 0 };

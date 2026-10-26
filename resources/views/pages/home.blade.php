@@ -37,80 +37,56 @@
 {{-- ══════════════════════════════════════════════════════════
      01 — HERO
      ══════════════════════════════════════════════════════════ --}}
-{{-- Hero slides: image numbers in public/images/hero/hero-N-*.webp (2, the crystal, removed) --}}
-@php $heroSlides = [1, 3]; @endphp
-<section class="wh-hero" id="hero" aria-label="Hero">
+{{-- One photo, edge to edge, behind everything — the top bar and nav included.
+     The headline runs the full width along the bottom with a thin row under it:
+     the proof, the offer, the action. One soft shade at the very bottom keeps
+     the white type readable; nothing else sits on the photo. The photo settles
+     from a slight zoom on load, then drifts a few pixels with the cursor.
+     Hero photo: image number in public/images/hero/hero-N-*.webp (a stand-in). --}}
+@php
+    $heroImage = 1;
+    $rating = config('shiftreality.google_rating');
+@endphp
+<section class="wh-hero" id="hero" aria-label="Hero" data-hero-stage>
 
-    <div class="wh-hero__stage" data-hero-slider>
+    <div class="wh-hero__photo" aria-hidden="true" data-hero-parallax>
+        <img
+            src="{{ asset("images/hero/hero-$heroImage-2400.webp") }}"
+            srcset="{{ asset("images/hero/hero-$heroImage-1200.webp") }} 1200w,
+                    {{ asset("images/hero/hero-$heroImage-2400.webp") }} 2400w"
+            sizes="100vw"
+            alt=""
+            class="wh-hero__img"
+            decoding="async"
+            fetchpriority="high"
+        >
+    </div>
+    <div class="wh-hero__shade" aria-hidden="true"></div>
 
-        {{-- Full-bleed slides — clip-path wipe + slow zoom, driven by hero-slider.js --}}
-        <div class="wh-hero__slides" aria-hidden="true" data-hero-parallax>
-            @foreach ($heroSlides as $n)
-                <div class="wh-hero__slide {{ $loop->first ? 'is-active' : '' }}" data-hero-slide>
-                    <div class="wh-hero__slide-inner">
-                        <img
-                            src="{{ asset("images/hero/hero-$n-2400.webp") }}"
-                            srcset="{{ asset("images/hero/hero-$n-1200.webp") }} 1200w,
-                                    {{ asset("images/hero/hero-$n-2400.webp") }} 2400w"
-                            sizes="100vw"
-                            alt=""
-                            class="wh-hero__slide-img"
-                            decoding="async"
-                            fetchpriority="{{ $loop->first ? 'high' : 'low' }}"
-                        >
-                    </div>
-                </div>
-            @endforeach
-        </div>
-        <div class="wh-hero__scrim" aria-hidden="true"></div>
+    <div class="wh-hero__text">
 
-        <div class="wh-hero__text">
+        <h1 class="wh-hero__headline" data-split="hover">
+            <span class="wh-hero__mask"><span class="wh-hero__line">Your brain is about to</span></span>
+            <span class="wh-hero__mask"><span class="wh-hero__line wh-hero__line--accent">be lied to.</span></span>
+        </h1>
 
-            @php $rating = config('shiftreality.google_rating'); @endphp
-            <div class="wh-hero__rating" role="img" aria-label="Rated {{ $rating }} out of 5, based on Google Reviews">
-                @include('partials.google-g', ['size' => 18, 'class' => 'wh-hero__rating-g'])
-                <span class="wh-hero__rating-score">{{ number_format($rating, 1) }}</span>
-                @include('partials.stars', ['rating' => $rating, 'size' => 14])
-                <span class="wh-hero__rating-sep" aria-hidden="true"></span>
-                <span class="wh-hero__rating-label"><span class="wh-hero__rating-pre">Based on </span>Google Reviews</span>
-            </div>
-
-            <h1 class="wh-hero__headline" data-split="hover">
-                <span class="wh-hero__mask"><span class="wh-hero__line">Your brain is about to</span></span>
-                <span class="wh-hero__mask"><em class="wh-hero__line">be lied to.</em></span>
-            </h1>
-
-            {{-- Description left, CTA bottom-right --}}
-            <div class="wh-hero__bottom">
-                <p class="wh-hero__desc">
-                    4 rooms of optical illusions that make your eyes
-                    contradict your mind. Entry from $15.
-                </p>
-
-                <div class="wh-hero__actions">
-                    <a href="#rooms" class="wh-hero__link">Explore the rooms ↓</a>
-                    <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
-                        <span>Book Your Spot</span>
-                        <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </a>
-                </div>
-            </div>
-
-        </div>
-
-        {{-- Slide controls: counter + progress bars (click to jump) --}}
-        <div class="wh-hero__controls">
-            <div class="wh-hero__nav" aria-label="Hero slides">
-                <span class="wh-hero__count" aria-hidden="true">
-                    <span data-hero-current>01</span> / {{ str_pad(count($heroSlides), 2, '0', STR_PAD_LEFT) }}
+        {{-- The thin row: rating and offer on the left, the actions on the right --}}
+        <div class="wh-hero__bottom">
+            <p class="wh-hero__meta">
+                <span class="wh-hero__rating" role="img" aria-label="Rated {{ $rating }} out of 5, based on Google Reviews">
+                    @include('partials.google-g', ['size' => 16, 'class' => 'wh-hero__rating-g'])
+                    <span class="wh-hero__rating-score">{{ number_format($rating, 1) }}</span>
+                    @include('partials.stars', ['rating' => $rating, 'size' => 12])
                 </span>
-                <div class="wh-hero__bars">
-                    @foreach ($heroSlides as $n)
-                        <button type="button" class="wh-hero__bar {{ $loop->first ? 'is-active' : '' }}" data-hero-bar aria-label="Show slide {{ $loop->iteration }}">
-                            <span class="wh-hero__bar-fill"></span>
-                        </button>
-                    @endforeach
-                </div>
+                <span class="wh-hero__desc">{{ count($shifts) }} rooms of optical illusions · Entry from ${{ $visit['price_from'] }}</span>
+            </p>
+
+            <div class="wh-hero__actions">
+                <a href="#rooms" class="wh-hero__link">Explore the rooms ↓</a>
+                <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
+                    <span>Book Your Spot</span>
+                    <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
             </div>
         </div>
 

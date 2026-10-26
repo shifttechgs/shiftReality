@@ -116,9 +116,15 @@ class OpeningHours
         return array_values($specs);
     }
 
-    private function hoursFor(int $iso): ?array
+    /** Opening and closing time for an ISO weekday, or null when closed. */
+    public function hoursFor(int $iso): ?array
     {
         return $this->week[$iso] ?? null;
+    }
+
+    public function timezone(): string
+    {
+        return $this->timezone;
     }
 
     private function local(?CarbonImmutable $at): CarbonImmutable

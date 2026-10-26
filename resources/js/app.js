@@ -1,9 +1,9 @@
 // ─── Critical path — no GSAP, runs immediately ───────────────────────────────
 import { initScroll }  from './animations/scroll.js';
-import { initHeroSlider } from './animations/hero-slider.js';
 import { initCountUp } from './animations/count-up.js';
 import { initLocalClock } from './local-clock.js';
 import { initLazyEmbeds } from './lazy-embeds.js';
+import { initBooking } from './booking.js';
 import { isTouchDevice } from './utils/motion.js';
 
 // ─── Custom Cursor (no GSAP — pure rAF) ──────────────────────────────────────
@@ -135,10 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initNav();
     initFaq();
     initScroll();   // nav scroll class + parallax — no GSAP
-    initHeroSlider();
     initCountUp();
     initLocalClock();
     initLazyEmbeds();
+    initBooking();
 
     // ── Defer GSAP bundle until after page is visible and idle ────────────────
     const loadAnimations = async () => {
@@ -156,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { initRooms },
             { initTransitions },
             { initAudienceStack },
-            { initHeroLens },
             { initBrandBanner },
             { initFooterMotion },
             { initSplitHeadings },
@@ -167,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
             import('./animations/rooms.js'),
             import('./animations/transitions.js'),
             import('./animations/audience-stack.js'),
-            import('./animations/hero-lens.js'),
             import('./animations/brand-banner.js'),
             import('./animations/footer-motion.js'),
             import('./animations/split-headings.js'),
@@ -178,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
         initTransitions();
         initRooms();
         initAudienceStack();
-        initHeroLens();
         initBrandBanner();
         initFooterMotion();
         initSplitHeadings();
