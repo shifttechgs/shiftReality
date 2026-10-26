@@ -80,18 +80,27 @@
         <span class="wh-hero__word"><span>Everything</span></span>
     </h1>
 
-    {{-- Marquee: the rooms three times over, so the loop is seamless even on very
-         wide screens (the copies are hidden from screen readers and the tab order).
-         Hovering pauses it. --}}
+    {{-- Marquee: the rooms with the extra illusion photos between them, three times
+         over so the loop is seamless even on very wide screens (the copies are hidden
+         from screen readers and the tab order). Hovering pauses it. A room with a
+         photo shows it (crisp: 1x and 2x files); a room without shows its illusion. --}}
+    @php
+        $extras = config('shiftreality.hero_extras', []);
+        $tiles  = [];
+        foreach ($shifts as $i => $shift) {
+            $tiles[] = ['room' => $shift, 'photo' => $shift['photo'] ?? null];
+            if ($i % 2 === 1 && $extras) { $tiles[] = ['room' => null, 'photo' => array_shift($extras)]; }
+        }
+        foreach ($extras as $extra) { $tiles[] = ['room' => null, 'photo' => $extra]; }
+    @endphp
     <div class="wh-hero__strip" data-hero-strip>
         <div class="wh-hero__track" data-hero-track>
             @foreach ([false, true, true] as $copy)
-            @foreach ($shifts as $shift)
-                @php $photo = $shift['photo'] ?? null; @endphp
-                {{-- A room with a photo shows it (crisp: 1x and 2x files); the rest show their illusion --}}
-                <a href="#rooms" @class(['wh-hero__tile', 'wh-hero__tile--dark' => $shift['slug'] === 'infinity', 'wh-hero__tile--photo' => $photo])
-                   @unless ($photo) data-hero-tile="{{ $shift['slug'] }}" @endunless
-                   @if ($copy) aria-hidden="true" tabindex="-1" @else aria-label="{{ $shift['title'] }} — see the rooms" @endif>
+            @foreach ($tiles as $tile)
+                @php [$room, $photo] = [$tile['room'], $tile['photo']]; @endphp
+                <a href="#rooms" @class(['wh-hero__tile', 'wh-hero__tile--dark' => ($room['slug'] ?? '') === 'infinity', 'wh-hero__tile--photo' => $photo])
+                   @if ($room && ! $photo) data-hero-tile="{{ $room['slug'] }}" @endif
+                   @if ($copy || ! $room) aria-hidden="true" tabindex="-1" @else aria-label="{{ $room['title'] }} — see the rooms" @endif>
                     <span class="wh-hero__stage" @unless ($photo) data-room-stage @endunless aria-hidden="true">
                         @if ($photo)
                             <img
@@ -104,10 +113,12 @@
                                 @if ($copy) loading="lazy" @endif
                             >
                         @else
-                            @include('partials.rooms.' . $shift['slug'])
+                            @include('partials.rooms.' . $room['slug'])
                         @endif
                     </span>
-                    <span class="wh-hero__tile-label"><span>{{ $shift['number'] }}</span>{{ $shift['title'] }}</span>
+                    @if ($room)
+                        <span class="wh-hero__tile-label"><span>{{ $room['number'] }}</span>{{ $room['title'] }}</span>
+                    @endif
                 </a>
             @endforeach
             @endforeach

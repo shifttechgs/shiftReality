@@ -72,6 +72,7 @@ return [
             'title'       => 'Upside Down Room',
             'slug'        => 'upside-down',
             'image'       => 'images/hero/hero-1-1200.webp',
+            'photo'       => 'images/rooms/upside-down-800.webp',   // demo stand-in: spiral staircase, Faris Mohammed (Unsplash)
             'tagline'     => 'Walk on the ceiling. Question which way is up.',
             'hint'        => 'Scroll — the room turns, you don\'t',
             'description' => 'An entire room flipped 180°. Furniture on the ceiling, lights on the floor — and you standing in the middle of it all.',
@@ -81,6 +82,7 @@ return [
             'title'       => 'Stranger in the Mirror',
             'slug'        => 'mirror',
             'image'       => 'images/hero/hero-2-1200.webp',
+            'photo'       => 'images/rooms/mirror-800.webp',        // demo stand-in: broken-mirror reflection, Fares Hamouche (Unsplash)
             'tagline'     => 'Your reflection isn\'t doing what you\'re doing.',
             'hint'        => 'Move around — watch them disobey',
             'description' => 'A multi-mirror installation that splits, multiplies and distorts your image in ways your brain cannot reconcile.',
@@ -102,6 +104,7 @@ return [
             'title'       => 'Beuchet Chair',
             'slug'        => 'beuchet',
             'image'       => 'images/hero/hero-1-1200.webp',
+            'photo'       => 'images/rooms/beuchet-800.webp',       // demo stand-in: walking up a wall, Angela Bailey (Unsplash)
             'tagline'     => 'One person looks giant. The other looks tiny. Same chair.',
             'hint'        => 'Scroll to line up the chair',
             'description' => 'A forced-perspective illusion that makes two people the wrong size — simultaneously. Perfect for photos.',
@@ -110,6 +113,14 @@ return [
 
     // Homepage "Who It's For" card pile — 'route' is where the card leads.
     // Images are stand-ins (hero shots) until real audience photos are added.
+    // Extra photos in the hero marquee, between the rooms — illusion moments, no label.
+    // ⚠ Demo stand-ins (Unsplash License) until real venue photos replace them.
+    'hero_extras' => [
+        'images/rooms/extra-stripes-800.webp',   // striped tunnel, bahareh moradian
+        'images/rooms/extra-lights-800.webp',    // tunnel of lights, Alexandra Nicolae
+        'images/rooms/extra-mirrors-800.webp',   // two in the mirror, TinPics_
+    ],
+
     'audiences' => [
         [
             'name'  => 'Friends',
