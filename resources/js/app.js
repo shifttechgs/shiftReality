@@ -1,7 +1,6 @@
 // ─── Critical path — no GSAP, runs immediately ───────────────────────────────
 import { initScroll }  from './animations/scroll.js';
-import { initHeroTunnel } from './animations/hero-tunnel.js';
-import { initHeroStrip } from './animations/hero-strip.js';
+import { initHeroComet } from './animations/hero-comet.js';
 import { initCountUp } from './animations/count-up.js';
 import { initLocalClock } from './local-clock.js';
 import { initLazyEmbeds } from './lazy-embeds.js';
@@ -137,8 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initNav();
     initFaq();
     initScroll();   // nav scroll class + parallax — no GSAP
-    initHeroTunnel();
-    initHeroStrip();
+    initHeroComet();
     initCountUp();
     initLocalClock();
     initLazyEmbeds();

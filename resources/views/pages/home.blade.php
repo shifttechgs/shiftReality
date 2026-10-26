@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+{{-- The hero is dark navy: the nav rests on it in its light variant until scrolled --}}
+@section('body_class', 'has-hero-photo')
+
 @section('title', 'Reality Shift — Zimbabwe\'s Optical Illusion Experience · Harare')
 @section('description', 'Your brain is about to be lied to. 4 mind-bending rooms at Westgate Shopping Complex, Harare. Zimbabwe\'s first optical illusion experience. Entry from $15. Book now.')
 
@@ -34,95 +37,68 @@
 {{-- ══════════════════════════════════════════════════════════
      01 — HERO
      ══════════════════════════════════════════════════════════ --}}
-{{-- Light, type-led hero (after CargoFlow's layout), in three bands: the intro and
-     a small navy visit card; the tagline set giant across the full width; then an
-     edge-to-edge marquee of small tiles, one per room, gliding past on its own. Each
-     tile holds its room's illusion still and plays it on hover, which also pauses the
-     marquee (hero-strip.js); the card's live tunnel is hero-tunnel.js. Fits one screen. --}}
+{{-- Hero after Vox AI's layout: dark navy, the name split into two giant words —
+     "Reality" top-left, "Shift" bottom-right — around a man doing a handstand on
+     the ceiling over a set table (the Upside Down Room, in one picture). He's cut
+     out of the room, in natural colour, and runs the full height of the hero, legs
+     off the top. Badge, line and actions sit low on the left. Fits one screen.
+     Photo: stand-in, Duong Huynh on Unsplash (Unsplash License), background removed. --}}
 @php
-    $rating     = config('shiftreality.google_rating');
     $heroStatus = $openingHours->status();
-    $location   = config('shiftreality.location');
+    $rating     = config('shiftreality.google_rating');
 @endphp
 <section class="wh-hero" id="hero" aria-labelledby="hero-heading">
 
-    <div class="wh-hero__top">
-        <div class="wh-hero__intro">
-            <p class="wh-hero__desc">
-                Your brain is about to be lied to. {{ count($shifts) }} rooms of optical illusions at
-                {{ $location['address'] }}, {{ $location['city'] }} — entry from ${{ $visit['price_from'] }}.
-            </p>
-            <span class="wh-hero__rating" role="img" aria-label="Rated {{ $rating }} out of 5, based on Google Reviews">
-                @include('partials.google-g', ['size' => 16, 'class' => 'wh-hero__rating-g'])
-                <span class="wh-hero__rating-score">{{ number_format($rating, 1) }}</span>
-                @include('partials.stars', ['rating' => $rating, 'size' => 12])
-                <span class="wh-hero__rating-label">Google Reviews</span>
-            </span>
-        </div>
-
-        <a href="{{ route('book') }}" class="wh-hero__card">
-            <span class="wh-hero__card-media" data-hero-tunnel aria-hidden="true">
-                <canvas class="infinity" data-infinity></canvas>
-            </span>
-            <span class="wh-hero__card-body">
-                <span class="wh-hero__card-kicker">
-                    Book your visit · ${{ $visit['price_from'] }}
-                    <svg class="wh-hero__card-arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </span>
-                <span @class(['wh-hero__card-status', 'is-open' => $heroStatus['open']])>{{ $heroStatus['label'] }}</span>
-                <span class="wh-hero__card-meta">{{ $heroStatus['detail'] }}</span>
-            </span>
-        </a>
+    <div class="wh-hero__figure" aria-hidden="true">
+        <img
+            src="{{ asset('images/hero/handstand-2200.webp') }}"
+            srcset="{{ asset('images/hero/handstand-1100.webp') }} 671w, {{ asset('images/hero/handstand-2200.webp') }} 1342w"
+            sizes="61svh"
+            width="1342"
+            height="2200"
+            alt=""
+            class="wh-hero__figure-img"
+            decoding="async"
+            fetchpriority="high"
+        >
     </div>
 
-    <h1 class="wh-hero__headline" id="hero-heading">
-        <span class="wh-hero__word"><span>Question</span></span>
-        <span class="wh-hero__word"><span>Everything</span></span>
+    {{-- Shooting-star trail behind the mouse (hero-comet.js) --}}
+    <canvas class="wh-hero__comet" data-hero-comet aria-hidden="true"></canvas>
+
+    <h1 class="wh-hero__name" id="hero-heading">
+        <span class="wh-hero__word wh-hero__word--top"><span>Reality</span></span>
+        <span class="wh-hero__word wh-hero__word--end"><span>Shift</span></span>
     </h1>
 
-    {{-- Marquee: the rooms with the extra illusion photos between them, three times
-         over so the loop is seamless even on very wide screens (the copies are hidden
-         from screen readers and the tab order). Hovering pauses it. A room with a
-         photo shows it (crisp: 1x and 2x files); a room without shows its illusion. --}}
-    @php
-        $extras = config('shiftreality.hero_extras', []);
-        $tiles  = [];
-        foreach ($shifts as $i => $shift) {
-            $tiles[] = ['room' => $shift, 'photo' => $shift['photo'] ?? null];
-            if ($i % 2 === 1 && $extras) { $tiles[] = ['room' => null, 'photo' => array_shift($extras)]; }
-        }
-        foreach ($extras as $extra) { $tiles[] = ['room' => null, 'photo' => $extra]; }
-    @endphp
-    <div class="wh-hero__strip" data-hero-strip>
-        <div class="wh-hero__track" data-hero-track>
-            @foreach ([false, true, true] as $copy)
-            @foreach ($tiles as $tile)
-                @php [$room, $photo] = [$tile['room'], $tile['photo']]; @endphp
-                <a href="#rooms" @class(['wh-hero__tile', 'wh-hero__tile--dark' => ($room['slug'] ?? '') === 'infinity', 'wh-hero__tile--photo' => $photo])
-                   @if ($room && ! $photo) data-hero-tile="{{ $room['slug'] }}" @endif
-                   @if ($copy || ! $room) aria-hidden="true" tabindex="-1" @else aria-label="{{ $room['title'] }} — see the rooms" @endif>
-                    <span class="wh-hero__stage" @unless ($photo) data-room-stage @endunless aria-hidden="true">
-                        @if ($photo)
-                            <img
-                                src="{{ asset($photo) }}"
-                                srcset="{{ asset($photo) }} 800w, {{ asset(str_replace('-800.', '-1600.', $photo)) }} 1600w"
-                                sizes="(max-width: 900px) 300px, 380px"
-                                alt=""
-                                class="wh-hero__photo"
-                                decoding="async"
-                                @if ($copy) loading="lazy" @endif
-                            >
-                        @else
-                            @include('partials.rooms.' . $room['slug'])
-                        @endif
-                    </span>
-                    @if ($room)
-                        <span class="wh-hero__tile-label"><span>{{ $room['number'] }}</span>{{ $room['title'] }}</span>
-                    @endif
-                </a>
-            @endforeach
-            @endforeach
+    <div class="wh-hero__side">
+        <p @class(['wh-hero__badge', 'is-open' => $heroStatus['open']])>
+            <span class="wh-hero__badge-dot" aria-hidden="true"></span>
+            {{ $heroStatus['label'] }}&nbsp;· {{ $heroStatus['detail'] }}
+        </p>
+
+        <p class="wh-hero__desc">
+            Your brain is about to be lied to. {{ count($shifts) }} rooms of optical illusions at
+            {{ config('shiftreality.location.address') }}, {{ config('shiftreality.location.city') }} — entry from ${{ $visit['price_from'] }}.
+        </p>
+
+        <div class="wh-hero__actions">
+            <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
+                <span>Book Your Spot</span>
+                <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="{{ route('pricing') }}" class="pill pill--lg wh-hero__pill-alt">
+                <span>View Pricing</span>
+                <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
         </div>
+
+        <span class="wh-hero__rating" role="img" aria-label="Rated {{ $rating }} out of 5, based on Google Reviews">
+            @include('partials.google-g', ['size' => 16, 'class' => 'wh-hero__rating-g'])
+            <span class="wh-hero__rating-score">{{ number_format($rating, 1) }}</span>
+            @include('partials.stars', ['rating' => $rating, 'size' => 12])
+            <span>Google Reviews</span>
+        </span>
     </div>
 
 </section>
