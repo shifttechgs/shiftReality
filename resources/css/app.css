@@ -659,11 +659,14 @@ body:has(.wh-hero) .nav:not(.nav--scrolled):not(.is-open):not(.is-more-open) .na
 /* ============================================================
    LAYOUT
    ============================================================ */
+/* The same edges as the header (--head-edge: Artora's 1272px content
+   width, 84px in at 1440), so every section lines up with the logo and
+   the Book pill */
 .container {
     width: 100%;
-    max-width: 1200px;
+    max-width: none;   /* override Tailwind's own .container breakpoint widths */
     margin-inline: auto;
-    padding-inline: clamp(1.5rem, 5vw, 4rem);
+    padding-inline: var(--head-edge);
 }
 
 .section {
@@ -2930,8 +2933,9 @@ body:has(.wh-hero) .nav:not(.nav--scrolled):not(.is-open):not(.is-more-open) .na
     overflow: hidden;
     background: linear-gradient(160deg, #5382c7 0%, #234a8a 34%, #002459 70%);
     pointer-events: none;
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 48%, rgba(0, 0, 0, 0.55) 68%, rgba(0, 0, 0, 0.15) 84%, transparent 96%);
-    mask-image: linear-gradient(180deg, #000 0%, #000 48%, rgba(0, 0, 0, 0.55) 68%, rgba(0, 0, 0, 0.15) 84%, transparent 96%);
+    /* solid until just past the rating line (small text needs the dark), then out */
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 56%, rgba(0, 0, 0, 0.55) 72%, rgba(0, 0, 0, 0.15) 86%, transparent 97%);
+    mask-image: linear-gradient(180deg, #000 0%, #000 56%, rgba(0, 0, 0, 0.55) 72%, rgba(0, 0, 0, 0.15) 86%, transparent 97%);
 }
 
 .wh-hero__field img {
@@ -2956,7 +2960,7 @@ body:has(.wh-hero) .nav:not(.nav--scrolled):not(.is-open):not(.is-more-open) .na
     position: absolute;
     inset: 0;
     background: radial-gradient(
-        clamp(460px, 40vw, 660px) clamp(260px, 26vw, 380px) at 0 0,
+        clamp(420px, 34vw, 560px) clamp(230px, 20vw, 300px) at 0 0,   /* kept clear of the (wide) headline */
         rgba(255, 255, 255, 0.97) 0%,
         rgba(255, 255, 255, 0.9) 32%,
         rgba(255, 255, 255, 0.5) 60%,
@@ -2990,16 +2994,17 @@ body:has(.wh-hero) .nav:not(.nav--scrolled):not(.is-open):not(.is-more-open) .na
     color: rgba(255, 255, 255, 0.85);
 }
 
-/* The biggest type on the site: a step above the inner pages' titles
-   (.page-banner__title, 4.75rem max) — capped by the screen's height so
-   short laptops keep room for the ring */
+/* The biggest type on the site, spanning most of the hero (~60% of the
+   width on desktop) — still capped by the screen's height so short
+   laptops keep room for the ring. Helvetica tracks a little looser
+   than the old serif did, so the letters don't crowd */
 .wh-hero__title {
     margin: 0;
     font-family: var(--font-heading);
     font-weight: 400;
-    font-size: clamp(2.75rem, min(6.6vw, 10svh), 6rem);
-    line-height: 1.02;
-    letter-spacing: -0.045em;
+    font-size: clamp(2.75rem, min(8.6vw, 13.5svh), 8.75rem);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
     color: #ffffff;
 }
 
