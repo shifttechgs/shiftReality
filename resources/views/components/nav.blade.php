@@ -45,26 +45,40 @@
     </ul>
 
     {{-- "More": a full-width deep-navy panel under the header (Artora's "Pages") --}}
+    @php
+        $navPromo = collect(config('shiftreality.shifts'))->firstWhere(fn ($s) => ! empty($s['hero_photo']))['hero_photo'] ?? null;
+    @endphp
     <div class="nav-more" id="nav-more-panel" hidden data-nav-more-panel>
         <div class="nav-more__inner">
-            <div class="nav-more__col">
-                <p class="nav-more__title">More pages</p>
-                <ul role="list">
-                    <li><a href="{{ route('visit') }}">Plan your visit</a></li>
-                    <li><a href="{{ route('faq') }}">FAQ</a></li>
-                    <li><a href="{{ route('book') }}">Book tickets</a></li>
-                    <li><a href="{{ route('groups') }}">Groups &amp; events</a></li>
-                </ul>
+            {{-- Promo card, after Artora's: a photo, one line, one action --}}
+            <div class="nav-more__card">
+                @if ($navPromo)
+                    <img src="{{ asset(str_replace('-2064.', '-1000.', $navPromo)) }}" alt="" class="nav-more__photo" loading="lazy" decoding="async">
+                @endif
+                <div class="nav-more__card-body">
+                    <p class="nav-more__card-title">Question everything &ndash; visit Reality Shift today</p>
+                    <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
+                        <span>Book Your Spot</span>
+                        <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
             </div>
-            <div class="nav-more__col">
-                <p class="nav-more__title">Get in touch</p>
-                <ul role="list">
-                    <li><a href="https://wa.me/{{ $navContact['whatsapp'] }}" target="_blank" rel="noopener">WhatsApp us</a></li>
-                    <li><a href="tel:{{ $navTel }}">{{ $navPhone }}</a></li>
-                    <li><a href="mailto:{{ $navContact['email'] }}">{{ $navContact['email'] }}</a></li>
-                    <li><a href="{{ $navMaps }}" target="_blank" rel="noopener">Get directions ↗</a></li>
-                </ul>
-            </div>
+
+            {{-- Two plain columns of links, as on Artora --}}
+            <ul class="nav-more__col" role="list">
+                <li><a href="{{ route('visit') }}">Plan your visit</a></li>
+                <li><a href="{{ route('experience') }}">The rooms</a></li>
+                <li><a href="{{ route('pricing') }}">Tickets &amp; pricing</a></li>
+                <li><a href="{{ route('groups') }}">Groups &amp; events</a></li>
+                <li><a href="{{ route('faq') }}">FAQ</a></li>
+            </ul>
+            <ul class="nav-more__col" role="list">
+                <li><a href="{{ route('book') }}">Book tickets</a></li>
+                <li><a href="https://wa.me/{{ $navContact['whatsapp'] }}" target="_blank" rel="noopener">WhatsApp us</a></li>
+                <li><a href="tel:{{ $navTel }}">{{ $navPhone }}</a></li>
+                <li><a href="mailto:{{ $navContact['email'] }}">Email us</a></li>
+                <li><a href="{{ $navMaps }}" target="_blank" rel="noopener">Get directions ↗</a></li>
+            </ul>
         </div>
     </div>
 

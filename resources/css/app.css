@@ -381,16 +381,29 @@ body.cursor--hovering .cursor-ring {
    button; on the scrolled bar it nests in the bar's rounded end */
 .nav__cta { margin-left: 1.25rem; }
 
-/* ── "More" panel ── */
+/* ── "More" panel — after Artora's "Pages" menu ──
+   Deep navy under the header, a hairline between them. Left: a light
+   promo card (photo, one line, Book). Right: two plain columns of
+   links, no titles, starting in line with the menu. */
 .nav-more {
     position: absolute;
     top: 100%;
     left: 0;
     right: 0;
-    padding: clamp(2rem, 4vw, 3rem) var(--head-edge) clamp(2.5rem, 5vw, 3.5rem);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem var(--head-edge) 3.75rem;
     background: var(--color-sr-deep);
     color: #ffffff;
+}
+
+/* the hairline under the header row, on the content's edges */
+.nav-more::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--head-edge);
+    right: var(--head-edge);
+    height: 1px;
+    background: rgba(255, 255, 255, 0.12);
 }
 
 .nav-more[hidden] { display: none; }
@@ -398,34 +411,70 @@ body.cursor--hovering .cursor-ring {
 /* On the scrolled bar: a navy card under the pill */
 .nav--scrolled .nav-more {
     top: calc(100% + 8px);
-    padding-inline: clamp(1.75rem, 4vw, 3rem);
-    border-top: 0;
+    padding: 1.25rem clamp(1.25rem, 3vw, 2rem) 2rem;
     border-radius: var(--radius-card);
 }
 
+.nav--scrolled .nav-more::before { display: none; }
+
 .nav-more__inner {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 18rem));
-    justify-content: end;   /* under the links, as on Artora */
-    gap: 2rem clamp(2rem, 6vw, 6rem);
+    grid-template-columns: minmax(0, 32rem) 1fr minmax(0, 15rem) minmax(0, 15rem);
+    align-items: center;
+    column-gap: clamp(2rem, 4vw, 4rem);
 }
 
-.nav-more__title {
-    margin-bottom: 1.125rem;
-    font-size: 0.75rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.55);
+/* The promo card: Artora's cream card, in our frosted white */
+.nav-more__card {
+    grid-column: 1;
+    display: grid;
+    grid-template-columns: 14rem 1fr;
+    gap: 1.5rem;
+    padding: 1rem;
+    border-radius: 1.5rem;
+    background: var(--color-sr-surface);
+    color: var(--color-sr-text);
 }
 
-.nav-more ul {
+.nav-more__photo {
+    width: 100%;
+    aspect-ratio: 224 / 262;
+    object-fit: cover;
+    border-radius: var(--radius-card);
+    rotate: 180deg;   /* our kaleidoscope room, upside down as everywhere */
+}
+
+.nav-more__card-body {
     display: flex;
     flex-direction: column;
-    gap: 0.875rem;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding-block: 0.25rem;
+}
+
+.nav-more__card-title {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--color-sr-text);
+}
+
+/* the card's pill stays navy (it isn't on the navy panel) */
+.nav-more__card .pill { --pill-bg: var(--color-sr-text); --pill-fg: #ffffff; }
+
+.nav-more__col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
     list-style: none;
 }
 
-.nav-more a {
+.nav-more__col:nth-of-type(1) { grid-column: 3; }
+.nav-more__col:nth-of-type(2) { grid-column: 4; }
+
+.nav-more__col a {
     font-size: 0.9375rem;
     font-weight: 500;
     color: #ffffff;
@@ -435,7 +484,14 @@ body.cursor--hovering .cursor-ring {
     transition: text-decoration-color var(--duration-fast) var(--ease-out);
 }
 
-.nav-more a:hover { text-decoration-color: var(--color-sr-accent-light); }
+.nav-more__col a:hover { text-decoration-color: var(--color-sr-accent-light); }
+
+/* Narrower desktops: the card drops its photo */
+@media (max-width: 1280px) {
+    .nav-more__inner { grid-template-columns: minmax(0, 22rem) 1fr minmax(0, 13rem) minmax(0, 13rem); }
+    .nav-more__card { grid-template-columns: 1fr; }
+    .nav-more__photo { display: none; }
+}
 
 /* Open at rest: the header turns deep navy with the panel (as on Artora) */
 .nav.is-more-open:not(.nav--scrolled) { background: var(--color-sr-deep); }
