@@ -83,6 +83,9 @@ return [
             'slug'        => 'mirror',
             'image'       => 'images/hero/hero-2-1200.webp',
             'photo'       => 'images/rooms/mirror-800.webp',        // demo stand-in: broken-mirror reflection, Fares Hamouche (Unsplash)
+            // Home hero slide (a -2064 file with a -1000 twin). Rooms without one show
+            // their drawn illusion. ⚠ Ours, from socials, AI-upscaled — swap for the original.
+            'hero_photo'  => 'images/hero/kaleidoscope-2064.webp',
             'tagline'     => 'Your reflection isn\'t doing what you\'re doing.',
             'hint'        => 'Move around — watch them disobey',
             'description' => 'A multi-mirror installation that splits, multiplies and distorts your image in ways your brain cannot reconcile.',

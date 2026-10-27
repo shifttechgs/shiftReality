@@ -26,7 +26,7 @@
     <meta name="twitter:description" content="@yield('og_description', config('shiftreality.description'))">
     <meta name="twitter:image"       content="@yield('og_image', asset('images/og-default.jpg'))">
 
-    {{-- Fonts: Geist Variable — self-hosted via npm, no external CDN --}}
+    {{-- Fonts: Playfair Display + Inter (Artora's pair) — self-hosted via npm, no external CDN --}}
 
     {{-- ── Favicon & Manifest ─────────────────────────────────────── --}}
     {{-- Replace these with actual brand assets when available --}}
@@ -56,11 +56,16 @@
     <div class="cursor"      aria-hidden="true"></div>
     <div class="cursor-ring" aria-hidden="true"></div>
 
+    {{-- Shooting-star trail behind the mouse, on every page (comet.js) --}}
+    <canvas class="comet" data-comet aria-hidden="true"></canvas>
+
     {{-- Page transition overlay --}}
     <div class="page-transition" aria-hidden="true"></div>
 
-    {{-- ── Top banner ───────────────────────────────────────────── --}}
-    @include('components.banner')
+    {{-- ── Top banner (a page can leave it out with @section('no_banner')) ── --}}
+    @unless(View::hasSection('no_banner'))
+        @include('components.banner')
+    @endunless
 
     {{-- ── Navigation ────────────────────────────────────────────── --}}
     @include('components.nav')

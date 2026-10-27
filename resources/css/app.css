@@ -1,32 +1,20 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/geist';
-
-/* Satoshi (Fontshare, ITF Free Font License) — self-hosted, used for all headings */
-@font-face {
-    font-family: 'Satoshi';
-    src: url('../fonts/satoshi/Satoshi-Variable.woff2') format('woff2');
-    font-weight: 300 900;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Satoshi';
-    src: url('../fonts/satoshi/Satoshi-VariableItalic.woff2') format('woff2');
-    font-weight: 300 900;
-    font-style: italic;
-    font-display: swap;
-}
+/* Artora's pair, self-hosted (both SIL OFL): Playfair Display for headings,
+   Inter with its optical-size axis (opsz.css) for everything else — at large
+   sizes it draws as Inter Display, as on Artora */
+@import '@fontsource-variable/playfair-display/wght.css';
+@import '@fontsource-variable/playfair-display/wght-italic.css';
+@import '@fontsource-variable/inter/opsz.css';
 
 /* ============================================================
    DESIGN TOKENS — Reality Shift
    ============================================================ */
 @theme {
-    /* Typography — Satoshi for headings, Geist for everything else */
-    --font-heading: 'Satoshi', 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-    --font-display: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-    --font-sans:    'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-    --font-mono:    'Geist Variable', ui-monospace, monospace;
+    /* Typography — Playfair Display for headings, Inter for everything else */
+    --font-heading: 'Playfair Display Variable', Georgia, 'Times New Roman', serif;
+    --font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-sans:    'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-mono:    'Inter Variable', ui-monospace, monospace;
 
     /* Brand palette — WHITE THEME · Logo colors: navy #0C1A3E · blue #1855E8 */
     --color-sr-bg:              #FFFFFF;
@@ -98,6 +86,9 @@
         overflow-x: hidden;
         cursor: none;
         letter-spacing: -0.011em;
+        /* Lining figures everywhere: Playfair's default old-style digits
+           read oddly in prices, ratings and times */
+        font-variant-numeric: lining-nums;
     }
 
     @media (hover: none) { body { cursor: auto; } }
@@ -146,6 +137,21 @@
     will-change: transform;
 }
 
+/* Shooting-star trail behind the mouse, on every page (comet.js): a fixed
+   canvas over the content, under the page transition and the cursor itself */
+.comet {
+    position: fixed;
+    inset: 0;
+    z-index: 9400;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+@media (hover: none), (prefers-reduced-motion: reduce) {
+    .comet { display: none; }
+}
+
 .cursor-ring {
     position: fixed;
     top: 0; left: 0;
@@ -176,98 +182,100 @@ body.cursor--hovering .cursor-ring {
     .cursor, .cursor-ring { display: none !important; }
 }
 /* ============================================================
-   TOP BANNER — one still line of real facts
-   Live open status · where · the price · Book. Deep navy, the
-   colour of the hero band below it. Dismissible.
+   TOP BAR + HEADER — after Artora's
+   The top bar: one shade darker than the page, 48px; live status
+   left, email and address right, each behind a line icon. It tucks
+   away once you scroll (scroll.js) and is hidden on phones.
+   The header: 96px on the page itself (no bar): logo left, plain
+   links and the Book pill right, both rows on Artora's content width
+   (--head-edge). Scrolled, the row pins as a slim frosted pill bar.
+   "More" opens a full-width deep-navy panel (nav-more.js); at rest
+   the header turns navy with it, as on Artora.
+   --site-head (on :root) is the height the header takes at the top
+   of the page: the hero and the page banners clear it.
    ============================================================ */
+:root {
+    --head-edge: max(1.5rem, calc((100% - 1272px) / 2));   /* Artora: 84px at 1440 */
+    --site-head: 144px;   /* top bar 48 + header 96 */
+}
+
+@media (max-width: 767px) {
+    :root { --site-head: 80px; }   /* no top bar; a shorter header */
+}
+
 .top-banner {
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: 81;
-    background: var(--color-sr-deep);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-inline: 1rem 52px;   /* the close button sits on the right */
-    overflow: hidden;
+    height: 48px;
+    padding-inline: var(--head-edge);
+    background: var(--color-sr-surface-raised);   /* a shade darker than the page */
+    color: var(--color-sr-text);
     transform: translateY(0);
     transition: transform var(--duration-standard) var(--ease-out);
 }
 
-.top-banner.is-hidden {
-    transform: translateY(-100%);
-}
+.top-banner.is-hidden { transform: translateY(-100%); }
 
-.top-banner__line {
+.top-banner__inner {
     display: flex;
     align-items: center;
-    gap: 0 1.75rem;
-    min-width: 0;
-    font-size: 0.875rem;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-    color: rgba(255, 255, 255, 0.65);
+    justify-content: space-between;
+    gap: 1.5rem;
+    height: 100%;
 }
 
-.top-banner__status { color: #ffffff; }
-.top-banner__status.is-open { color: var(--color-sr-accent-light); }
-.top-banner__status .top-banner__extra { color: rgba(255, 255, 255, 0.65); }
+.top-banner__right {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 4.5rem);
+}
+
+.top-banner__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    color: var(--color-sr-text);
+}
+
+.top-banner__item svg { flex-shrink: 0; color: var(--color-sr-accent); }
+
+.top-banner__status.is-open svg { color: var(--color-sr-accent); }
 
 .top-banner__link {
-    color: #ffffff;
     text-decoration: underline;
-    text-decoration-color: rgba(255, 255, 255, 0.3);
+    text-decoration-color: transparent;
     text-underline-offset: 3px;
     transition: text-decoration-color var(--duration-fast) var(--ease-out);
 }
 
-.top-banner__link:hover { text-decoration-color: #ffffff; }
+.top-banner__link:hover { text-decoration-color: currentColor; }
 
-/* Phones: status, price and the link only */
-@media (max-width: 640px) {
-    .top-banner__line { gap: 0 1rem; font-size: 0.8125rem; }
-    .top-banner__extra { display: none; }
+@media (max-width: 1023px) {
+    .top-banner__right .top-banner__link:first-child { display: none; }   /* the email goes first */
 }
 
-.top-banner__close {
-    position: absolute;
-    right: 0;
-    top: 0; bottom: 0;
-    width: 52px;
-    background: none;
-    border: none;
-    color: rgba(255,255,255,0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color var(--duration-fast) var(--ease-out),
-                background-color var(--duration-fast) var(--ease-out);
-    cursor: pointer;
-    z-index: 3;
-    flex-shrink: 0;
-}
-.top-banner__close:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.12);
+@media (max-width: 767px) {
+    .top-banner { display: none; }
 }
 
-/* ── Nav: transparent overlay → floating island on scroll ──── */
+/* ── Header ──────────────────────────────────────────────── */
 .nav {
     position: fixed;
-    top: 52px; /* sits below banner by default */
+    top: 48px;   /* under the top bar */
     left: 0; right: 0;
     z-index: 80;
     margin-inline: auto;
     max-width: 100%;
-    padding: 0 1.5rem;
-    height: 108px;
+    height: 96px;
+    padding: 0 var(--head-edge);
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
 
-    /* Transparent at rest */
+    /* On the page itself at rest */
     background: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -285,22 +293,22 @@ body.cursor--hovering .cursor-ring {
         padding         var(--duration-standard) var(--ease-out);
 }
 
-/* Banner dismissed → nav moves to top */
-.top-banner.is-hidden ~ .nav:not(.nav--scrolled) {
-    top: 0;
-}
+/* Top bar tucked away (or none) → the header moves up */
+.top-banner.is-hidden ~ .nav:not(.nav--scrolled) { top: 0; }
 
-/* Scrolled: a flat, frosted bar inset 12px from the edges — no shadow */
+/* Scrolled: a flat, frosted pill inset 12px from the edges, matching the
+   buttons — no shadow. Radius = half the height (a full pill that still
+   animates smoothly from 0) */
 .nav--scrolled {
     top: 16px !important;
     max-width: calc(100% - 24px);
     height: 70px;
-    padding: 0 1.5rem;
+    padding: 0 0.5rem 0 1.75rem;   /* the Book pill sits concentric in the right end */
     background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-color: transparent;
-    border-radius: var(--radius-card);
+    border-radius: 35px;
 }
 
 .nav__logo {
@@ -310,62 +318,125 @@ body.cursor--hovering .cursor-ring {
     transition: opacity var(--duration-fast) var(--ease-out);
 }
 
-.nav__menu {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    list-style: none;
-    margin: 0; padding: 0;
-}
 .nav__logo:hover { opacity: 0.8; }
 
 .nav__logo-img {
-    height: 88px;   /* transparent logo, cropped tight */
+    height: 72px;   /* transparent logo, cropped tight */
     width: auto;
     display: block;
     transition: height var(--duration-standard) var(--ease-out);
 }
 
-.nav--scrolled .nav__logo-img {
-    height: 52px;
-}
+.nav--scrolled .nav__logo-img { height: 52px; }
 
-.nav__actions {
+/* Plain links on the right, as on Artora — no pill around them */
+.nav__menu {
     justify-self: end;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
     gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav__actions {
+    display: flex;
+    align-items: center;
     list-style: none;
     margin: 0; padding: 0;
 }
 
 .nav__link {
-    display: block;
-    padding: 0.375rem 0.75rem;
-    font-size: 1.0625rem;
-    font-weight: 450;
-    letter-spacing: -0.02em;
-    color: var(--color-sr-muted);
-    border-radius: var(--radius-inner);
-    transition:
-        color var(--duration-fast) var(--ease-out),
-        background-color var(--duration-fast) var(--ease-out);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.5rem 0.95rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--color-sr-text);
+    transition: color var(--duration-fast) var(--ease-out);
     white-space: nowrap;
 }
-.nav__link:hover {
-    color: var(--color-sr-text);
-    background: rgba(12, 26, 62, 0.05);
+
+.nav__link:hover { color: var(--color-sr-accent); }
+
+/* "More ⌄" is a button that looks like the links */
+.nav__more {
+    border: 0;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
 }
 
-/* Compact pill in the bar */
-.nav__cta {
-    --pill-chip: 28px;
-    margin-left: 0.625rem;
-    padding: 6px 6px 6px 16px;
-    font-size: 0.9375rem;
+@media (hover: hover) { .nav__more { cursor: none; } }   /* custom cursor */
+
+.nav__more-chev { transition: rotate var(--duration-fast) var(--ease-out); }
+.nav__more[aria-expanded="true"] .nav__more-chev { rotate: 180deg; }
+
+/* The full-size pill (pill--lg, 52px), the same as the hero's Book
+   button; on the scrolled bar it nests in the bar's rounded end */
+.nav__cta { margin-left: 1.25rem; }
+
+/* ── "More" panel ── */
+.nav-more {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: clamp(2rem, 4vw, 3rem) var(--head-edge) clamp(2.5rem, 5vw, 3.5rem);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--color-sr-deep);
+    color: #ffffff;
 }
+
+.nav-more[hidden] { display: none; }
+
+/* On the scrolled bar: a navy card under the pill */
+.nav--scrolled .nav-more {
+    top: calc(100% + 8px);
+    padding-inline: clamp(1.75rem, 4vw, 3rem);
+    border-top: 0;
+    border-radius: var(--radius-card);
+}
+
+.nav-more__inner {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 18rem));
+    justify-content: end;   /* under the links, as on Artora */
+    gap: 2rem clamp(2rem, 6vw, 6rem);
+}
+
+.nav-more__title {
+    margin-bottom: 1.125rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.nav-more ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    list-style: none;
+}
+
+.nav-more a {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #ffffff;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 4px;
+    transition: text-decoration-color var(--duration-fast) var(--ease-out);
+}
+
+.nav-more a:hover { text-decoration-color: var(--color-sr-accent-light); }
+
+/* Open at rest: the header turns deep navy with the panel (as on Artora) */
+.nav.is-more-open:not(.nav--scrolled) { background: var(--color-sr-deep); }
 
 /* Mobile */
 .nav__toggle {
@@ -396,58 +467,41 @@ body.cursor--hovering .cursor-ring {
 .nav.is-open .nav__toggle-bar:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
 .nav.is-open .nav__toggle-bar:nth-child(2) { transform: translateY(-7.5px) rotate(-45deg); }
 
-/* Light variant — transparent nav resting on the home hero photo.
-   Scrolled (frosted white) and menu-open states keep the dark styling. */
+/* Light variant — the header resting on something dark: the navy page
+   banners of the inner pages, or the open "More" panel. Scrolled (frosted
+   white) and menu-open states keep the dark styling. */
 .nav__logo-img--light { display: none; }
 
-.has-hero-photo .nav:not(.nav--scrolled):not(.is-open) .nav__logo-img        { display: none; }
-.has-hero-photo .nav:not(.nav--scrolled):not(.is-open) .nav__logo-img--light { display: block; }
+:is(.has-hero-photo .nav, .nav.is-more-open):not(.nav--scrolled):not(.is-open) .nav__logo-img        { display: none; }
+:is(.has-hero-photo .nav, .nav.is-more-open):not(.nav--scrolled):not(.is-open) .nav__logo-img--light { display: block; }
 
-.has-hero-photo .nav:not(.nav--scrolled):not(.is-open) .nav__link {
-    color: rgba(255, 255, 255, 0.85);
-}
-.has-hero-photo .nav:not(.nav--scrolled):not(.is-open) .nav__link:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.1);
-}
+:is(.has-hero-photo .nav, .nav.is-more-open):not(.nav--scrolled):not(.is-open) .nav__link { color: rgba(255, 255, 255, 0.88); }
+:is(.has-hero-photo .nav, .nav.is-more-open):not(.nav--scrolled):not(.is-open) .nav__link:hover { color: #ffffff; }
 
-/* Over the hero photo: a tinted, blurred pill with white text (as in the reference);
-   on the scrolled bar it falls back to solid navy */
-.has-hero-photo .nav:not(.nav--scrolled):not(.is-open) .nav__cta {
+/* On navy: the white pill (navy chip, white arrow; hover swaps them) */
+:is(.has-hero-photo .nav, .nav.is-more-open):not(.nav--scrolled):not(.is-open) .nav__cta {
     --pill-bg: #ffffff;
-    --pill-fg: var(--color-sr-text);
-    background: rgba(12, 26, 62, 0.4);
-    border-color: transparent;
-    color: #ffffff;
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-}
-.has-hero-photo .nav:not(.nav--scrolled):not(.is-open) .nav__cta .pill__arr {
-    background: #ffffff;
-    color: var(--color-sr-text);
-}
-.has-hero-photo .nav:not(.nav--scrolled):not(.is-open) .nav__cta:hover {
-    background: #ffffff;
-    color: var(--color-sr-text);
-}
-.has-hero-photo .nav:not(.nav--scrolled):not(.is-open) .nav__cta:hover .pill__arr {
-    background: var(--color-sr-text);
-    color: #ffffff;
+    --pill-fg: var(--color-sr-deep);
 }
 
-.has-hero-photo .nav:not(.nav--scrolled):not(.is-open) .nav__toggle-bar {
-    background: #ffffff;
-}
+:is(.has-hero-photo .nav, .nav.is-more-open):not(.nav--scrolled):not(.is-open) .nav__toggle-bar { background: #ffffff; }
 
-/* Five centred links + logo + CTA need ~1024px; below that, use the overlay */
+/* Six links + logo + Book need ~1024px; below that, use the overlay */
 @media (max-width: 1200px) {
-    .nav__link { padding-inline: 0.55rem; font-size: 1rem; }
+    .nav__link { padding-inline: 0.6rem; }
+    .nav__cta  { margin-left: 0.75rem; }
 }
 
 @media (max-width: 1023px) {
     .nav { grid-template-columns: 1fr auto; }
-    .nav__menu, .nav__actions { display: none; }
+    .nav__menu, .nav__actions, .nav-more { display: none; }
     .nav__toggle      { display: flex; }
+    .nav--scrolled    { padding-right: 1.5rem; }   /* the toggle has no pill to nest */
+}
+
+@media (max-width: 767px) {
+    .nav:not(.nav--scrolled) { top: 0; height: 80px; }
+    .nav:not(.nav--scrolled) .nav__logo-img { height: 60px; }
 }
 
 /* Overlay */
@@ -471,7 +525,7 @@ body.cursor--hovering .cursor-ring {
 }
 
 .nav-overlay__header {
-    height: 108px;
+    height: 96px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -866,21 +920,22 @@ body.cursor--hovering .cursor-ring {
 
 /* ============================================================
    FOOTER
-   Navy close: brand + socials, three link columns (Explore,
-   live Visit info, Contact), a slim legal row, and the name
-   set huge and cropped by the bottom edge.
+   Light close (off-white, under the deep-navy final band): brand +
+   socials, three link columns (Explore, live Visit info, Contact),
+   a slim legal row, and the name set huge and cropped by the
+   bottom edge.
    ============================================================ */
 .footer {
-    --foot-ink:   #ffffff;
-    --foot-muted: rgba(255, 255, 255, 0.62);
-    --foot-faint: rgba(255, 255, 255, 0.4);
-    --foot-line:  rgba(255, 255, 255, 0.12);
-    --foot-acc:   var(--color-sr-accent-light);   /* the lighter brand blue, for navy */
+    --foot-ink:   var(--color-sr-text);
+    --foot-muted: var(--color-sr-muted);
+    --foot-faint: rgba(12, 26, 62, 0.5);
+    --foot-line:  var(--color-sr-wire);
+    --foot-acc:   var(--color-sr-accent);   /* the brand blue on light */
 
     position: relative;
     overflow: hidden;
     padding-top: clamp(3rem, 5vw, 4.5rem);
-    background: var(--color-sr-deep);   /* a shade deeper than the CTA, so the lift reads */
+    background: var(--color-sr-surface);   /* light, under the navy final band */
     color: var(--foot-muted);
 }
 
@@ -929,7 +984,7 @@ body.cursor--hovering .cursor-ring {
 .footer__social-link:hover {
     background: var(--foot-ink);
     border-color: var(--foot-ink);
-    color: var(--color-sr-text);
+    color: #ffffff;
 }
 
 /* Columns */
@@ -1006,7 +1061,7 @@ body.cursor--hovering .cursor-ring {
 
 .footer__hours-row dt,
 .footer__hours-row dd { white-space: nowrap; }
-.footer__hours-row dd { font-variant-numeric: tabular-nums; }
+.footer__hours-row dd { font-variant-numeric: lining-nums tabular-nums; }
 .footer__hours-row.is-today { color: var(--foot-ink); }
 
 .footer__address {
@@ -1070,21 +1125,19 @@ body.cursor--hovering .cursor-ring {
     margin-bottom: -0.2em;
     font-family: var(--font-heading);
     font-size: clamp(3.5rem, 12vw, 12rem);
-    font-weight: 400;
+    font-weight: 700;
     line-height: 0.9;
-    letter-spacing: -0.055em;
+    letter-spacing: -0.045em;   /* a touch looser than at 400: bold letters would touch */
     text-align: center;
     white-space: nowrap;
-    /* a faint fill, not an outline: outlines show the font's overlapping contours */
-    color: rgba(255, 255, 255, 0.05);
+    /* a faint fill, not an outline: outlines show the font's overlapping contours.
+       Both words the same colour. */
+    color: rgba(12, 26, 62, 0.06);
     user-select: none;
     pointer-events: none;
 }
 
-.footer__watermark em {
-    font-style: normal;
-    color: rgba(61, 116, 245, 0.12);
-}
+.footer__watermark em { font-style: normal; }
 
 /* Split letters (footer-motion.js): rise as the footer is uncovered,
    lift and brighten near the cursor via --lit */
@@ -1092,11 +1145,7 @@ body.cursor--hovering .cursor-ring {
 
 .footer__wm-l {
     display: inline-block;
-    color: rgb(255 255 255 / calc(0.05 + var(--lit, 0) * 0.14));
-}
-
-.footer__watermark em .footer__wm-l {
-    color: rgb(61 116 245 / calc(0.12 + var(--lit, 0) * 0.24));
+    color: rgb(12 26 62 / calc(0.06 + var(--lit, 0) * 0.12));
 }
 
 .footer__watermark.is-driven .footer__wm-l { will-change: transform; }
@@ -1148,7 +1197,7 @@ body.cursor--hovering .cursor-ring {
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
     align-items: end;
     gap: 1.5rem 4rem;
-    padding-top: calc(160px + clamp(1.5rem, 5vh, 3.5rem));   /* banner 52px + resting nav 108px */
+    padding-top: calc(var(--site-head) + clamp(1.5rem, 5vh, 3.5rem));   /* the top bar + the resting header */
     padding-bottom: clamp(3.5rem, 8vw, 6rem);
 }
 
@@ -1248,7 +1297,7 @@ body.cursor--hovering .cursor-ring {
 
 .hero__progress-value {
     color: var(--color-sr-accent);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
     min-width: 2ch;
     display: inline-block;
 }
@@ -1503,92 +1552,9 @@ body.cursor--hovering .cursor-ring {
     padding-block: clamp(4rem, 8vw, 7rem);
 }
 
-/* ── Groups ──────────────────────────────────────────────────
-   The photo stays pinned on the left while the pitch scrolls past
-   on the right, each piece rising in with the scroll ([data-scrub]):
-   intro, two perks, the occasions, then the CTA.
+/* ── Group occasions list ────────────────────────────────────
+   Name left, reason right, split by hairlines. Used on /pricing.
    ──────────────────────────────────────────────────────────── */
-.groups {
-    padding-block: clamp(4rem, 8vw, 7rem);
-}
-
-.groups__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: clamp(2rem, 5vw, 5rem);
-    align-items: start;
-}
-
-.groups__media {
-    position: sticky;
-    top: 110px;   /* clears the header bar */
-    height: min(620px, calc(100svh - 150px));
-    margin: 0;
-    border-radius: var(--radius-card);
-    overflow: hidden;
-    background: var(--color-sr-surface-raised);   /* shows while the photo loads */
-}
-
-.groups__img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.groups__content {
-    display: flex;
-    flex-direction: column;
-    padding-block: clamp(1rem, 8vh, 5rem);   /* room to scroll past the pinned photo */
-}
-
-.groups__heading {
-    font-family: var(--font-heading);
-    font-size: var(--text-section);
-    font-weight: 400;
-    line-height: 1.04;
-    letter-spacing: -0.04em;
-    margin-bottom: 1rem;
-}
-
-.groups__sub {
-    max-width: 46ch;
-    font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
-    line-height: 1.65;
-    color: var(--color-sr-muted);
-}
-
-/* Perks: two plain facts split by a hairline, like the Visit facts */
-.groups__perks {
-    display: grid;
-    grid-template-columns: repeat(2, max-content);
-    margin-top: clamp(2rem, 5vh, 3rem);
-}
-
-.groups__perk { padding-right: clamp(1.5rem, 3vw, 2.5rem); }
-
-.groups__perk + .groups__perk {
-    padding-left: clamp(1.5rem, 3vw, 2.5rem);
-    border-left: 1px solid var(--color-sr-wire);
-}
-
-.groups__perk dt {
-    margin-bottom: 0.3rem;
-    font-size: 0.6875rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-rs-blue);
-}
-
-.groups__perk dd {
-    font-family: var(--font-heading);
-    font-size: clamp(1.25rem, 2vw, 1.5rem);
-    letter-spacing: -0.02em;
-    color: var(--color-sr-text);
-}
-
-/* Occasions: name left, reason right */
 .groups__occasions {
     list-style: none;
     margin-block: clamp(2.5rem, 6vh, 3.5rem);
@@ -1619,308 +1585,12 @@ body.cursor--hovering .cursor-ring {
     text-wrap: pretty;
 }
 
-.groups__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem 1.5rem;
-}
-
-.groups__wa {
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--color-sr-text);
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    text-decoration-color: var(--color-sr-wire);
-    transition: text-decoration-color var(--duration-fast) var(--ease-out);
-}
-
-.groups__wa:hover { text-decoration-color: var(--color-sr-text); }
-
-.groups__note {
-    margin-top: 1rem;
-    font-size: 0.8125rem;
-    color: var(--color-sr-muted-2);
-}
-
-/* Photo reveal: wipes up from the bottom while the image settles from a slight zoom.
-   (Overrides the generic fade-and-rise for this one element.) */
-.js .groups__media[data-reveal] {
-    opacity: 1;
-    transform: none;
-    clip-path: inset(22% 0 0 0 round var(--radius-card));
-    transition: clip-path 1.4s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.js .groups__media[data-reveal] .groups__img {
-    scale: 1.12;
-    transition: scale 1.8s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.js .groups__media.is-revealed { clip-path: inset(0 round var(--radius-card)); }
-.js .groups__media.is-revealed .groups__img { scale: 1; }
-
-@media (prefers-reduced-motion: reduce) {
-    .js .groups__media[data-reveal] { clip-path: none; transition: none; }
-    .js .groups__media[data-reveal] .groups__img { scale: 1; transition: none; }
-}
-
-@media (max-width: 1023px) {
-    .groups__grid { grid-template-columns: 1fr; }
-    .groups__media { position: relative; top: auto; height: auto; aspect-ratio: 16 / 10; }
-    .groups__content { padding-block: 0; }
-}
-
 @media (max-width: 479px) {
     .groups__occasion { grid-template-columns: 1fr; }
 }
 
-/* ── Plan your visit ─────────────────────────────────────────
-   Live status + hours beside a real (lazy-loaded) map of the venue,
-   then three quick facts as plain columns.
-   ──────────────────────────────────────────────────────────── */
-.visit {
-    padding-block: clamp(4rem, 8vw, 7rem);
-}
-
-.visit__intro {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    align-items: end;
-    gap: 1.5rem 4rem;
-    margin-bottom: clamp(2.5rem, 5vw, 4rem);
-}
-
-.visit__title {
-    font-size: var(--text-section);
-    font-weight: 400;
-    line-height: 1.04;
-    letter-spacing: -0.04em;
-}
-
-.visit__sub {
-    max-width: 44ch;
-    font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
-    line-height: 1.65;
-    color: var(--color-sr-muted);
-}
-
-.visit__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: clamp(0.75rem, 1.5vw, 1.25rem);
-}
-
-.visit-card {
-    position: relative;
-    border-radius: var(--radius-card);
-    background: var(--color-sr-surface);
-    color: var(--color-sr-text);
-    padding: clamp(1.5rem, 3vw, 2.5rem);
-    overflow: hidden;
-}
-
-/* Live status */
-.visit-status {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.4rem 0.6rem;
-    margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
-    font-size: 0.9375rem;
-}
-
-.visit-status__dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--color-sr-muted);
-}
-
-.visit-status.is-open .visit-status__dot {
-    background: var(--color-rs-blue);
-    animation: visit-pulse 2s ease-out infinite;
-}
-
-@keyframes visit-pulse {
-    0%   { box-shadow: 0 0 0 0 rgba(24, 85, 232, 0.5); }
-    100% { box-shadow: 0 0 0 12px rgba(24, 85, 232, 0); }
-}
-
-.visit-status__label {
-    font-family: var(--font-heading);
-    font-size: 1.375rem;
-    letter-spacing: -0.02em;
-    color: var(--color-sr-text);
-}
-
-.visit-status.is-open .visit-status__label { color: var(--color-rs-blue); }
-
-.visit-status__detail { color: var(--color-sr-muted); }
-
-/* Hours list */
-.visit-hours {
-    display: flex;
-    flex-direction: column;
-}
-
-.visit-hours__row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-block: 0.875rem;
-    font-size: 0.9375rem;
-    color: var(--color-sr-text);
-}
-
-.visit-hours__row dt {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.visit-hours__row dd {
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
-
-.visit-hours__row.is-closed { color: var(--color-sr-muted); }
-
-.visit-hours__row + .visit-hours__row { border-top: 1px solid var(--color-sr-wire); }
-
-.visit-hours__row.is-today {
-    color: var(--color-sr-text);
-    font-weight: 600;
-}
-
-.visit-hours__today {
-    padding: 0.15rem 0.5rem;
-    border-radius: var(--radius-tag);
-    background: var(--color-rs-blue);
-    color: #ffffff;
-    font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-}
-
-/* Map card — a real map of the venue, toned to the palette, with the
-   address and directions on the card itself (no panel over the map) */
-.visit-card--map {
-    display: grid;
-    grid-template-rows: minmax(0, 1fr) auto;
-    min-height: 340px;
-    padding: 0;
-}
-
-.visit-map {
-    position: relative;
-    min-height: 220px;
-    background: var(--color-sr-surface-raised);   /* shows until the map loads */
-}
-
-.visit-map__frame {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-    filter: grayscale(1) contrast(1.05);
-}
-
-/* A navy cast over the greyscale map, so it sits in the palette */
-.visit-map::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--color-sr-text);
-    mix-blend-mode: color;
-    opacity: 0.55;
-    pointer-events: none;   /* the map stays draggable */
-}
-
-.visit-card__foot {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: clamp(1.125rem, 2vw, 1.5rem) clamp(1.25rem, 2.5vw, 1.75rem);
-}
-
-.visit-card__eyebrow,
-.visit-fact__label {
-    display: block;
-    margin-bottom: 0.35rem;
-    font-size: 0.6875rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-rs-blue);
-}
-
-.visit-card__place {
-    display: block;
-    font-family: var(--font-heading);
-    font-size: clamp(1.125rem, 1.8vw, 1.375rem);
-    letter-spacing: -0.02em;
-}
-
-.visit-card__city {
-    display: block;
-    font-size: 0.875rem;
-    color: var(--color-sr-muted);
-}
-
-.visit-card__go {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    flex-shrink: 0;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--color-rs-blue);
-}
-
-.visit-card__go svg { transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1); }
-.visit-card__go:hover svg { transform: translate(3px, -3px); }
-
-.visit-card__go:focus-visible {
-    outline: 2px solid var(--color-rs-blue);
-    outline-offset: 3px;
-    border-radius: var(--radius-tag);
-}
-
-/* Quick facts — three plain columns split by hairlines, no box */
-.visit-facts {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-top: clamp(2rem, 4vw, 3rem);
-}
-
-.visit-fact {
-    padding-block: 0.25rem;
-    padding-right: clamp(1rem, 2vw, 1.5rem);
-}
-
-.visit-fact + .visit-fact {
-    padding-left: clamp(1.5rem, 3vw, 2.5rem);
-    border-left: 1px solid var(--color-sr-wire);
-}
-
-.visit-fact__value {
-    font-family: var(--font-heading);
-    font-size: clamp(1.75rem, 3.2vw, 2.5rem);
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-    color: var(--color-sr-text);
-}
-
-.visit-fact__sub {
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
-    color: var(--color-sr-muted);
-}
-
+/* Quiet text link ("See all questions →", "Or ask on WhatsApp →") —
+   used on home, /pricing and /book */
 .visit__more {
     font-size: 0.9375rem;
     color: var(--color-sr-text);
@@ -1932,36 +1602,37 @@ body.cursor--hovering .cursor-ring {
 
 .visit__more:hover { text-decoration-color: var(--color-sr-text); }
 
-@media (max-width: 1023px) {
-    .visit__intro { grid-template-columns: 1fr; }
+/* Live-status pulse, shared by the footer, the visit band and the ticket */
+@keyframes visit-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(24, 85, 232, 0.5); }
+    100% { box-shadow: 0 0 0 12px rgba(24, 85, 232, 0); }
 }
 
-@media (max-width: 900px) {
-    .visit__grid  { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 640px) {
-    .visit-facts { grid-template-columns: 1fr; }
-    .visit-fact { padding: 1.125rem 0; }
-    .visit-fact + .visit-fact { padding-left: 0; border-left: 0; border-top: 1px solid var(--color-sr-wire); }
-    .visit-card__foot { flex-direction: column; align-items: flex-start; }
-}
-
-/* ── Pricing ─────────────────────────────────────────────────
-   The ticket: price and action on the left, what's included on
-   the right as hairline rows. No boxes, no tiers.
+/* ── Pricing — one ticket ────────────────────────────────────
+   Eyebrow + heading left, a line right (as in the rooms). Then the
+   ticket: a deep-navy stub (price, Book, live status), a dashed tear
+   between two notches, and the body listing what it buys. Stacks on
+   phones, the tear turning sideways.
    ──────────────────────────────────────────────────────────── */
 .pricing {
     padding-block: clamp(4rem, 8vw, 7rem);
-    background: var(--color-sr-surface);   /* off-white band: the ticket is its own moment */
+    background: var(--color-sr-surface);
 }
 
 .pricing__intro {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
     align-items: end;
     gap: 1.5rem 4rem;
     margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+.pricing__eyebrow {
+    margin-bottom: 1.25rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-sr-accent);
 }
 
 .pricing__title {
@@ -1973,107 +1644,228 @@ body.cursor--hovering .cursor-ring {
 
 .pricing__sub {
     max-width: 44ch;
-    font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
-    line-height: 1.65;
+    font-size: clamp(0.9375rem, 1.3vw, 1.0625rem);
+    line-height: 1.7;
     color: var(--color-sr-muted);
 }
 
-.pricing__ticket {
+/* ── The ticket ── */
+.ticket {
+    --notch: 1.25rem;   /* the half-circle bitten out at each end of the tear */
+    --cut: var(--color-sr-surface);   /* = the section, so the notches read as holes */
+
     display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: 2rem clamp(2rem, 6vw, 6rem);
-    padding-top: clamp(2rem, 4vw, 3rem);
-    border-top: 1px solid var(--color-sr-wire);
+    grid-template-columns: minmax(0, 0.85fr) auto minmax(0, 1.15fr);
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: var(--color-sr-bg);
+    border: 1px solid var(--color-sr-wire);
 }
 
-.pricing__main {
+.ticket__stub {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.5rem;
+    padding: clamp(2rem, 4vw, 3rem);
+    background: var(--color-sr-deep);
+    color: #ffffff;
 }
 
-.price__name {
-    font-family: var(--font-display);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0.18em;
+.ticket__name {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--color-rs-blue);
+    color: rgba(255, 255, 255, 0.7);
 }
 
-.price__amount {
+.ticket__price {
     display: flex;
     align-items: baseline;
-    gap: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    margin-top: 1rem;
 }
 
-.price__figure {
+.ticket__figure {
     font-family: var(--font-heading);
-    font-size: clamp(4rem, 9vw, 7.5rem);
+    font-size: clamp(4rem, 8vw, 6.5rem);
     font-weight: 400;
     line-height: 0.9;
     letter-spacing: -0.05em;
-    color: var(--color-sr-text);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
 }
 
-.price__unit {
+.ticket__unit {
     font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* White pill on the navy stub */
+.ticket__pill {
+    --pill-bg: #ffffff;
+    --pill-fg: var(--color-sr-deep);
+    margin-top: clamp(1.75rem, 3vw, 2.25rem);
+}
+
+.ticket__status {
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.ticket__dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 0.4rem;
+    border-radius: 50%;
+    vertical-align: 0.05em;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.ticket__status.is-open .ticket__dot {
+    background: var(--color-sr-accent-light);
+    animation: visit-pulse 2s ease-out infinite;
+}
+
+/* The tear: a dashed rule with a notch top and bottom */
+.ticket__tear {
+    position: relative;
+    width: 0;
+    margin-block: calc(var(--notch) + 0.5rem);
+    border-left: 2px dashed var(--color-sr-wire);
+}
+
+.ticket__tear::before,
+.ticket__tear::after {
+    content: '';
+    position: absolute;
+    left: calc(var(--notch) * -1 - 1px);
+    width: calc(var(--notch) * 2);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--cut);
+    box-shadow: inset 0 0 0 1px var(--color-sr-wire);
+}
+
+.ticket__tear::before { top: calc(var(--notch) * -2 - 0.5rem - 1px); }
+.ticket__tear::after  { bottom: calc(var(--notch) * -2 - 0.5rem - 1px); }
+
+.ticket__body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(2rem, 4vw, 3rem);
+}
+
+.ticket__label {
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     color: var(--color-sr-muted);
 }
 
-.pricing__groups {
-    font-size: 0.9375rem;
-    color: var(--color-sr-muted);
-}
-
-.pricing__groups a {
-    color: var(--color-rs-blue);
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    text-underline-offset: 3px;
-    transition: text-decoration-color var(--duration-fast) var(--ease-out);
-}
-
-.pricing__groups a:hover { text-decoration-color: currentColor; }
-
-.price__list {
+.ticket__list {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.5rem;
     list-style: none;
-    align-self: end;
     font-family: var(--font-heading);
-    font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
+    font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
     letter-spacing: -0.015em;
     line-height: 1.4;
     color: var(--color-sr-text);
 }
 
-.price__list li {
-    padding-block: 1rem;
-    border-bottom: 1px solid var(--color-sr-wire);
+.ticket__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
 }
 
-.price__list li:first-child { padding-top: 0; }
+.ticket__list svg {
+    flex-shrink: 0;
+    margin-top: 0.15em;
+    color: var(--color-sr-accent);
+}
 
 @media (max-width: 1023px) {
     .pricing__intro { grid-template-columns: 1fr; }
 }
 
+/* Phones: stub on top, the tear across, the body below */
 @media (max-width: 767px) {
-    .pricing__ticket { grid-template-columns: 1fr; }
-    .price__list li:first-child { padding-top: 1rem; border-top: 1px solid var(--color-sr-wire); }
+    .ticket { grid-template-columns: 1fr; }
+
+    .ticket__tear {
+        width: auto;
+        height: 0;
+        margin: 0 calc(var(--notch) + 0.5rem);
+        border-left: 0;
+        border-top: 2px dashed var(--color-sr-wire);
+    }
+
+    .ticket__tear::before,
+    .ticket__tear::after { top: calc(var(--notch) * -1 - 1px); bottom: auto; left: auto; }
+    .ticket__tear::before { left: calc(var(--notch) * -2 - 0.5rem - 1px); }
+    .ticket__tear::after  { right: calc(var(--notch) * -2 - 0.5rem - 1px); }
 }
 
-/* Visit fact link to the pricing section */
-.visit-fact__link {
-    display: inline-block;
-    color: var(--color-rs-blue);
-    text-decoration: underline;
-    text-decoration-color: transparent;
-    text-underline-offset: 3px;
-    transition: text-decoration-color var(--duration-fast) var(--ease-out);
+/* ── Groups strip, under the ticket ──────────────────────────
+   One white row: the question, a line, the occasions as quiet tags,
+   and the enquiry pill on the right. Stacks on phones.
+   ──────────────────────────────────────────────────────────── */
+.group-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem 3rem;
+    margin-top: 1rem;
+    padding: clamp(1.5rem, 3vw, 2rem) clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid var(--color-sr-wire);
+    border-radius: var(--radius-card);
+    background: var(--color-sr-bg);
 }
-.visit-fact__link:hover { text-decoration-color: currentColor; }
+
+.group-strip__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--color-sr-text);
+}
+
+.group-strip__line {
+    margin-top: 0.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-sr-muted);
+}
+
+.group-strip__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    list-style: none;
+}
+
+.group-strip__tags li {
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    background: var(--color-sr-surface);
+    font-size: 0.8125rem;
+    color: var(--color-sr-text);
+}
+
+.group-strip__pill { flex-shrink: 0; }
+
+@media (max-width: 767px) {
+    .group-strip { flex-direction: column; align-items: flex-start; }
+}
 
 /* FAQ — its own section, right before the final ask: heading aside, accordion beside it */
 .faq-section {
@@ -2124,484 +1916,283 @@ body.cursor--hovering .cursor-ring {
 }
 
 /* ============================================================
-   FINAL BOOKING CTA
-   A light, matte close set against the dark footer:
-   coordinates + live Harare time, a huge masked headline, and
-   a disc with its label orbiting it. Behind it all,
-   two ring fields drift into a moiré, under a fine grain.
+   VISIT BAND — the inline CTA  (after Artora's "Visit Today")
+   A solid deep-navy band. Centred: the eyebrow, the line, the
+   sub-line, one white pill and the live status. Round the edges,
+   eight photos at Artora's spots (measured at 1440×772, kept as %
+   and vw so the collage scales with the screen), partly off the
+   sides. Still.
    ============================================================ */
-.final-booking {
-    --close-bg:    var(--color-sr-surface);   /* matte: the same cool off-white as the Visit cards */
-    --close-ink:   var(--color-sr-text);
-    --close-muted: var(--color-sr-muted);
-    --close-faint: #7f8daa;
-    --close-line:  rgba(12, 26, 62, 0.14);
-    --close-acc:   var(--color-rs-blue);
-    --lux:         cubic-bezier(0.19, 1, 0.22, 1);
-
+.visit-cta {
     position: relative;
     isolation: isolate;
+    display: grid;
+    place-items: center;
+    min-height: clamp(34rem, 53.6vw, 50rem);   /* Artora: 772 at 1440 */
+    padding: 6rem 1rem;
     overflow: hidden;
-    padding-block: clamp(2.5rem, 5vw, 4rem);
-    background: var(--close-bg);
-    color: var(--close-ink);
+    background: var(--color-sr-deep);
+    color: #ffffff;
 }
 
-/* Rings + grain share one layer, eased out toward the bottom.
-   Stops follow an ease-out curve so no band shows where it ends. */
-.final-booking__atmos {
+.visit-cta__photos {
     position: absolute;
     inset: 0;
     z-index: -1;
+}
+
+.visit-cta__photo {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    aspect-ratio: var(--r);
     overflow: hidden;
-    pointer-events: none;
-    -webkit-mask-image: linear-gradient(to bottom,
-        #000 0%, #000 50%, rgba(0, 0, 0, 0.9) 62%, rgba(0, 0, 0, 0.68) 73%,
-        rgba(0, 0, 0, 0.42) 83%, rgba(0, 0, 0, 0.18) 92%, transparent 100%);
-    mask-image: linear-gradient(to bottom,
-        #000 0%, #000 50%, rgba(0, 0, 0, 0.9) 62%, rgba(0, 0, 0, 0.68) 73%,
-        rgba(0, 0, 0, 0.42) 83%, rgba(0, 0, 0, 0.18) 92%, transparent 100%);
+    border-radius: var(--radius-card);
+    background: #0c1433;
 }
 
-/* Moiré */
-.final-booking__moire {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: max(1000px, 100%);
-    aspect-ratio: 1;
-    transform: translate(-50%, -50%);
-    fill: none;
-    stroke: rgba(12, 26, 62, 0.07);
-    stroke-width: 1.25;
-    -webkit-mask-image: radial-gradient(closest-side, #000 30%, transparent 100%);
-    mask-image: radial-gradient(closest-side, #000 30%, transparent 100%);
-    pointer-events: none;
+.visit-cta__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.final-booking__rings--drift {
-    stroke: rgba(24, 85, 232, 0.12);
-    animation: final-moire 16s ease-in-out infinite alternate;
-}
+/* Our kaleidoscope room, upside down as in the hero */
+.visit-cta__photo--flip img { rotate: 180deg; }
 
-@keyframes final-moire {
-    from { transform: translate(-14px, -6px); }
-    to   { transform: translate(14px, 6px); }
-}
+/* Artora's eight: x / y as % of the band, width in vw, shape */
+.visit-cta__photo--1 { --x: -3%;   --y: 5.2%;  --w: 10.2vw; --r: 147 / 215; }
+.visit-cta__photo--2 { --x: 89.1%; --y: -1%;   --w: 15vw;   --r: 216 / 153; }
+.visit-cta__photo--3 { --x: 0.7%;  --y: 52.5%; --w: 16.3vw; --r: 235 / 215; }
+.visit-cta__photo--4 { --x: -7%;   --y: 81.7%; --w: 15vw;   --r: 216 / 153; }
+.visit-cta__photo--5 { --x: 66.1%; --y: 1%;    --w: 17.9vw; --r: 258 / 188; }   /* a touch higher than Artora's: our block has a sub-line too */
+.visit-cta__photo--6 { --x: 89.1%; --y: 41%;   --w: 10.2vw; --r: 147 / 215; }
+.visit-cta__photo--7 { --x: 67.4%; --y: 82.6%; --w: 16.9vw; --r: 244 / 163; }
+.visit-cta__photo--8 { --x: 8%;    --y: -2.7%; --w: 15vw;   --r: 216 / 153; }
 
-/* Film grain */
-.final-booking__grain {
-    position: absolute;
-    inset: 0;
-    opacity: 0.05;
-    mix-blend-mode: multiply;   /* grain darkens only: reads as paper, not dust */
-    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    pointer-events: none;
-}
-
-/* Meta row */
-.final-booking__meta {
+.visit-cta__inner {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem 2rem;
-    font-family: var(--font-display);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--close-faint);
+    max-width: 36rem;   /* clears the photos at every width, 1920 included */
+    text-align: center;
 }
 
-.final-booking__meta time { color: var(--close-ink); font-variant-numeric: tabular-nums; }
-
-.final-booking__status {
+/* "— DON'T WAIT UNTIL IT'S SOLD OUT" */
+.visit-cta__eyebrow {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.625rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ffffff;
 }
 
-.final-booking__status.is-open { color: var(--close-ink); }
+.visit-cta__eyebrow::before {
+    content: '';
+    width: 1.75rem;
+    height: 1px;
+    background: currentColor;
+}
 
-.final-booking__dot {
-    width: 7px;
-    height: 7px;
+.visit-cta__title {
+    font-size: var(--text-section);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+    color: #ffffff;
+    text-wrap: balance;   /* no lone "away." */
+}
+
+.visit-cta__sub {
+    max-width: 44ch;
+    margin-top: 1.25rem;
+    font-size: clamp(1rem, 1.5vw, 1.125rem);
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* Live status under the pill; plain inline text so the dot stays with
+   the first word when it wraps */
+.visit-cta__note {
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.visit-cta__dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 0.4rem;
     border-radius: 50%;
-    background: var(--close-faint);
+    vertical-align: 0.05em;
+    background: rgba(255, 255, 255, 0.5);
 }
 
-.final-booking__status.is-open .final-booking__dot {
-    background: var(--close-acc);
+.visit-cta__note.is-open .visit-cta__dot {
+    background: var(--color-sr-accent-light);
     animation: visit-pulse 2s ease-out infinite;
 }
 
-/* Headline: two lines, the second set to the right; each rises from a mask */
-.final-booking__title {
-    margin-block: clamp(1.75rem, 4vw, 3rem);
-    font-family: var(--font-heading);
-    /* capped by height too, so the whole close fits one screen */
-    font-size: clamp(3rem, min(8.5vw, 15svh), 8.75rem);
-    font-weight: 400;
-    line-height: 0.95;
-    letter-spacing: -0.05em;
-    color: var(--close-ink);   /* beats the global heading colour */
+/* White pill on the navy band */
+.visit-cta__pill {
+    --pill-bg: #ffffff;
+    --pill-fg: var(--color-sr-deep);
+    margin-top: clamp(1.75rem, 3vw, 2.25rem);
 }
 
-.final-booking__mask {
-    display: block;
-    overflow: hidden;
-    padding: 0 0.06em 0.1em 0;   /* italic overhang + descenders */
-    margin-bottom: -0.1em;
+/* Phones: five photos, in a band above the words and a band below */
+@media (max-width: 700px) {
+    .visit-cta {
+        min-height: 44rem;
+        padding-block: 12rem;
+    }
+
+    .visit-cta__photo--3,
+    .visit-cta__photo--5,
+    .visit-cta__photo--6 { display: none; }
+
+    .visit-cta__photo--1 { --x: -8%; --y: 3%;   --w: 28vw; }
+    .visit-cta__photo--8 { --x: 26%; --y: -3%;  --w: 36vw; }
+    .visit-cta__photo--2 { --x: 70%; --y: 2%;   --w: 38vw; }
+    .visit-cta__photo--4 { --x: -10%; --y: 80%; --w: 38vw; }
+    .visit-cta__photo--7 { --x: 62%; --y: 82%;  --w: 40vw; }
 }
 
-.final-booking__mask--end { text-align: right; }
-
-.final-booking__line { display: block; }
-
-.final-booking__title em {
-    font-style: italic;
-    color: var(--close-acc);
+/* ============================================================
+   FAQ (home)  — scoped as .faq-home; /pricing keeps .faq-section
+   White band. Centred eyebrow + heading, then each question as a
+   rounded off-white card (number · question · plus); the open card
+   turns white with a hairline. A way to ask anything else under it.
+   The accordion itself is the shared .faq (app.js initFaq).
+   ============================================================ */
+.faq-home {
+    padding-block: clamp(4.5rem, 8vw, 7rem);
+    background: var(--color-sr-bg);
 }
 
-/* The title reveals through its lines, not as a block */
-.js .final-booking__title[data-reveal] { opacity: 1; transform: none; }
-
-.js .final-booking__title .final-booking__line {
-    transform: translateY(105%);
-    transition: transform 1.3s var(--lux);
+.faq-home__intro {
+    max-width: 40rem;
+    margin: 0 auto clamp(2.5rem, 5vw, 3.5rem);
+    text-align: center;
 }
 
-.js .final-booking__title .final-booking__mask + .final-booking__mask .final-booking__line { transition-delay: 0.12s; }
-
-.js .final-booking__title.is-revealed .final-booking__line { transform: none; }
-
-/* Foot: copy left, disc right */
-.final-booking__foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 2.5rem 3rem;
-}
-
-.final-booking__copy {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    max-width: 44ch;
-}
-
-.final-booking__sub {
-    font-size: clamp(1rem, 1.5vw, 1.1875rem);
-    line-height: 1.6;
-    color: var(--close-muted);
-    text-wrap: pretty;
-}
-
-.final-booking__proof {
-    --stars-track: rgba(12, 26, 62, 0.15);
-
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 0;
-    list-style: none;
+.faq-home__eyebrow {
+    margin-bottom: 1.25rem;
     font-size: 0.8125rem;
-    color: var(--close-faint);
-}
-
-.final-booking__proof li {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding-right: 0.875rem;
-    margin-right: 0.875rem;
-    border-right: 1px solid var(--close-line);
-}
-
-.final-booking__proof li:last-child  { padding-right: 0; margin-right: 0; border-right: 0; }
-.final-booking__proof li:first-child { color: var(--close-ink); font-weight: 500; }
-
-.final-booking__wa {
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--close-ink);
-    text-decoration: underline;
-    text-decoration-color: var(--close-line);
-    text-underline-offset: 5px;
-    transition: text-decoration-color var(--duration-fast) var(--ease-out);
-}
-
-.final-booking__wa:hover { text-decoration-color: var(--close-acc); }
-
-/* ── The orbit button ── */
-.orbit {
-    --size: clamp(136px, min(13vw, 22svh), 172px);
-
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: var(--size);
-    height: var(--size);
-    border-radius: 50%;
-    background: var(--close-ink);
-    color: #ffffff;
-    cursor: none;
-    transition: background 0.5s var(--lux), color 0.5s var(--lux);
-}
-
-@media (hover: none) { .orbit { cursor: pointer; } }
-
-.orbit__ring {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    animation: orbit-spin 22s linear infinite;
-}
-
-.orbit__ring text {
-    fill: currentColor;
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-}
-
-.orbit__core {
-    display: grid;
-    place-items: center;
-    width: 38%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: #ffffff;
-    color: var(--close-ink);
-    transition: background 0.5s var(--lux), color 0.5s var(--lux), scale 0.6s var(--lux);
-}
-
-.orbit__core svg { transition: rotate 0.6s var(--lux); }
-
-@media (hover: hover) {
-    .orbit:hover { background: var(--color-rs-blue); color: #ffffff; }
-    .orbit:hover .orbit__core { background: #ffffff; color: var(--color-rs-blue); scale: 1.12; }
-    .orbit:hover .orbit__core svg { rotate: 45deg; }
-    .orbit:hover .orbit__ring { animation-duration: 9s; }
-}
-
-.orbit:focus-visible {
-    outline: 2px solid var(--close-acc);
-    outline-offset: 6px;
-}
-
-@keyframes orbit-spin { to { rotate: 360deg; } }
-
-/* ── Smaller screens ── */
-@media (max-width: 767px) {
-    .final-booking__coords { display: none; }
-    .final-booking__mask--end { text-align: left; }
-    .final-booking__foot { flex-direction: column; align-items: flex-start; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .final-booking__rings--drift,
-    .orbit__ring { animation: none; }
-    .js .final-booking__title .final-booking__line { transform: none; transition: none; }
-}
-
-/* ============================================================
-   NUMBERED ROOM CARDS  (Astro-project-card pattern)
-   ============================================================ */
-
-.room-card {
-    background: var(--color-sr-surface);
-    padding: clamp(1.75rem, 3.5vw, 3rem);
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    position: relative;
-    overflow: hidden;
-    transition: background-color var(--duration-standard) var(--ease-out);
-    min-height: 320px;
-}
-
-.room-card:hover { background: var(--color-sr-surface-raised); }
-
-/* Giant number watermark */
-.room-card__number {
-    font-family: var(--font-display);
-    font-size: clamp(5rem, 12vw, 10rem);
-    font-weight: 800;
-    letter-spacing: -0.05em;
-    line-height: 1;
-    color: var(--color-sr-wire);
-    position: absolute;
-    top: 1rem;
-    right: 1.5rem;
-    user-select: none;
-    pointer-events: none;
-    transition: color var(--duration-standard) var(--ease-out);
-}
-
-.room-card:hover .room-card__number { color: rgba(30,143,225,0.1); }
-
-.room-card__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: 9999px;
-    border: 1px solid var(--color-sr-wire);
-    font-size: 0.65rem;
-    font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--color-sr-muted);
-    font-family: var(--font-display);
-    width: fit-content;
+    color: var(--color-sr-accent);
 }
 
-.room-card__badge-dot {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--color-rs-blue);
-    flex-shrink: 0;
-}
-
-.room-card__content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    position: relative;
-    z-index: 1;
-    margin-top: auto;
-}
-
-.room-card__title {
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 2.5vw, 2.25rem);
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    line-height: 1.05;
-    color: var(--color-sr-text);
-}
-
-.room-card__desc {
-    font-size: 0.9375rem;
-    line-height: 1.65;
-    color: var(--color-sr-muted);
-    max-width: 42ch;
-}
-
-.room-card__link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-sr-muted);
-    font-family: var(--font-display);
-    margin-top: 0.5rem;
-    transition: color var(--duration-fast) var(--ease-out);
-}
-
-.room-card__link:hover { color: var(--color-rs-blue); }
-.room-card__link::before { content: '+'; font-size: 1rem; line-height: 1; }
-
-/* ============================================================
-   BRAND BANNER  (slow marquee between the visit and the close)
-   ============================================================ */
-.brand-banner {
-    overflow: hidden;
-    padding-block: clamp(1.75rem, 4vw, 3rem);
-    border-block: 1px solid var(--color-sr-wire);
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
-}
-
-.brand-banner__track {
-    display: flex;
-    width: max-content;
-    animation: brand-banner-drift 48s linear infinite;
-}
-
-.brand-banner__set {
-    display: flex;
-    align-items: center;
-    gap: clamp(1.5rem, 3vw, 2.75rem);
-    padding-right: clamp(1.5rem, 3vw, 2.75rem);   /* trailing gap, so -50% lands exactly */
-}
-
-.brand-banner__word {
-    font-family: var(--font-heading);
-    font-size: clamp(2.75rem, 7vw, 6.5rem);
+.faq-home__title {
+    font-size: var(--text-section);
     font-weight: 400;
-    font-style: normal;
-    line-height: 1;
-    letter-spacing: -0.045em;
-    white-space: nowrap;
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+}
+
+.faq-home__sub {
+    margin-top: 1rem;
+    font-size: clamp(0.9375rem, 1.3vw, 1.0625rem);
+    line-height: 1.7;
+    color: var(--color-sr-muted);
+}
+
+.faq-home__list {
+    gap: 0.625rem;
+    max-width: 52rem;
+    margin-inline: auto;
+}
+
+.faq-home .faq__item {
+    border: 1px solid transparent;
+    border-radius: var(--radius-card);
+    background: var(--color-sr-surface);
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out);
+}
+
+.faq-home .faq__item.is-open {
+    border-color: var(--color-sr-wire);
+    background: var(--color-sr-bg);
+}
+
+.faq-home .faq__question {
+    gap: 1.25rem;
+    padding: 1.25rem clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+.faq-home__num {
+    flex-shrink: 0;
+    width: 1.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    color: var(--color-sr-accent);
+    font-variant-numeric: lining-nums tabular-nums;
+}
+
+.faq-home__q { flex: 1; }
+
+.faq-home .faq__icon { border-color: var(--color-sr-wire); background: var(--color-sr-bg); }
+.faq-home .faq__item.is-open .faq__icon { background: var(--color-sr-text); }
+
+/* The answer lines up under the question, past the number */
+.faq-home .faq__answer-inner {
+    padding: 0 clamp(1.25rem, 2.5vw, 1.75rem) 1.5rem calc(clamp(1.25rem, 2.5vw, 1.75rem) + 3rem);
+}
+
+.faq-home__more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem 1.5rem;
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    font-family: var(--font-heading);
+    font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+    letter-spacing: -0.02em;
     color: var(--color-sr-text);
 }
 
-.brand-banner__word--accent { color: var(--color-rs-blue); }
-
-.brand-banner__word--outline {
-    color: transparent;
-    -webkit-text-stroke: 1px var(--color-sr-muted-2);
+@media (max-width: 639px) {
+    .faq-home__num { display: none; }
+    .faq-home .faq__answer-inner { padding-left: clamp(1.25rem, 2.5vw, 1.75rem); padding-right: 1.25rem; }
 }
 
-.brand-banner__sep {
-    flex-shrink: 0;
-    width: 0.625rem;
-    height: 0.625rem;
-    border: 1.5px solid var(--color-rs-blue);
-    transform: rotate(45deg);
-}
-
-@keyframes brand-banner-drift {
-    to { transform: translateX(-50%); }
-}
-
-/* brand-banner.js takes over: scroll-linked drift, lean and the flip */
-.brand-banner.is-driven .brand-banner__track {
-    animation: none;
-    will-change: transform;
-}
-
-.brand-banner__word--flip {
-    display: inline-block;
-    transform-origin: 50% 55%;   /* optical centre of lowercase-heavy text */
-    will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .brand-banner__track { animation: none; }
-}
-
-/* ── Rooms — immersive tour ──────────────────────────────────
-   Default (no JS, reduced motion, < 1024px): rooms stack vertically.
-   .is-horizontal (added by rooms.js on desktop): pinned sideways track.
-   Each .room__stage hosts a live version of that room's illusion.
+/* ── Rooms — after Artora's featured exhibitions ──────────────
+   On the hero's off-white, so the two run together. Eyebrow +
+   heading left, a line and Book right, then a 2×2 grid of room
+   cards. Each card's stage is that room's live illusion (rooms.js);
+   under it, "• Room 01 · tagline" and the room's name.
    ──────────────────────────────────────────────────────────── */
 .rooms {
-    --rooms-x:   clamp(1.5rem, 5vw, 4rem);
-    --rooms-bg:  var(--color-sr-deep);   /* the footer's navy: flat, no glow */
-    --lux:       cubic-bezier(0.19, 1, 0.22, 1);
-
-    padding-top: clamp(4rem, 8vw, 7rem);
+    padding-block: clamp(4rem, 8vw, 7rem);
+    background: var(--color-sr-surface);   /* = the hero's, flat */
 }
 
 .rooms__intro {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
     align-items: end;
     gap: 2rem 4rem;
-    margin-bottom: clamp(3rem, 6vw, 5rem);
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+
+.rooms__eyebrow {
+    margin-bottom: 1.25rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-sr-accent);
 }
 
 .rooms__heading {
@@ -2611,6 +2202,13 @@ body.cursor--hovering .cursor-ring {
     letter-spacing: -0.04em;
 }
 
+.rooms__aside {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
 .rooms__sub {
     max-width: 44ch;
     font-size: clamp(0.9375rem, 1.3vw, 1.0625rem);
@@ -2618,181 +2216,38 @@ body.cursor--hovering .cursor-ring {
     color: var(--color-sr-muted);
 }
 
-/* ── Dark frame (the "inside") ── */
-.rooms__frame {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    background: var(--rooms-bg);
-    color: #ffffff;
+/* ── The grid: two big cards a row, tight gutters (as on Artora) ── */
+.rooms__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
 }
 
-.rooms__track {
+.room-card {
+    --accent: 61 116 245;
+
     display: flex;
     flex-direction: column;
-}
-
-/* ── "Step inside" slide ── */
-.rooms__enter {
-    padding: clamp(4rem, 10vw, 6rem) var(--rooms-x) 1rem;
-}
-
-.rooms__enter-kicker {
-    font-size: 0.75rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.55);
-}
-
-.rooms__enter-title {
-    margin-top: 1rem;
-    font-family: var(--font-heading);
-    font-size: clamp(3.25rem, 12vw, 9rem);
-    line-height: 0.95;
-    letter-spacing: -0.045em;
-}
-
-.rooms__enter-title em {
-    font-style: italic;
-    color: var(--color-sr-accent-light);
-}
-
-.rooms__enter-hint {
-    display: none;
-    margin-top: 2rem;
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.rooms__enter-hint span {
-    display: inline-block;
-    animation: rooms-nudge 1.6s var(--lux) infinite;
-}
-
-@keyframes rooms-nudge {
-    0%, 100% { transform: translateX(0); }
-    50%      { transform: translateX(8px); }
-}
-
-/* ── A room ── */
-.room {
-    --accent: 24 85 232;
-
-    position: relative;
-    isolation: isolate;
-    display: grid;
-    gap: 2.5rem;
-    padding: clamp(3.5rem, 9vw, 5rem) var(--rooms-x);
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
     overflow: hidden;
+    border: 1px solid var(--color-sr-wire);
+    border-radius: var(--radius-card);
+    background: var(--color-sr-bg);
 }
 
-.room[data-room="mirror"]   { --accent: 61 116 245; }
-.room[data-room="infinity"] { --accent: 61 116 245; }
-.room[data-room="beuchet"]  { --accent: 61 116 245; }
-
-/* Giant number behind the copy: a faint solid fill, like the footer watermark
-   (outlines show the font's overlapping contours) */
-.room__number {
-    position: absolute;
-    top: 0.5rem;
-    right: var(--rooms-x);
-    z-index: -1;
-    font-family: var(--font-heading);
-    font-size: clamp(7rem, 32vw, 14rem);
-    font-weight: 300;
-    line-height: 0.8;
-    letter-spacing: -0.06em;
-    color: rgba(255, 255, 255, 0.05);
-    pointer-events: none;
-    user-select: none;
-}
-
-.room__kicker {
-    font-size: 0.75rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgb(var(--accent));
-}
-
-.room__kicker span { color: rgba(255, 255, 255, 0.4); }
-
-.room__title {
-    margin: 0.875rem 0 1.25rem;
-    font-size: clamp(2.25rem, 4.6vw, 4.75rem);
-    font-weight: 400;
-    line-height: 1.02;
-    letter-spacing: -0.035em;
-    color: #ffffff;
-}
-
-/* Each word rises out of its own mask */
-.room__word {
-    display: inline-block;
-    overflow: hidden;
-    vertical-align: top;
-    padding-bottom: 0.1em;
-    margin-bottom: -0.1em;
-}
-
-.room__word > span { display: inline-block; }
-
-.room__tagline {
-    max-width: 30ch;
-    margin-bottom: 1rem;
-    font-size: clamp(1.0625rem, 1.5vw, 1.3125rem);
-    line-height: 1.45;
-    color: #ffffff;
-}
-
-.room__desc {
-    max-width: 42ch;
-    font-size: 0.9375rem;
-    line-height: 1.7;
-    color: rgba(255, 255, 255, 0.62);
-}
-
-.room__cta {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
-    padding-bottom: 4px;
-    font-size: 0.9375rem;
-    color: #ffffff;
-}
-
-.room__cta::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 1px;
-    background: rgb(var(--accent));
-    transform-origin: right;
-}
-
-.room__cta:hover::after { animation: link-redraw 0.8s var(--lux); }
-
-.room__cta svg { transition: transform 0.6s var(--lux); }
-.room__cta:hover svg { transform: translateX(5px); }
-
-/* ── Stage ── */
-.room__stage {
+/* The illusion, on a flat dark stage */
+.room-card__stage {
     position: relative;
     display: grid;
     place-items: center;
-    aspect-ratio: 4 / 3.6;
-    border-radius: var(--radius-card);
+    aspect-ratio: 632 / 439;   /* Artora's card image */
     overflow: hidden;
-    background: #0c1433;   /* flat — no border, no glow */
+    background: #0c1433;
 }
 
-.room[data-room="infinity"] .room__stage { background: #02040c; }
+.room-card__stage--dark { background: #02040c; }
 
-.room__hint {
+/* What to do with it — a still dot, not a pulsing one */
+.room-card__hint {
     position: absolute;
     left: 1.25rem;
     bottom: 1rem;
@@ -2804,19 +2259,210 @@ body.cursor--hovering .cursor-ring {
     color: rgba(255, 255, 255, 0.6);
 }
 
-.room__hint::before {
+.room-card__hint::before {
     content: '';
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background: rgb(var(--accent));
-    box-shadow: 0 0 0 0 rgb(var(--accent) / 0.6);
-    animation: rooms-ping 2s ease-out infinite;
 }
 
-@keyframes rooms-ping {
-    0%   { box-shadow: 0 0 0 0 rgb(var(--accent) / 0.6); }
-    100% { box-shadow: 0 0 0 10px rgb(var(--accent) / 0); }
+.room-card__body {
+    padding: clamp(1.25rem, 2vw, 1.5rem) clamp(1.25rem, 2vw, 1.5rem) clamp(1.5rem, 2.4vw, 1.875rem);
+}
+
+/* "• Room 01  Walk on the ceiling…" — after Artora's "• On View  Jan 15 — Apr 30" */
+.room-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--color-sr-muted);
+}
+
+.room-card__num {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-sr-accent);
+}
+
+.room-card__num::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.room-card__title {
+    margin-top: 0.625rem;
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 2.3vw, 2rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--color-sr-text);
+}
+
+.room-card__title a { transition: color var(--duration-fast) var(--ease-out); }
+.room-card__title a:hover { color: var(--color-sr-accent); }
+
+@media (max-width: 900px) {
+    .rooms__intro { grid-template-columns: 1fr; }
+    .rooms__grid  { grid-template-columns: 1fr; }
+}
+
+/* ── Visitor moments — after Artora's "Permanent Collections" ──
+   On the same off-white as the rooms. Centred eyebrow + heading,
+   then a stacked carousel: the current photo big in the middle, its
+   neighbours at 75% and 55% each side, behind it (moments.js sets
+   --x in card widths, --s, --o). Prev / next round the caption.
+   ──────────────────────────────────────────────────────────── */
+.moments {
+    padding-block: clamp(3rem, 6vw, 5rem) clamp(4rem, 8vw, 7rem);
+    overflow: hidden;
+    background: var(--color-sr-surface);
+}
+
+.moments__intro {
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    text-align: center;
+}
+
+.moments__eyebrow {
+    margin-bottom: 1.25rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-sr-accent);
+}
+
+.moments__heading {
+    font-size: var(--text-section);
+    font-weight: 400;
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+}
+
+/* Artora's middle photo: 497 × 539 on a 1440 screen */
+.moments__carousel {
+    --card-w: clamp(15rem, 34.5vw, 31rem);
+}
+
+.moments__stage {
+    position: relative;
+    height: calc(var(--card-w) * 1.085);
+    touch-action: pan-y;
+}
+
+.moments__slide {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: var(--card-w);
+    height: 100%;
+    margin: 0 0 0 calc(var(--card-w) / -2);
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: var(--color-sr-surface-raised);
+    opacity: var(--o, 0);
+    transform: translateX(calc(var(--x, 0) * var(--card-w))) scale(var(--s, 1));
+    transition:
+        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.5s var(--ease-out);
+    cursor: pointer;
+}
+
+.moments__slide.is-current { cursor: default; }
+
+/* Before moments.js places them (and without JS), only the first shows */
+.moments__carousel:not(:has([data-rel])) .moments__slide:not(:first-child) { opacity: 0; }
+.moments__carousel:not(:has([data-rel])) .moments__slide:first-child { opacity: 1; }
+
+.moments__carousel.is-still .moments__slide { transition: none; }
+
+.moments__slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Our kaleidoscope room, upside down as everywhere else */
+.moments__slide--flip img { rotate: 180deg; }
+
+/* Prev · caption · next */
+.moments__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+    padding-inline: 1rem;
+}
+
+.moments__arrow {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border: 1px solid var(--color-sr-wire);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-sr-text);
+    cursor: none;
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out);
+}
+
+.moments__arrow:hover {
+    border-color: var(--color-sr-text);
+    background: var(--color-sr-text);
+    color: #ffffff;
+}
+
+@media (hover: none) { .moments__arrow, .moments__slide { cursor: pointer; } }
+
+.moments__caption {
+    min-width: 0;
+    width: 18rem;
+    text-align: center;
+}
+
+/* "• Room 02" — after Artora's "• On View" */
+.moments__meta {
+    font-size: 0.9375rem;
+    color: var(--color-sr-accent);
+}
+
+.moments__meta span::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 0.4rem;
+    border-radius: 50%;
+    background: currentColor;
+    vertical-align: 0.15em;
+}
+
+.moments__title {
+    margin-top: 0.375rem;
+    font-family: var(--font-heading);
+    font-size: clamp(1.375rem, 2vw, 1.75rem);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--color-sr-text);
+}
+
+/* Phones: a bigger middle photo; the neighbours peek in at the sides */
+@media (max-width: 700px) {
+    .moments__carousel { --card-w: 68vw; }
+    .moments__caption  { width: auto; flex: 1; }
 }
 
 /* ── Illusion: Upside Down Room ── */
@@ -2939,139 +2585,6 @@ body.cursor--hovering .cursor-ring {
 }
 .bc__caption.is-aligned { fill: var(--color-sr-accent-light); }
 
-/* ── HUD (desktop only) ── */
-.rooms__hud { display: none; }
-
-/* ── Entrance choreography (motion allowed) ── */
-@media (prefers-reduced-motion: no-preference) {
-    .js .room__word > span {
-        transform: translateY(110%) rotate(5deg);
-        transform-origin: left bottom;
-        transition: transform 1.1s var(--lux) calc(var(--i) * 70ms + 80ms);
-    }
-    .js .room.is-active .room__word > span { transform: none; }
-
-    .js .room__kicker,
-    .js .room__tagline,
-    .js .room__desc,
-    .js .room__cta,
-    .js .room__hint {
-        opacity: 0;
-        transform: translateY(18px);
-        transition: opacity 0.9s var(--lux), transform 1.1s var(--lux);
-    }
-
-    .js .room.is-active .room__kicker,
-    .js .room.is-active .room__tagline,
-    .js .room.is-active .room__desc,
-    .js .room.is-active .room__cta,
-    .js .room.is-active .room__hint {
-        opacity: 1;
-        transform: none;
-    }
-
-    .js .room.is-active .room__tagline { transition-delay: 0.3s; }
-    .js .room.is-active .room__desc    { transition-delay: 0.4s; }
-    .js .room.is-active .room__cta     { transition-delay: 0.5s; }
-    .js .room.is-active .room__hint    { transition-delay: 0.9s; }
-
-    /* Stage opens from a smaller window */
-    .js .room__stage {
-        clip-path: inset(10% 10% 10% 10% round var(--radius-card));
-        transition: clip-path 1.4s var(--lux);
-    }
-    .js .room.is-active .room__stage { clip-path: inset(0 round var(--radius-card)); }
-}
-
-/* ── Desktop: pinned horizontal track ── */
-.rooms__viewport.is-horizontal .rooms__frame {
-    height: 100svh;
-}
-
-.rooms__viewport.is-horizontal .rooms__track {
-    flex-direction: row;
-    width: max-content;
-    height: 100%;
-    will-change: transform;
-}
-
-.rooms__viewport.is-horizontal .rooms__enter {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 58vw;
-    padding: 0 var(--rooms-x);
-}
-
-.rooms__viewport.is-horizontal .rooms__enter-hint { display: block; }
-
-.rooms__viewport.is-horizontal .room {
-    flex-shrink: 0;
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-    align-items: center;
-    gap: 5vw;
-    width: 100vw;
-    height: 100%;
-    padding: 110px var(--rooms-x) 96px;   /* clears the floating nav + HUD */
-    border-top: 0;
-    border-left: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.rooms__viewport.is-horizontal .room__number {
-    top: auto;
-    right: auto;
-    left: var(--rooms-x);
-    bottom: -0.12em;
-    font-size: clamp(14rem, 30vw, 30rem);
-}
-
-.rooms__viewport.is-horizontal .room__stage {
-    aspect-ratio: auto;
-    width: 100%;
-    height: min(68svh, calc(100svh - 230px));
-}
-
-.rooms__viewport.is-horizontal .rooms__hud {
-    position: absolute;
-    left: var(--rooms-x);
-    right: var(--rooms-x);
-    bottom: 32px;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    font-size: 0.75rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.rooms__hud-count [data-rooms-current] { color: #ffffff; font-variant-numeric: tabular-nums; }
-
-.rooms__hud-bar {
-    flex: 1;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.rooms__hud-bar > span {
-    display: block;
-    height: 100%;
-    background: #ffffff;
-    transform: scaleX(0);
-    transform-origin: left;
-}
-
-/* ── Stacked layout tweaks ── */
-@media (max-width: 1023px) {
-    .rooms__intro { grid-template-columns: 1fr; }
-}
-
-@media (min-width: 640px) and (max-width: 1023px) {
-    .room__stage { aspect-ratio: 16 / 10; }
-}
-
 /* ── Reviews section updates ─────────────────────────────── */
 .reviews-section__intro {
     display: grid;
@@ -3126,7 +2639,7 @@ body.cursor--hovering .cursor-ring {
     line-height: 0.9;
     letter-spacing: -0.05em;
     color: var(--color-sr-text);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
 }
 
 .reviews__score-max {
@@ -3233,488 +2746,241 @@ body.cursor--hovering .cursor-ring {
     .reviews__more .quote + .quote { padding-left: 0; border-left: 0; border-top: 1px solid var(--color-sr-wire); }
 }
 
-/* ── Inline CTA (mid-page momentum break) ────────────────────
-   Flat split: copy on solid navy (left, on the container's edge),
-   the clocks photo clean on the right, drifting slightly as it
-   scrolls past. Stacks photo-first on smaller screens.
+/* ── About — after Artora's About band ─────────────────────────
+   Solid deep navy, full bleed. Two columns: the eyebrow, a photo and
+   the address on the left; the line, a paragraph, a white pill, a
+   hairline and two numbers (count-up.js) on the right.
    ──────────────────────────────────────────────────────────── */
-.inline-cta {
-    --x: clamp(1.5rem, 5vw, 4rem);
-
-    display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    min-height: clamp(480px, 70vh, 640px);
-    /* copy lines up with the 1200px container; the photo runs to the edge */
-    padding-left: max(var(--x), calc((100% - 1200px) / 2 + var(--x)));
+.about {
+    padding-block: clamp(4.5rem, 8vw, 7rem);
     background: var(--color-sr-deep);
     color: #ffffff;
 }
 
-.inline-cta__panel {
-    display: flex;
-    align-items: center;
-    padding: clamp(4rem, 8vw, 6.5rem) clamp(2rem, 5vw, 5rem) clamp(4rem, 8vw, 6.5rem) 0;
+.about__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);   /* a wide right column, as on Artora */
+    gap: clamp(2.5rem, 5vw, 4.5rem);
 }
 
-.inline-cta__inner {
+.about__side {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.5rem;
-    max-width: 34rem;
 }
 
-.inline-cta__overline {
-    font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.inline-cta__headline {
-    font-family: var(--font-heading);
-    font-weight: 400;
-    font-size: var(--text-section);
-    letter-spacing: -0.04em;
-    line-height: 1.04;
-    color: #ffffff;
-    text-wrap: balance;   /* no lone "away." */
-}
-
-.inline-cta__sub {
-    max-width: 44ch;
-    font-size: clamp(1rem, 1.5vw, 1.125rem);
-    line-height: 1.65;
-    color: rgba(255, 255, 255, 0.75);
-}
-
-/* White button on navy, like the hero */
-.inline-cta .pill--amber {
-    --pill-bg: #ffffff;
-    --pill-fg: var(--color-sr-text);
-}
-
-/* Plain inline text so the dot stays with the first word when it wraps */
-.inline-cta__note {
-    font-size: 0.8125rem;
-    line-height: 1.6;
-    letter-spacing: 0.01em;
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.inline-cta__dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    margin-right: 0.4rem;
-    border-radius: 50%;
-    vertical-align: 0.05em;
-    background: rgba(255, 255, 255, 0.5);
-}
-
-.inline-cta__note.is-open .inline-cta__dot {
-    background: var(--color-sr-accent-light);
-    animation: visit-pulse 2s ease-out infinite;
-}
-
-/* Photo: full height of the band, no overlay */
-.inline-cta__media {
-    position: relative;
-    margin: 0;
-    overflow: hidden;
-    background: var(--color-sr-deep);   /* shows while the photo loads */
-}
-
-.inline-cta__media img {
-    position: absolute;
-    inset: -8% 0;
-    width: 100%;
-    height: 116%;   /* headroom for the drift */
-    object-fit: cover;
-}
-
-@supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-        .inline-cta__media img {
-            animation: inline-cta-drift linear both;
-            animation-timeline: view();
-        }
-    }
-}
-
-@keyframes inline-cta-drift {
-    from { transform: translateY(-5%); }
-    to   { transform: translateY(5%); }
-}
-
-@media (max-width: 899px) {
-    .inline-cta {
-        grid-template-columns: 1fr;
-        min-height: 0;
-        padding-left: 0;
-    }
-    .inline-cta__media { order: -1; aspect-ratio: 16 / 10; }
-    .inline-cta__panel { padding: clamp(3rem, 8vw, 4.5rem) var(--x); }
-}
-
-/* ── Audience — card pile ────────────────────────────────────
-   Every card is sticky, each a --peek lower than the last, so the
-   next card slides up over it and the pile's edges stay visible.
-   audience-stack.js writes --p (0 → 1 as the card gets covered)
-   and --d (its depth in the pile): the card sinks back, darker
-   and a step smaller for each card on top of it.
-   ──────────────────────────────────────────────────────────── */
-.audience-section {
-    padding-block: clamp(4rem, 8vw, 7rem);
-}
-
-.audience__intro {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    align-items: end;
-    gap: 1.5rem 4rem;
-    margin-bottom: clamp(2.5rem, 5vw, 4rem);
-}
-
-.audience__heading {
-    font-family: var(--font-heading);
-    font-size: var(--text-section);
-    font-weight: 400;
-    line-height: 1.04;
-    letter-spacing: -0.04em;
-    text-wrap: balance;
-}
-
-.audience__sub {
-    max-width: 44ch;
-    font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
-    line-height: 1.65;
-    color: var(--color-sr-muted);
-}
-
-.audience-stack {
-    --stack-top: 104px;   /* clears the floating nav */
-    --peek:      14px;
-    --card-h:    clamp(380px, calc(100svh - var(--stack-top) - 6 * var(--peek) - 1.5rem), 540px);
-
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: clamp(2rem, 6vh, 4rem);
-}
-
-/* Spacer, so the finished pile holds for a beat before leaving.
-   (Padding wouldn't work: sticky is bounded by the content box.) */
-.audience-stack::after {
-    content: '';
-    height: clamp(1rem, 14vh, 8rem);
-}
-
-.audience-stack__item {
-    position: sticky;
-    top: calc(var(--stack-top) + var(--i) * var(--peek));
-}
-
-.audience-card {
-    --card-bg:   var(--color-sr-text);
-    --card-fg:   #ffffff;
-    --card-mute: rgba(255, 255, 255, 0.7);
-    --card-line: rgba(255, 255, 255, 0.16);
-    --lux:       cubic-bezier(0.19, 1, 0.22, 1);
-
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    height: var(--card-h);
-    border-radius: var(--radius-card);
-    overflow: hidden;
-    background: var(--card-bg);
-    color: var(--card-fg);
-    text-decoration: none;
-    /* each card deeper in the pile is a step narrower, so every edge shows */
-    transform: scale(calc(1 - min(var(--d, 0), 4) * 0.035));
-    transform-origin: 50% 0;
-    will-change: transform;
-}
-
-/* Darkens as the next card covers it */
-.audience-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--color-sr-deep);
-    opacity: calc(var(--p, 0) * 0.3);
-    pointer-events: none;
-}
-
-.audience-card--2 {
-    --card-bg:   var(--color-sr-surface);
-    --card-fg:   var(--color-sr-text);
-    --card-mute: var(--color-sr-muted);
-    --card-line: var(--color-sr-wire);
-}
-
-/* Cards rotate through the palette: navy, off-white, deep navy (as Rooms + footer) */
-.audience-card--3 {
-    --card-bg:   var(--color-sr-deep);
-    --card-mute: rgba(255, 255, 255, 0.7);
-    --card-line: rgba(255, 255, 255, 0.16);
-}
-
-.audience-card__body {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 1.5rem;
-    min-width: 0;
-    padding: clamp(1.75rem, 3.2vw, 3rem);
-}
-
-.audience-card__count {
-    font-family: var(--font-display);
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    font-variant-numeric: tabular-nums;
-}
-
-.audience-card__count span { color: var(--card-mute); }
-
-.audience-card__text {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.audience-card__name {
-    font-family: var(--font-heading);
-    font-size: clamp(2.25rem, 4.4vw, 4rem);
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    text-wrap: balance;
-}
-
-.audience-card__line {
-    max-width: 34ch;
-    font-size: clamp(0.9375rem, 1.3vw, 1.0625rem);
-    line-height: 1.6;
-    color: var(--card-mute);
-    text-wrap: pretty;
-}
-
-.audience-card__go {
+/* "— ABOUT REALITY SHIFT" */
+.about__eyebrow {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
-    align-self: flex-start;
-    padding-top: 1rem;
-    border-top: 1px solid var(--card-line);
-    font-size: 0.875rem;
-    font-weight: 500;
+    gap: 0.625rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ffffff;
 }
 
-.audience-card__go svg { transition: transform 0.6s var(--lux); }
+.about__eyebrow::before {
+    content: '';
+    width: 1.75rem;
+    height: 1px;
+    background: currentColor;
+}
 
-.audience-card__media {
-    position: relative;
-    margin: 0.75rem;
-    border-radius: var(--radius-inner);
+/* Artora's photo: 324 × 350, well below the eyebrow */
+.about__photo {
+    width: min(100%, 21rem);
+    aspect-ratio: 324 / 350;
+    margin: clamp(3rem, 7vw, 6.5rem) 0 0;
     overflow: hidden;
-    background: var(--color-sr-deep);   /* shows while the photo loads */
+    border-radius: var(--radius-card);
+    background: #0c1433;
 }
 
-.audience-card__img {
-    position: absolute;
-    inset: 0;
+.about__photo img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 1.2s var(--lux);
+    rotate: 180deg;   /* upside down, as everywhere else on the page */
 }
 
-@media (hover: hover) {
-    .audience-card:hover .audience-card__img   { transform: scale(1.05); }
-    .audience-card:hover .audience-card__go svg { transform: translateX(4px); }
+.about__where {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.85);
 }
 
-.audience-card:focus-visible {
-    outline: 2px solid var(--color-rs-blue);
-    outline-offset: 4px;
+.about__heading {
+    font-size: var(--text-section);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+    color: #ffffff;
+    text-wrap: balance;
 }
 
-@media (max-width: 1023px) {
-    .audience__intro { grid-template-columns: 1fr; }
+.about__text {
+    max-width: 52ch;
+    margin-top: 1.5rem;
+    font-size: clamp(1rem, 1.3vw, 1.0625rem);
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.75);
 }
 
-/* Phone / small tablet: photo on top, copy underneath */
-@media (max-width: 767px) {
-    .audience-stack {
-        --stack-top: 96px;
-        --peek:      10px;
-        --card-h:    clamp(440px, calc(100svh - var(--stack-top) - 6 * var(--peek) - 1rem), 600px);
+/* White pill on the navy band */
+.about__pill {
+    --pill-bg: #ffffff;
+    --pill-fg: var(--color-sr-deep);
+    margin-top: 2rem;
+}
+
+/* A hairline, then two big numbers with a small label under each */
+.about__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+    max-width: 36rem;
+    margin-top: clamp(2.5rem, 4vw, 3.5rem);
+    padding-top: clamp(2.5rem, 4vw, 3.5rem);
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.about__stats div {
+    display: flex;
+    flex-direction: column-reverse;   /* number first, label under it */
+    gap: 0.625rem;
+}
+
+.about__stats dd {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-section);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-variant-numeric: lining-nums tabular-nums;
+    color: #ffffff;
+}
+
+.about__unit {
+    font-size: 0.45em;
+    letter-spacing: -0.02em;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.about__stats dt {
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Phones and tablets: one column, the photo after the words */
+@media (max-width: 900px) {
+    .about__grid { grid-template-columns: 1fr; }
+    .about__side { order: 2; }
+    .about__photo { margin-top: 0; width: 100%; max-width: 28rem; }
+    .about__side .about__eyebrow { display: none; }
+    .about__main::before {
+        content: 'About Reality Shift';
+        display: block;
+        margin-bottom: 1.25rem;
+        font-size: 0.8125rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
     }
-
-    .audience-card {
-        grid-template-columns: 1fr;
-        grid-template-rows: minmax(0, 1fr) auto;
-    }
-
-    .audience-card__media {
-        order: -1;
-        margin: 0.5rem 0.5rem 0;
-    }
-
-    .audience-card__body {
-        gap: 1rem;
-        padding: 1.25rem 1.375rem 1.5rem;
-    }
-
-    .audience-card__count { display: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .audience-card__img,
-    .audience-card__go svg { transition: none; }
 }
 
 /* ============================================================
    HOME HERO
-   After Vox AI: dark navy, the name split into two giant words —
-   "Reality" top-left, "Shift" bottom-right — in front of a man
-   doing a handstand on the ceiling, cut out in natural colour and
-   standing from under the nav to the floor. A line, one pill and the rating sit
-   low on the left, level with "Shift". Fits one screen.
-   Palette: #002459 navy · #5382C7 soft blue · white · #7F858B grey.
+   After Artora: a centred headline and one action on a flat light
+   background, over a ring of photo cards seen from inside a turning
+   cylinder (hero-ring.js places the cards; the edges come closer,
+   grow and lean in). As on Artora, the ring runs off the bottom of
+   the first screen.
    ============================================================ */
 .wh-hero {
-    --hero-navy:  #002459;
-    --hero-blue:  #5382c7;
     --hero-ease:  cubic-bezier(0.77, 0, 0.175, 1);
-    --hero-header: 160px; /* top bar 52px + nav 108px */
-    --hero-x: clamp(1.5rem, 4vw, 4rem);
-    /* The name: "Reality" (~3.7em) sized to the width and capped by the height */
-    --name-size: min(14vw, 22svh, 15rem);
+    --hero-header: var(--site-head); /* the top bar + the resting header */
 
     position: relative;
-    height: 100svh;
-    min-height: 620px;
-    overflow: hidden;
-    isolation: isolate;
-    background: linear-gradient(180deg, #001a45 0%, var(--hero-navy) 45%, #001233 100%);
-    color: #ffffff;
-}
-
-/* ── The figure: a cut-out from under the nav to the floor, centred so
-   the table clears "Shift" (its legs fade at the top as if the ceiling
-   carries on) ─────────────────────────────────────────────────── */
-.wh-hero__figure {
-    position: absolute;
-    z-index: 0;
-    top: var(--hero-header);
-    bottom: 0;
-    left: 50%;              /* "Reality" crosses into it, as "Vox" does */
-    translate: -50% 0;
-    height: calc(100% - var(--hero-header));
-    aspect-ratio: 1342 / 2200;
-}
-
-/* A soft blue light behind him, so the cut-out sits in the room, not on it */
-.wh-hero__figure::before {
-    content: "";
-    position: absolute;
-    z-index: -1;
-    inset: 18% -45% 4%;
-    background: radial-gradient(closest-side, rgba(83, 130, 199, 0.42), rgba(83, 130, 199, 0.12) 55%, transparent);
-    filter: blur(20px);
-}
-
-.wh-hero__figure-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: 50% 100%;
-    /* The legs dissolve into the dark at the top, and the table legs (cut
-       by the photo's edge) sink into the floor */
-    -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 88%, transparent);
-    mask-image: linear-gradient(180deg, transparent, #000 14%, #000 88%, transparent);
-}
-
-/* Shooting-star trail (hero-comet.js): over the figure, under the words */
-.wh-hero__comet {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-
-/* ── The name: two giant words in front of the figure ──────── */
-.wh-hero__name {
-    position: static;
-    margin: 0;
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: var(--name-size);
-    line-height: 0.82;
-    letter-spacing: -0.05em;
-    color: #ffffff;
-}
-
-.wh-hero__word {
-    position: absolute;
-    z-index: 1;
-    display: block;
-    overflow: hidden;
-    padding-bottom: 0.06em;   /* room for the y's descender */
-}
-
-.wh-hero__word > span { display: block; }
-
-.wh-hero__word--top {
-    top: calc(var(--hero-header) - 0.06em);
-    left: calc(var(--hero-x) - 0.04em);
-}
-
-.wh-hero__word--end {
-    right: var(--hero-x);
-    bottom: clamp(1.5rem, 6svh, 4rem);
-}
-
-/* ── The left column, low: its foot level with the foot of "Shift" ── */
-.wh-hero__side {
-    position: absolute;
-    z-index: 2;
-    bottom: clamp(1.5rem, 6svh, 4rem);   /* = .wh-hero__word--end's bottom */
-    left: var(--hero-x);
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: clamp(1rem, 2.6svh, 1.5rem);
+    /* Artora leaves 80px between the header and the eyebrow at every size;
+       we do too from 900px-tall screens up, a little less on shorter ones */
+    padding-top: calc(var(--hero-header) + clamp(3rem, 9svh, 5rem));
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--color-sr-surface);   /* flat — no gradient, no glow */
+    color: var(--color-sr-text);
 }
 
-.wh-hero__desc {
-    font-size: clamp(1rem, min(1.35vw, 2.4svh), 1.1875rem);
-    line-height: 1.4;
-    color: rgba(255, 255, 255, 0.82);
+
+/* ── The intro: eyebrow, two-line headline, action ─────────── */
+.wh-hero__intro {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-inline: 1rem;
+    text-align: center;
 }
 
-/* White pill on navy */
-.wh-hero .pill--amber {
-    --pill-bg: #ffffff;
-    --pill-fg: var(--hero-navy);
+.wh-hero__eyebrow {
+    margin: 0 0 clamp(0.75rem, 2svh, 1.25rem);
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-sr-accent);
 }
+
+/* The biggest type on the site: a step above the inner pages' titles
+   (.page-banner__title, 4.75rem max) — capped by the screen's height so
+   short laptops keep room for the ring */
+.wh-hero__title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 400;
+    font-size: clamp(2.75rem, min(6.6vw, 10svh), 6rem);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    color: var(--color-sr-text);
+}
+
+/* Each line rises out of its own mask */
+.wh-hero__line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em;   /* room for descenders and the underline */
+}
+
+.wh-hero__line > span { display: block; }
+
+.wh-hero__accent {
+    color: var(--color-sr-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 0.045em;
+    text-underline-offset: 0.12em;
+}
+
+.wh-hero__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.875rem;
+    margin-top: clamp(1.5rem, 4svh, 2.5rem);
+}
+
+/* The pill in its default navy */
 
 .wh-hero__rating {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.6);
-    --stars-fill: #ffffff;
-    --stars-track: rgba(255, 255, 255, 0.3);
+    color: var(--color-sr-muted);
 }
 
 .wh-hero__rating-g { flex-shrink: 0; }
@@ -3722,67 +2988,132 @@ body.cursor--hovering .cursor-ring {
 .wh-hero__rating-score {
     font-family: var(--font-heading);
     font-weight: 600;
-    color: #ffffff;
-    font-variant-numeric: tabular-nums;
+    color: var(--color-sr-text);
+    font-variant-numeric: lining-nums tabular-nums;
 }
 
-/* ── Load-in: the words rise, the figure settles, the side follows ── */
-.js .wh-hero__word > span {
+/* ── The ring, as on Artora: the cards stand centred on its middle
+   line, level with the eye, so a card that comes closer grows both
+   ways — the big ones at the edges rise beside the headline and run
+   off the bottom of the hero. hero-ring.js sizes the cards (--card-w /
+   --card-h) and sets each one's transform ─────────────────────────── */
+.wh-hero__ring {
+    --card-w: 280px;
+    --card-h: 406px;
+
+    position: relative;
+    z-index: 1;
+    flex: none;
+    height: calc(var(--card-h) * 1.3);
+    margin-top: clamp(1.5rem, 4svh, 2.5rem);
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+}
+
+.wh-hero__ring-stage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+}
+
+.wh-hero__card {
+    position: absolute;
+    top: calc(var(--card-h) / -2);
+    left: calc(var(--card-w) / -2);
+    width: var(--card-w);
+    height: var(--card-h);
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    background: #0c1433;
+    backface-visibility: hidden;
+    will-change: transform;
+}
+
+.wh-hero__card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Our kaleidoscope room hangs upside down among the upright rooms */
+.wh-hero__card--flip img { rotate: 180deg; }
+
+/* Before hero-ring.js places them (and without JS), the cards sit
+   in a flat row */
+.wh-hero__ring:not(.is-placed) .wh-hero__card {
+    translate: calc((var(--i, 0) - 5.5) * (var(--card-w) + 24px)) 0;
+}
+
+/* Scroll down: a white disc floating over the cards, centred just above
+   the foot of the first screen (or of the hero, if that's shorter), so
+   it's in view on arrival. The arrow dips on hover */
+.wh-hero__down {
+    --down-size: clamp(3rem, 7svh, 4rem);
+    --down-gap: clamp(1.25rem, 3.5svh, 2rem);
+
+    position: absolute;
+    z-index: 4;
+    top: min(calc(100svh - var(--down-size) - var(--down-gap)), calc(100% - var(--down-size) - var(--down-gap)));
+    left: 50%;
+    translate: -50% 0;
+    display: grid;
+    place-items: center;
+    width: var(--down-size);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #ffffff;
+    color: var(--color-sr-text);
+    box-shadow: 0 0 0 1px var(--color-sr-wire);   /* a hairline, so it reads over light photos too */
+}
+
+.js .wh-hero__down {
+    opacity: 0;
+    animation: wh-fade-in 0.9s var(--ease-out) 0.6s forwards;
+}
+
+@keyframes wh-fade-in { to { opacity: 1; } }
+
+.wh-hero__down svg { transition: translate var(--duration-fast) var(--ease-out); }
+.wh-hero__down:hover svg { translate: 0 3px; }
+
+/* ── Load-in: the lines rise, the rest follows ──────────────── */
+.js .wh-hero__line > span {
     transform: translateY(105%);
     animation: wh-line-up 1.1s var(--hero-ease) 0.1s forwards;
 }
 
-.js .wh-hero__word--end > span { animation-delay: 0.22s; }
+.js .wh-hero__line:nth-child(2) > span { animation-delay: 0.2s; }
 
-.js .wh-hero__figure-img {
+.js .wh-hero__eyebrow,
+.js .wh-hero__actions {
     opacity: 0;
-    scale: 1.06;
-    animation: wh-figure-in 1.6s var(--ease-out) 0.05s forwards;
+    animation: wh-fade-up 0.9s var(--ease-out) 0.35s forwards;
 }
 
-.js .wh-hero__side {
+.js .wh-hero__eyebrow { animation-delay: 0.05s; }
+
+.js .wh-hero__ring {
     opacity: 0;
-    animation: wh-fade-up 0.9s var(--ease-out) 0.3s forwards;
+    animation: wh-ring-in 1.4s var(--ease-out) 0.3s forwards;
 }
 
-@keyframes wh-line-up   { to { transform: translateY(0); } }
-@keyframes wh-figure-in { to { opacity: 1; scale: 1; } }
-@keyframes wh-fade-up   { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes wh-line-up { to { transform: translateY(0); } }
+@keyframes wh-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes wh-ring-in { from { opacity: 0; translate: 0 40px; } to { opacity: 1; translate: 0 0; } }
 
-/* ── Responsive ───────────────────────────────────────────── */
-@media (max-width: 900px) {
-    /* As Vox does on phones: the figure fills the screen, the name stacks
-       at the top, everything centred below it */
-    .wh-hero {
-        --name-size: min(calc((100vw - var(--hero-x) * 2) / 3.75), 17svh);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: calc(var(--hero-header) + 0.5rem) var(--hero-x) 2rem;
-        text-align: center;
-    }
-
-    .wh-hero__figure { left: 50%; opacity: 0.9; }
-    /* The table fades out behind the copy so the line stays readable */
-    .wh-hero__figure-img {
-        -webkit-mask-image: linear-gradient(180deg, transparent 4%, #000 20%, #000 52%, transparent 80%);
-        mask-image: linear-gradient(180deg, transparent 4%, #000 20%, #000 52%, transparent 80%);
-    }
-
-    .wh-hero__name { display: flex; flex-direction: column; align-items: center; }
-    .wh-hero__word { position: relative; inset: auto; }
-
-    .wh-hero__side {
-        position: relative;
-        inset: auto;
-        width: 100%;
-        margin-top: auto;
-        align-items: center;
-    }
+@media (prefers-reduced-motion: reduce) {
+    .js .wh-hero__line > span,
+    .js .wh-hero__eyebrow,
+    .js .wh-hero__actions,
+    .js .wh-hero__ring { animation: none; opacity: 1; transform: none; translate: none; }
+    .wh-hero__down svg { transition: none; }
+    .js .wh-hero__down { animation: none; opacity: 1; }
 }
 
-/* Short screens (landscape phones): reclaim header space so the hero fits.
-   The top bar can be dismissed anyway. */
+/* Short screens (landscape phones): reclaim header space */
 @media (max-height: 500px) {
     .top-banner { display: none; }
     .nav:not(.nav--scrolled) {
@@ -3791,7 +3122,7 @@ body.cursor--hovering .cursor-ring {
     }
     .nav:not(.nav--scrolled) .nav__logo-img { height: 52px; }
     .wh-hero { --hero-header: 64px; min-height: 0; }
-    .wh-hero__figure { display: none; }
+    .wh-hero__ring { display: none; }   /* no room: the intro alone */
 }
 
 /* ============================================================
@@ -3881,7 +3212,7 @@ body.cursor--hovering .cursor-ring {
     line-height: 0.78;
     letter-spacing: -0.07em;
     color: var(--color-sr-text);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
 }
 
 .pp-hero__unit {
@@ -3959,7 +3290,7 @@ body.cursor--hovering .cursor-ring {
 .pp-receipt__no {
     font-size: 0.875rem;
     color: var(--color-sr-muted-2);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
 }
 
 .pp-receipt__thumb {
@@ -4007,7 +3338,7 @@ body.cursor--hovering .cursor-ring {
 .pp-receipt__sum {
     font-size: clamp(2rem, 4vw, 3rem);
     letter-spacing: -0.04em;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
 }
 
 /* Sums: three plain columns split by hairlines, like the Visit facts */
@@ -4182,7 +3513,7 @@ body.cursor--hovering .cursor-ring {
     letter-spacing: -0.015em;
 }
 
-.pp-hours__row dd { font-variant-numeric: tabular-nums; }
+.pp-hours__row dd { font-variant-numeric: lining-nums tabular-nums; }
 .pp-hours__row.is-closed { color: rgba(255, 255, 255, 0.45); }
 .pp-hours__row.is-today dd { color: var(--color-sr-accent-light); }
 
@@ -4277,7 +3608,7 @@ body.cursor--hovering .cursor-ring {
     margin-bottom: clamp(2rem, 4vw, 3rem);
     font-size: 0.875rem;
     color: var(--color-sr-muted);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
 }
 
 .is-stepped .bk-progress { display: flex; }
@@ -4437,7 +3768,7 @@ body.cursor--hovering .cursor-ring {
     font-size: clamp(1.25rem, 2vw, 1.625rem);
     line-height: 1;
     letter-spacing: -0.03em;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
 }
 
 .bk-day__today {
@@ -4487,7 +3818,7 @@ body.cursor--hovering .cursor-ring {
     font-family: var(--font-heading);
     font-size: 1.125rem;
     letter-spacing: -0.02em;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
     color: var(--color-sr-text);
     cursor: none;
     transition:
@@ -4535,7 +3866,7 @@ body.cursor--hovering .cursor-ring {
     line-height: 1;
     letter-spacing: -0.06em;
     color: var(--color-sr-text);
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
     -moz-appearance: textfield;
     appearance: textfield;
 }
@@ -4648,7 +3979,7 @@ body.cursor--hovering .cursor-ring {
     text-overflow: ellipsis;
     white-space: nowrap;
     color: #ffffff;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
 }
 
 .bk-pass__total {
@@ -4666,7 +3997,7 @@ body.cursor--hovering .cursor-ring {
     line-height: 0.85;
     letter-spacing: -0.06em;
     color: #ffffff;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
 }
 
 .bk-pass__info { border-top: 1px solid rgba(255, 255, 255, 0.12); }

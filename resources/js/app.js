@@ -1,10 +1,13 @@
 // ─── Critical path — no GSAP, runs immediately ───────────────────────────────
 import { initScroll }  from './animations/scroll.js';
-import { initHeroComet } from './animations/hero-comet.js';
+import { initComet } from './animations/comet.js';
+import { initHeroRing } from './animations/hero-ring.js';
+import { initMoments } from './animations/moments.js';
 import { initCountUp } from './animations/count-up.js';
 import { initLocalClock } from './local-clock.js';
 import { initLazyEmbeds } from './lazy-embeds.js';
 import { initBooking } from './booking.js';
+import { initNavMore } from './nav-more.js';
 import { isTouchDevice } from './utils/motion.js';
 
 // ─── Custom Cursor (no GSAP — pure rAF) ──────────────────────────────────────
@@ -113,30 +116,16 @@ function initFaq() {
     });
 }
 
-// ─── Top banner dismiss ───────────────────────────────────────────────────────
-function initBanner() {
-    const banner = document.getElementById('top-banner');
-    const btn    = document.getElementById('top-banner-close');
-    if (!banner || !btn) return;
-
-    btn.addEventListener('click', () => {
-        banner.classList.add('is-hidden');
-        sessionStorage.setItem('banner-dismissed', '1');
-    });
-
-    if (sessionStorage.getItem('banner-dismissed')) {
-        banner.classList.add('is-hidden');
-    }
-}
-
 // ─── Boot critical path ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    initBanner();
     initCursor();
     initNav();
+    initNavMore();
     initFaq();
     initScroll();   // nav scroll class + parallax — no GSAP
-    initHeroComet();
+    initComet();
+    initHeroRing();
+    initMoments();
     initCountUp();
     initLocalClock();
     initLazyEmbeds();
@@ -157,8 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { initReveals },
             { initRooms },
             { initTransitions },
-            { initAudienceStack },
-            { initBrandBanner },
             { initFooterMotion },
             { initSplitHeadings },
             { initScrubReveal },
@@ -166,8 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
             import('./animations/reveals.js'),
             import('./animations/rooms.js'),
             import('./animations/transitions.js'),
-            import('./animations/audience-stack.js'),
-            import('./animations/brand-banner.js'),
             import('./animations/footer-motion.js'),
             import('./animations/split-headings.js'),
             import('./animations/scrub-reveal.js'),
@@ -175,8 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         initTransitions();
         initRooms();
-        initAudienceStack();
-        initBrandBanner();
         initFooterMotion();
         initSplitHeadings();
         initScrubReveal();

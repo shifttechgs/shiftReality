@@ -26,7 +26,7 @@
             {{-- Brand --}}
             <div class="footer__brand">
                 <a href="{{ route('home') }}" class="footer__logo" aria-label="{{ config('shiftreality.name') }} home">
-                    <img src="{{ asset('images/logo-light.png') }}" alt="{{ config('shiftreality.name') }}" width="88" height="88" loading="lazy">
+                    <img src="{{ asset('images/logo-dark.png') }}" alt="{{ config('shiftreality.name') }}" width="88" height="88" loading="lazy">
                 </a>
                 <p class="footer__tagline">
                     Zimbabwe's optical illusion experience. Four rooms built to make your eyes argue with your brain.

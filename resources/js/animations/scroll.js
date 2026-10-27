@@ -3,6 +3,8 @@ import { prefersReducedMotion } from '../utils/motion.js';
 /**
  * Nav scroll behaviour — the header stays pinned at all times.
  * .nav--scrolled once the page leaves the top: the flat, frosted inset bar.
+ * The top bar (as on Artora) is there at the top of the page and tucks away
+ * once you scroll; back at the top, it's back.
  */
 function initNavScroll() {
     const nav    = document.querySelector('.nav');
@@ -10,18 +12,14 @@ function initNavScroll() {
     if (!nav) return;
 
     const FLOAT_THRESHOLD  = 80;   // px before the bar style kicks in
-    const BANNER_THRESHOLD = 40;   // px before banner auto-collapses
+    const BANNER_THRESHOLD = 40;   // px before the top bar tucks away
 
     const update = () => {
         const sy = window.scrollY;
 
         nav.classList.toggle('nav--scrolled', sy > FLOAT_THRESHOLD);
 
-        // Auto-collapse banner on scroll — keeps it as a seen signal, clears space
-        if (banner && sy > BANNER_THRESHOLD && !banner.classList.contains('is-hidden')) {
-            banner.classList.add('is-hidden');
-            sessionStorage.setItem('banner-dismissed', '1');
-        }
+        banner?.classList.toggle('is-hidden', sy > BANNER_THRESHOLD);
     };
 
     window.addEventListener('scroll', update, { passive: true });

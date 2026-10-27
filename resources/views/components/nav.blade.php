@@ -1,8 +1,17 @@
-{{-- Navigation — frosted glass
-     Desktop: [logo] [links, centred] [CTA]
+{{-- Navigation, after Artora's header
+     Desktop at rest: [logo] ……… [links] [Book pill], on the page itself, no bar.
+     Scrolled: the same row pinned as a slim frosted pill bar.
+     "More" opens a full-width deep-navy panel (nav-more.js).
      Mobile:  [logo] [hamburger]
 --}}
-
+@php
+    $navContact = config('shiftreality.contact');
+    $navPlace   = config('shiftreality.location');
+    $navMaps    = 'https://www.google.com/maps/dir/?api=1&destination='
+        . $navPlace['coordinates']['lat'] . ',' . $navPlace['coordinates']['lng'];
+    $navPhone   = preg_replace('/^(\d{3})(\d{3})(\d{4})$/', '$1 $2 $3', $navContact['phone']);
+    $navTel     = '+263' . ltrim($navContact['phone'], '0');
+@endphp
 <nav class="nav" role="navigation" aria-label="Main navigation" id="site-nav">
 
     {{-- LEFT: logo --}}
@@ -11,17 +20,21 @@
         <img src="{{ asset('images/logo-light.png') }}" alt="" class="nav__logo-img nav__logo-img--light" width="88" height="88" aria-hidden="true">
     </a>
 
-    {{-- CENTRE: links --}}
+    {{-- RIGHT: links, then the Book pill --}}
     <ul class="nav__menu" role="list">
         <li><a href="{{ route('experience') }}" class="nav__link">Exhibits</a></li>
         <li><a href="{{ route('pricing') }}"   class="nav__link">Pricing</a></li>
         <li><a href="{{ route('groups') }}"     class="nav__link">Group Visits</a></li>
         <li><a href="{{ route('visit') }}"      class="nav__link">Current Events</a></li>
         <li><a href="{{ route('book') }}"       class="nav__link">Membership</a></li>
-        <li><a href="{{ route('faq') }}"        class="nav__link">More</a></li>
+        <li>
+            <button type="button" class="nav__link nav__more" aria-expanded="false" aria-controls="nav-more-panel" data-nav-more>
+                More
+                <svg class="nav__more-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+        </li>
     </ul>
 
-    {{-- RIGHT: CTA --}}
     <ul class="nav__actions" role="list">
         <li>
             <a href="{{ route('book') }}" class="pill pill--amber pill--lg nav__cta">
@@ -30,6 +43,30 @@
             </a>
         </li>
     </ul>
+
+    {{-- "More": a full-width deep-navy panel under the header (Artora's "Pages") --}}
+    <div class="nav-more" id="nav-more-panel" hidden data-nav-more-panel>
+        <div class="nav-more__inner">
+            <div class="nav-more__col">
+                <p class="nav-more__title">More pages</p>
+                <ul role="list">
+                    <li><a href="{{ route('visit') }}">Plan your visit</a></li>
+                    <li><a href="{{ route('faq') }}">FAQ</a></li>
+                    <li><a href="{{ route('book') }}">Book tickets</a></li>
+                    <li><a href="{{ route('groups') }}">Groups &amp; events</a></li>
+                </ul>
+            </div>
+            <div class="nav-more__col">
+                <p class="nav-more__title">Get in touch</p>
+                <ul role="list">
+                    <li><a href="https://wa.me/{{ $navContact['whatsapp'] }}" target="_blank" rel="noopener">WhatsApp us</a></li>
+                    <li><a href="tel:{{ $navTel }}">{{ $navPhone }}</a></li>
+                    <li><a href="mailto:{{ $navContact['email'] }}">{{ $navContact['email'] }}</a></li>
+                    <li><a href="{{ $navMaps }}" target="_blank" rel="noopener">Get directions ↗</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
     {{-- Mobile: links + CTA collapse into the overlay --}}
     <button

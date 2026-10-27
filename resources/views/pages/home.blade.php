@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-{{-- The hero is dark navy: the nav rests on it in its light variant until scrolled --}}
-@section('body_class', 'has-hero-photo')
+{{-- The hero is light (after Artora), so the nav keeps its dark-on-light look,
+     under the same top bar as every page. --}}
 
 @section('title', 'Reality Shift — Zimbabwe\'s Optical Illusion Experience · Harare')
 @section('description', 'Your brain is about to be lied to. 4 mind-bending rooms at Westgate Shopping Complex, Harare. Zimbabwe\'s first optical illusion experience. Entry from $15. Book now.')
@@ -37,174 +37,202 @@
 {{-- ══════════════════════════════════════════════════════════
      01 — HERO
      ══════════════════════════════════════════════════════════ --}}
-{{-- Hero after Vox AI's layout: dark navy, the name split into two giant words —
-     "Reality" top-left, "Shift" bottom-right — around a man doing a handstand on
-     the ceiling over a set table (the Upside Down Room, in one picture). He's cut
-     out of the room, in natural colour, standing from under the nav to the floor.
-     One line, one action and the rating sit low on the left (opening hours live
-     in the top bar). Fits one screen.
-     Photo: stand-in, Duong Huynh on Unsplash (Unsplash License), background removed. --}}
+{{-- Hero after Artora (artora.framer.website): a centred headline and one action,
+     over a ring of photo cards seen from inside a turning cylinder — the cards at
+     the edges come closer and lean in (hero-ring.js). Flat light background,
+     our type, our navy pill. As on Artora, the ring runs off the bottom of the
+     first screen and the big edge cards rise beside the headline.
+     ⚠ Cards are stand-ins except the kaleidoscope room (ours, from socials,
+     AI-upscaled from a 387px copy, shown upside down as a wink) — replace them
+     with real venue photos, and confirm the visitors' consent. --}}
 @php
     $rating = config('shiftreality.google_rating');
+    // [src, srcset, upside down?] — our photo first, then each room's stand-in, then the extras
+    $ours = collect($shifts)
+        ->filter(fn ($s) => ! empty($s['hero_photo']))
+        ->map(fn ($s) => [$s['hero_photo'], asset(str_replace('-2064.', '-1000.', $s['hero_photo'])) . ' 750w, ' . asset($s['hero_photo']) . ' 1548w', true])
+        ->values();
+    $standIns = collect($shifts)->pluck('photo')->merge(config('shiftreality.hero_extras'))->filter()
+        ->map(fn ($p) => [$p, asset($p) . ' 800w, ' . asset(str_replace('-800.', '-1600.', $p)) . ' 1600w', false])
+        ->values();
+    // Twelve cards fill the ring. Our photos appear once each; the stand-ins
+    // repeat to fill the rest (short screens show up to ten cards at once)
+    $ringCards = $ours->merge(collect(range(0, 11 - $ours->count()))->map(fn ($i) => $standIns[$i % $standIns->count()]));
 @endphp
 <section class="wh-hero" id="hero" aria-labelledby="hero-heading">
 
-    <div class="wh-hero__figure" aria-hidden="true">
-        <img
-            src="{{ asset('images/hero/handstand-2200.webp') }}"
-            srcset="{{ asset('images/hero/handstand-1100.webp') }} 671w, {{ asset('images/hero/handstand-2200.webp') }} 1342w"
-            sizes="calc((100svh - 160px) * 0.61)"
-            width="1342"
-            height="2200"
-            alt=""
-            class="wh-hero__figure-img"
-            decoding="async"
-            fetchpriority="high"
-        >
+    <div class="wh-hero__intro">
+        <p class="wh-hero__eyebrow">Zimbabwe&rsquo;s first optical illusion experience</p>
+
+        <h1 class="wh-hero__title" id="hero-heading">
+            <span class="wh-hero__line"><span>Your brain is about</span></span>
+            <span class="wh-hero__line"><span>to be <span class="wh-hero__accent">lied to.</span></span></span>
+        </h1>
+
+        <div class="wh-hero__actions">
+            <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
+                <span>Book Your Spot</span>
+                <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+
+            <span class="wh-hero__rating" role="img" aria-label="Rated {{ $rating }} out of 5, based on Google Reviews">
+                @include('partials.google-g', ['size' => 12, 'class' => 'wh-hero__rating-g'])
+                <span class="wh-hero__rating-score">{{ number_format($rating, 1) }}</span>
+                @include('partials.stars', ['rating' => $rating, 'size' => 10])
+                <span>Google Reviews</span>
+            </span>
+        </div>
     </div>
 
-    {{-- Shooting-star trail behind the mouse (hero-comet.js) --}}
-    <canvas class="wh-hero__comet" data-hero-comet aria-hidden="true"></canvas>
-
-    <h1 class="wh-hero__name" id="hero-heading">
-        <span class="wh-hero__word wh-hero__word--top"><span>Reality</span></span>
-        <span class="wh-hero__word wh-hero__word--end"><span>Shift</span></span>
-    </h1>
-
-    <div class="wh-hero__side">
-        <p class="wh-hero__desc">Your brain is about to be lied to.</p>
-
-        <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
-            <span>Book Your Spot</span>
-            <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-
-        <span class="wh-hero__rating" role="img" aria-label="Rated {{ $rating }} out of 5, based on Google Reviews">
-            @include('partials.google-g', ['size' => 12, 'class' => 'wh-hero__rating-g'])
-            <span class="wh-hero__rating-score">{{ number_format($rating, 1) }}</span>
-            @include('partials.stars', ['rating' => $rating, 'size' => 10])
-            <span>Google Reviews</span>
-        </span>
+    <div class="wh-hero__ring" data-hero-ring>
+        <div class="wh-hero__ring-stage" aria-hidden="true">
+            @foreach ($ringCards as $i => [$src, $srcset, $flip])
+                <div @class(['wh-hero__card', 'wh-hero__card--flip' => $flip]) style="--i: {{ $i }}">
+                    <img
+                        src="{{ asset($src) }}"
+                        srcset="{{ $srcset }}"
+                        sizes="(max-width: 900px) 220px, 360px"
+                        alt=""
+                        decoding="async"
+                        @if ($i > 5) loading="lazy" @endif
+                    >
+                </div>
+            @endforeach
+        </div>
     </div>
+
+    {{-- Scroll down: floats over the cards just above the foot of the first
+         screen, so it's seen on arrival (not only once you've scrolled) --}}
+    <a href="#rooms" class="wh-hero__down" aria-label="Scroll down to the rooms">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </a>
 
 </section>
 
 {{-- ══════════════════════════════════════════════════════════
-     02 — WHAT HAPPENS INSIDE
-     Make them feel the rooms before they arrive.
+     02 — THE ROOMS
+     After Artora's featured exhibitions, on the hero's off-white so the
+     two run together: eyebrow + heading left, a line and Book right, then
+     a 2×2 grid of room cards. Each card's stage is that room's live
+     illusion (rooms.js plays it as the card scrolls up, or runs it while
+     it's on screen), with "• Room 01 · tagline" and the room's name.
      ══════════════════════════════════════════════════════════ --}}
 <section class="rooms" id="rooms" aria-labelledby="rooms-heading">
     <div class="container">
 
         <div class="rooms__intro">
-            <h2 class="rooms__heading" id="rooms-heading" data-split>
-                Four rooms.<br>Zero explanations.
-            </h2>
-            <p class="rooms__sub" data-scrub>
-                Each room is designed to make you question something you've taken for granted your entire life.
-                You'll walk out differently than you walked in.
-            </p>
-        </div>
-
-    </div>
-
-    {{-- Pinned on desktop: the frame opens like a portal, then the track scrolls sideways
-         through every room. Each stage is a live version of that room's illusion. --}}
-    <div class="rooms__viewport" data-rooms>
-        <div class="rooms__frame" data-rooms-frame>
-            <div class="rooms__track" data-rooms-track>
-
-                <div class="rooms__enter" aria-hidden="true">
-                    <p class="rooms__enter-kicker">The experience</p>
-                    <p class="rooms__enter-title">Step<br><em>inside.</em></p>
-                    <p class="rooms__enter-hint">Keep scrolling <span>→</span></p>
-                </div>
-
-                @foreach ($shifts as $shift)
-                    <article class="room" data-room="{{ $shift['slug'] }}" aria-labelledby="room-{{ $shift['slug'] }}">
-                        <span class="room__number" data-room-number aria-hidden="true">{{ $shift['number'] }}</span>
-
-                        <div class="room__copy">
-                            <p class="room__kicker">Room {{ $shift['number'] }} <span>/ {{ str_pad(count($shifts), 2, '0', STR_PAD_LEFT) }}</span></p>
-                            <h3 class="room__title" id="room-{{ $shift['slug'] }}">
-                                @foreach (explode(' ', $shift['title']) as $w => $word)
-                                    <span class="room__word"><span style="--i: {{ $w }}">{{ $word }}</span></span>
-                                @endforeach
-                            </h3>
-                            <p class="room__tagline">{{ $shift['tagline'] }}</p>
-                            <p class="room__desc">{{ $shift['description'] }}</p>
-                            <a href="{{ route('book') }}" class="room__cta">
-                                Book to experience this
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                            </a>
-                        </div>
-
-                        <div class="room__stage" data-room-stage>
-                            @include('partials.rooms.' . $shift['slug'])
-                            <p class="room__hint" aria-hidden="true">{{ $shift['hint'] }}</p>
-                        </div>
-                    </article>
-                @endforeach
-
+            <div>
+                <p class="rooms__eyebrow">The rooms</p>
+                <h2 class="rooms__heading" id="rooms-heading" data-split>
+                    Four rooms.<br>Zero explanations.
+                </h2>
             </div>
-
-            <div class="rooms__hud" aria-hidden="true">
-                <span class="rooms__hud-count">Room <span data-rooms-current>01</span> / {{ str_pad(count($shifts), 2, '0', STR_PAD_LEFT) }}</span>
-                <span class="rooms__hud-bar"><span data-rooms-progress></span></span>
+            <div class="rooms__aside">
+                <p class="rooms__sub">
+                    Each room is designed to make you question something you've taken for granted your entire life.
+                    You'll walk out differently than you walked in.
+                </p>
+                <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
+                    <span>Book Your Spot</span>
+                    <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
             </div>
         </div>
-    </div>
-</section>
 
-{{-- ══════════════════════════════════════════════════════════
-     03 — WHO IS IT FOR
-     No one should feel left out.
-     ══════════════════════════════════════════════════════════ --}}
-<section class="audience-section" aria-labelledby="audience-heading">
-    <div class="container">
-
-        <div class="audience__intro">
-            <h2 class="audience__heading" id="audience-heading" data-split>
-                Whoever you bring,<br>they'll be fooled too.
-            </h2>
-            <p class="audience__sub" data-scrub>
-                No experience needed, no age too old. If you have eyes and a brain,
-                these rooms were built to trick you — find your reason to come.
-            </p>
-        </div>
-
-        {{-- Card pile — each card sticks a little lower than the last, so the next one
-             slides up over it; audience-stack.js sinks the covered card back.
-             Each card leads to booking (or group enquiries). --}}
-        @php $total = str_pad(count($audiences), 2, '0', STR_PAD_LEFT); @endphp
-        <ol class="audience-stack" data-audience-stack>
-            @foreach ($audiences as $i => $audience)
-                <li class="audience-stack__item" style="--i: {{ $i }}">
-                    <a href="{{ route($audience['route']) }}" class="audience-card audience-card--{{ $i % 3 + 1 }}" data-audience-card>
-                        <span class="audience-card__body">
-                            <span class="audience-card__count" aria-hidden="true">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }} <span>/ {{ $total }}</span></span>
-                            <span class="audience-card__text">
-                                <span class="audience-card__name">{{ $audience['name'] }}</span>
-                                <span class="audience-card__line">{{ $audience['line'] }}</span>
-                            </span>
-                            <span class="audience-card__go">
-                                {{ $audience['route'] === 'groups' ? 'Enquire for groups' : 'Book your spot' }}
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                            </span>
-                        </span>
-                        <span class="audience-card__media">
-                            <img src="{{ asset($audience['image']) }}" alt="" class="audience-card__img" loading="lazy" decoding="async">
-                        </span>
-                    </a>
-                </li>
+        <div class="rooms__grid" data-rooms>
+            @foreach ($shifts as $shift)
+                <article class="room-card" data-room="{{ $shift['slug'] }}" aria-labelledby="room-{{ $shift['slug'] }}" data-scrub>
+                    <div @class(['room-card__stage', 'room-card__stage--dark' => $shift['slug'] === 'infinity']) data-room-stage>
+                        @include('partials.rooms.' . $shift['slug'])
+                        <p class="room-card__hint" aria-hidden="true">{{ $shift['hint'] }}</p>
+                    </div>
+                    <div class="room-card__body">
+                        <p class="room-card__meta">
+                            <span class="room-card__num">Room {{ $shift['number'] }}</span>
+                            <span>{{ $shift['tagline'] }}</span>
+                        </p>
+                        <h3 class="room-card__title" id="room-{{ $shift['slug'] }}">
+                            <a href="{{ route('experience') }}">{{ $shift['title'] }}</a>
+                        </h3>
+                    </div>
+                </article>
             @endforeach
-        </ol>
+        </div>
 
     </div>
 </section>
 
 {{-- ══════════════════════════════════════════════════════════
-     04 — SOCIAL PROOF
+     03 — VISITOR MOMENTS
+     After Artora's "Permanent Collections": eyebrow + heading centred, then
+     a stacked carousel — one big photo in the middle, the next ones each
+     side smaller and behind it — with prev/next round the caption
+     ("• Room 02" + the room). Moves only when asked (moments.js).
+     ⚠ Only the kaleidoscope photo is ours (visitors, from socials); the rest
+     are the Unsplash stand-ins — replace with real visitor photos.
+     ══════════════════════════════════════════════════════════ --}}
+@php
+    // [image, srcset, upside down?, meta, title]
+    $momentSlides = collect($shifts)->filter(fn ($s) => ! empty($s['hero_photo']))
+        ->map(fn ($s) => [str_replace('-2064.', '-1000.', $s['hero_photo']), asset(str_replace('-2064.', '-1000.', $s['hero_photo'])) . ' 750w, ' . asset($s['hero_photo']) . ' 1548w', true, 'Room ' . $s['number'], $s['title']])
+        ->merge(collect($shifts)->filter(fn ($s) => ! empty($s['photo']))
+            ->map(fn ($s) => [$s['photo'], asset($s['photo']) . ' 800w, ' . asset(str_replace('-800.', '-1600.', $s['photo'])) . ' 1600w', false, 'Room ' . $s['number'], $s['title']]))
+        ->merge(collect(config('shiftreality.hero_extras'))
+            ->map(fn ($p) => [$p, asset($p) . ' 800w, ' . asset(str_replace('-800.', '-1600.', $p)) . ' 1600w', false, 'Photos encouraged', 'Every corner is a backdrop']))
+        ->values();
+@endphp
+<section class="moments" aria-labelledby="moments-heading">
+    <div class="container">
+        <div class="moments__intro">
+            <p class="moments__eyebrow">Visitor moments</p>
+            <h2 class="moments__heading" id="moments-heading" data-split>
+                Come for the illusions.<br>Leave with lifetime memories.
+            </h2>
+        </div>
+    </div>
+
+    <div class="moments__carousel" data-moments>
+        <div class="moments__stage">
+            @foreach ($momentSlides as $i => [$src, $srcset, $flip, $meta, $title])
+                <figure @class(['moments__slide', 'moments__slide--flip' => $flip])
+                        data-meta="{{ $meta }}" data-title="{{ $title }}" style="--i: {{ $i }}">
+                    <img src="{{ asset($src) }}" srcset="{{ $srcset }}" sizes="(max-width: 700px) 70vw, 500px"
+                         alt="" loading="lazy" decoding="async">
+                </figure>
+            @endforeach
+        </div>
+
+        <div class="moments__nav">
+            <button type="button" class="moments__arrow" data-moments-prev aria-label="Previous photo">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div class="moments__caption" aria-live="polite">
+                <p class="moments__meta"><span data-moments-meta>{{ $momentSlides[0][3] }}</span></p>
+                <p class="moments__title" data-moments-title>{{ $momentSlides[0][4] }}</p>
+            </div>
+            <button type="button" class="moments__arrow" data-moments-next aria-label="Next photo">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+        </div>
+    </div>
+</section>
+
+{{-- ══════════════════════════════════════════════════════════
+     04 — INLINE CTA
+     The photo-collage band (partials/visit-band), mid-page.
+     ⚠ Photos are the hero ring's stand-ins, bar ours.
+     ══════════════════════════════════════════════════════════ --}}
+@include('partials.visit-band', [
+    'headingId' => 'inline-cta-heading',
+    'eyebrow'   => "Don't wait until it's sold out",
+    'title'     => 'Your spot is one click away.',
+    {{-- non-breaking hyphen keeps "Walk-ins" whole --}}
+    'sub'       => 'Most people who visit say they wish they\'d come sooner. Walk&#8209;ins are welcome but weekends fill up — secure yours now.',
+    'pill'      => 'Book Now — From $' . $visit['price_from'],
+])
+
+{{-- ══════════════════════════════════════════════════════════
+     05 — SOCIAL PROOF
      Real proof: the Google score, one featured quote, the rest beside it.
      ══════════════════════════════════════════════════════════ --}}
 <section class="reviews-section section" id="reviews" aria-labelledby="reviews-heading">
@@ -277,142 +305,64 @@
 </section>
 
 {{-- ══════════════════════════════════════════════════════════
-     05 — INLINE CTA
-     Momentum break — catch them at peak desire.
+     06 — ABOUT REALITY SHIFT
+     After Artora's About band: solid deep navy, full bleed. Left: the
+     eyebrow, a photo and where we are. Right: the line, a paragraph, one
+     white pill, a hairline and two numbers that count up. Facts only from
+     config (four rooms, the Google rating) — no invented history.
+     ⚠ The photo is ours (visitors, from socials, AI-upscaled).
      ══════════════════════════════════════════════════════════ --}}
-@php $ctaStatus = $openingHours->status(); @endphp
-<section class="inline-cta" aria-labelledby="inline-cta-heading">
+@php
+    $aboutPhoto = collect($shifts)->firstWhere(fn ($s) => ! empty($s['hero_photo']))['hero_photo'] ?? null;
+    $aboutRating = config('shiftreality.google_rating');
+@endphp
+<section class="about" id="about" aria-labelledby="about-heading">
+    <div class="container about__grid">
 
-    {{-- Copy on solid navy, left-aligned like every other section --}}
-    <div class="inline-cta__panel">
-        <div class="inline-cta__inner">
-            <p class="inline-cta__overline" data-scrub>Don't wait until it's sold out</p>
-            <h2 class="inline-cta__headline" id="inline-cta-heading" data-split>
-                Your spot is one click away.
-            </h2>
-            <p class="inline-cta__sub" data-scrub>
-                Most people who visit say they wish they'd come sooner.
-                {{-- non-breaking hyphen keeps "Walk-ins" whole --}}
-                Walk&#8209;ins are welcome but weekends fill up — secure yours now.
+        <div class="about__side">
+            <p class="about__eyebrow">About Reality Shift</p>
+            @if ($aboutPhoto)
+                <figure class="about__photo">
+                    <img
+                        src="{{ asset(str_replace('-2064.', '-1000.', $aboutPhoto)) }}"
+                        srcset="{{ asset(str_replace('-2064.', '-1000.', $aboutPhoto)) }} 750w, {{ asset($aboutPhoto) }} 1548w"
+                        sizes="(max-width: 900px) 90vw, 340px"
+                        alt="Visitors in the Reality Shift kaleidoscope room"
+                        loading="lazy"
+                        decoding="async"
+                    >
+                </figure>
+            @endif
+            <p class="about__where">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+                {{ config('shiftreality.location.address') }}, {{ config('shiftreality.location.city') }}
             </p>
-            <a href="{{ route('book') }}" class="pill pill--amber pill--xl" data-scrub>
-                <span>Book Now — From ${{ $visit['price_from'] }}</span>
+        </div>
+
+        <div class="about__main">
+            <h2 class="about__heading" id="about-heading" data-split>
+                More than a museum.<br>Where reality bends.
+            </h2>
+            <p class="about__text">
+                Reality Shift is Zimbabwe's first optical illusion experience: {{ count($shifts) }} rooms built to make you
+                question something you've taken for granted your entire life. No experience needed, no age too old —
+                bring your eyes, your people and a camera.
+            </p>
+            <a href="{{ route('experience') }}" class="pill pill--amber pill--lg about__pill">
+                <span>Explore the rooms</span>
                 <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
-            <p @class(['inline-cta__note', 'is-open' => $ctaStatus['open']]) data-scrub>
-                <span class="inline-cta__dot" aria-hidden="true"></span>
-                {{-- &nbsp; keeps each "·" on the line it follows --}}
-                {{ $ctaStatus['label'] }}&nbsp;· {{ $ctaStatus['detail'] }}&nbsp;· {{ config('shiftreality.location.address') }}, {{ config('shiftreality.location.city') }}
-            </p>
-        </div>
-    </div>
 
-    {{-- The clocks ("don't wait"), clean: no overlay --}}
-    <figure class="inline-cta__media" aria-hidden="true">
-        <img
-            src="{{ asset('images/hero/hero-3-2400.webp') }}"
-            srcset="{{ asset('images/hero/hero-3-1200.webp') }} 1200w,
-                    {{ asset('images/hero/hero-3-2400.webp') }} 2400w"
-            sizes="(min-width: 900px) 50vw, 100vw"
-            alt=""
-            loading="lazy"
-            decoding="async"
-        >
-    </figure>
-</section>
-
-{{-- ══════════════════════════════════════════════════════════
-     06 — VISIT ESSENTIALS
-     Remove every last booking objection.
-     ══════════════════════════════════════════════════════════ --}}
-<section class="visit" id="visit" aria-labelledby="essentials-heading">
-    <div class="container">
-
-        @php
-            $status   = $openingHours->status();
-            $location = config('shiftreality.location');
-            $directions = 'https://www.google.com/maps/dir/?api=1&destination='
-                . $location['coordinates']['lat'] . ',' . $location['coordinates']['lng'];
-        @endphp
-
-        <div class="visit__intro">
-            <h2 class="visit__title" id="essentials-heading" data-split>Plan your visit.</h2>
-            <p class="visit__sub" data-scrub>Everything you need before you arrive — then just bring your curiosity.</p>
-        </div>
-
-        <div class="visit__grid">
-            {{-- Live status + hours --}}
-            <div class="visit-card visit-card--hours" data-scrub>
-                <p @class(['visit-status', 'is-open' => $status['open']])>
-                    <span class="visit-status__dot" aria-hidden="true"></span>
-                    <span class="visit-status__label">{{ $status['label'] }}</span>
-                    <span class="visit-status__detail">{{ $status['detail'] }}</span>
-                </p>
-
-                <dl class="visit-hours">
-                    @foreach ($openingHours->rows() as $row)
-                        <div @class(['visit-hours__row', 'is-today' => $row['today'], 'is-closed' => $row['closed']])>
-                            <dt>
-                                {{ $row['days'] }}
-                                @if ($row['today'])<span class="visit-hours__today">Today</span>@endif
-                            </dt>
-                            <dd>{{ $row['time'] }}</dd>
-                        </div>
-                    @endforeach
-                </dl>
-            </div>
-
-            {{-- Location: a real map of the venue (the iframe only loads as it nears the
-                 screen), with the address and directions on the card below it --}}
-            @php
-                $mapEmbed = 'https://www.google.com/maps?q='
-                    . $location['coordinates']['lat'] . ',' . $location['coordinates']['lng'] . '&z=16&output=embed';
-            @endphp
-            <div class="visit-card visit-card--map" data-scrub>
-                <div class="visit-map">
-                    {{-- src is set by lazy-embeds.js as the section nears the screen,
-                         so Google's map isn't loaded for visitors who never get here --}}
-                    <iframe
-                        class="visit-map__frame"
-                        data-lazy-src="{{ $mapEmbed }}"
-                        title="Map showing {{ config('shiftreality.name') }} at {{ $location['address'] }}, {{ $location['city'] }}"
-                        referrerpolicy="no-referrer-when-downgrade"
-                    ></iframe>
-                    <noscript>
-                        <iframe class="visit-map__frame" src="{{ $mapEmbed }}" title="Map showing {{ config('shiftreality.name') }}" loading="lazy"></iframe>
-                    </noscript>
+            <dl class="about__stats">
+                <div>
+                    <dt>Mind-bending rooms</dt>
+                    <dd data-count-to="{{ count($shifts) }}">{{ count($shifts) }}</dd>
                 </div>
-                <div class="visit-card__foot">
-                    <div>
-                        <p class="visit-card__eyebrow">Find us</p>
-                        <p class="visit-card__place">{{ $location['address'] }}</p>
-                        <p class="visit-card__city">{{ $location['city'] }}, {{ $location['country'] }}</p>
-                    </div>
-                    <a href="{{ $directions }}" class="visit-card__go" target="_blank" rel="noopener">
-                        Get directions
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
-                    </a>
+                <div>
+                    <dt>Google rating</dt>
+                    <dd><span data-count-to="{{ number_format($aboutRating, 1) }}">{{ number_format($aboutRating, 1) }}</span><span class="about__unit">/5</span></dd>
                 </div>
-            </div>
-        </div>
-
-        {{-- Quick facts --}}
-        <div class="visit-facts">
-            <div class="visit-fact" data-scrub>
-                <p class="visit-fact__label">Time inside</p>
-                <p class="visit-fact__value">{{ $visit['duration'] }}</p>
-                <p class="visit-fact__sub">Go at your own pace</p>
-            </div>
-            <div class="visit-fact" data-scrub>
-                <p class="visit-fact__label">Tickets</p>
-                <p class="visit-fact__value">From ${{ $visit['price_from'] }}</p>
-                <a href="#pricing" class="visit-fact__sub visit-fact__link">See pricing ↓</a>
-            </div>
-            <div class="visit-fact" data-scrub>
-                <p class="visit-fact__label">Ages</p>
-                <p class="visit-fact__value">{{ $visit['min_age'] }}+</p>
-                <p class="visit-fact__sub">Fun for kids and grown-ups alike</p>
-            </div>
+            </dl>
         </div>
 
     </div>
@@ -420,7 +370,10 @@
 
 {{-- ══════════════════════════════════════════════════════════
      07 — PRICING
-     The ticket: one clear price, what's included, and a pointer to groups.
+     One ticket, drawn as one: a deep-navy stub with the price, the action
+     and the live status; a perforated tear; the rest of the ticket lists
+     what it buys, with a pointer to group rates. (The old "Plan your visit"
+     section is gone — hours and directions live in the footer.)
      ══════════════════════════════════════════════════════════ --}}
 @php
     $fillPrice = fn ($text) => strtr((string) $text, [
@@ -428,137 +381,110 @@
         ':duration' => str_replace(' ', "\u{00A0}", $visit['duration']),   // never split "1.5 – 2.5 hours" across lines
         ':min_age'  => $visit['min_age'],
     ]);
+    $ticket = config('shiftreality.pricing');
+    $ticketStatus = $openingHours->status();
 @endphp
-@php $ticket = config('shiftreality.pricing'); @endphp
 <section class="pricing" id="pricing" aria-labelledby="pricing-heading">
     <div class="container">
 
         <div class="pricing__intro">
-            <h2 class="pricing__title" id="pricing-heading" data-split>One ticket.<br>Every room.</h2>
-            <p class="pricing__sub" data-scrub>Book online to guarantee your slot, or walk in when there's space — then take your time inside.</p>
+            <div>
+                <p class="pricing__eyebrow">Tickets</p>
+                <h2 class="pricing__title" id="pricing-heading" data-split>One ticket.<br>Every room.</h2>
+            </div>
+            <p class="pricing__sub">Book online to guarantee your slot, or walk in when there's space — then take your time inside.</p>
         </div>
 
-        <div class="pricing__ticket">
-            {{-- The price and the one action --}}
-            <div class="pricing__main" data-scrub>
-                <h3 class="price__name">{{ $ticket['name'] }}</h3>
-                <p class="price__amount">
+        <div class="ticket" data-scrub>
+            {{-- The stub: price, the one action, and whether we're open right now --}}
+            <div class="ticket__stub">
+                <h3 class="ticket__name">{{ $ticket['name'] }}</h3>
+                <p class="ticket__price">
                     @if ($ticket['price'] !== null)
-                        <span class="price__figure">${{ $fillPrice($ticket['price']) }}</span>
+                        <span class="ticket__figure">${{ $fillPrice($ticket['price']) }}</span>
                     @else
-                        <span class="price__figure">On request</span>
+                        <span class="ticket__figure">On request</span>
                     @endif
-                    <span class="price__unit">{{ $ticket['unit'] }}</span>
+                    <span class="ticket__unit">{{ $ticket['unit'] }}</span>
                 </p>
-                <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
+                <a href="{{ route('book') }}" class="pill pill--amber pill--lg ticket__pill">
                     <span>Book Your Spot</span>
                     <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
-                {{-- Groups get their own pitch right below; this just points there --}}
-                <p class="pricing__groups">Coming as a group? <a href="#groups">Rates on request ↓</a></p>
+                <p @class(['ticket__status', 'is-open' => $ticketStatus['open']])>
+                    <span class="ticket__dot" aria-hidden="true"></span>
+                    {{ $ticketStatus['label'] }}&nbsp;· {{ $ticketStatus['detail'] }}
+                </p>
             </div>
 
-            {{-- What's included: each line rises in with the scroll --}}
-            <ul class="price__list" aria-label="Included with every ticket">
-                @foreach ($ticket['includes'] as $line)
-                    <li data-scrub>{{ $fillPrice($line) }}</li>
-                @endforeach
-            </ul>
-        </div>
+            {{-- The tear: a dashed line between two notches --}}
+            <span class="ticket__tear" aria-hidden="true"></span>
 
-    </div>
-</section>
-
-{{-- ══════════════════════════════════════════════════════════
-     08 — GROUPS + EVENTS
-     ══════════════════════════════════════════════════════════ --}}
-@php
-    $groups = config('shiftreality.groups');
-    $groupWhatsApp = 'https://wa.me/' . config('shiftreality.contact.whatsapp')
-        . '?text=' . rawurlencode('Hi Reality Shift! I\'d like to enquire about a group booking.');
-@endphp
-<section class="groups" id="groups" aria-labelledby="groups-heading">
-    <div class="container">
-
-        <div class="groups__grid">
-
-            {{-- Clean photo, nothing laid over it (stand-in until a real group photo).
-                 It wipes up into view and settles from a slight zoom. --}}
-            <figure class="groups__media" data-reveal>
-                <img src="{{ asset($groups['image']) }}" alt="" class="groups__img" loading="lazy" decoding="async">
-            </figure>
-
-            {{-- Each piece rises in with the scroll itself (scrub-reveal.js), while the photo stays pinned --}}
-            <div class="groups__content">
-                <h2 class="groups__heading" id="groups-heading" data-split>
-                    Make it a group<br>they'll never forget.
-                </h2>
-                <p class="groups__sub" data-scrub>
-                    Bring the class, the team or the whole party. Groups get exclusive rates
-                    and priority entry — tell us your date and we'll handle the rest.
-                </p>
-
-                {{-- The two group perks, as plain facts --}}
-                <dl class="groups__perks">
-                    <div class="groups__perk" data-scrub>
-                        <dt>Pricing</dt>
-                        <dd>Group rates</dd>
-                    </div>
-                    <div class="groups__perk" data-scrub>
-                        <dt>Arrival</dt>
-                        <dd>Priority entry</dd>
-                    </div>
-                </dl>
-
-                {{-- Occasions: name left, reason right, split by hairlines --}}
-                <ul class="groups__occasions">
-                    @foreach ($groups['occasions'] as $occasion)
-                        <li class="groups__occasion" data-scrub>
-                            <h3 class="groups__occasion-title">{{ $occasion['title'] }}</h3>
-                            <p class="groups__occasion-line">{{ $occasion['line'] }}</p>
+            {{-- What it buys --}}
+            <div class="ticket__body">
+                <p class="ticket__label">Included with every ticket</p>
+                <ul class="ticket__list">
+                    @foreach ($ticket['includes'] as $line)
+                        <li>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+                            <span>{{ $fillPrice($line) }}</span>
                         </li>
                     @endforeach
                 </ul>
-
-                <div class="groups__actions" data-scrub>
-                    <a href="{{ route('groups') }}" class="pill pill--amber pill--lg">
-                        <span>Enquire for Groups</span>
-                        <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </a>
-                    <a href="{{ $groupWhatsApp }}" class="groups__wa" target="_blank" rel="noopener">
-                        Or ask on WhatsApp →
-                    </a>
-                </div>
-                <p class="groups__note" data-scrub>Weekend slots fill fast — enquire early.</p>
             </div>
-
         </div>
+
+        {{-- Groups, in one strip under the ticket (was its own section): the
+             occasions from config, the two perks, and the enquiry on WhatsApp --}}
+        @php
+            $groupWhatsApp = 'https://wa.me/' . config('shiftreality.contact.whatsapp')
+                . '?text=' . rawurlencode('Hi Reality Shift! I\'d like to enquire about a group booking.');
+        @endphp
+        <div class="group-strip" id="groups" data-scrub>
+            <div class="group-strip__copy">
+                <h3 class="group-strip__title">Coming as a group?</h3>
+                <p class="group-strip__line">Group rates and priority entry — tell us your date and we'll handle the rest.</p>
+                <ul class="group-strip__tags" aria-label="Popular group occasions">
+                    @foreach (config('shiftreality.groups.occasions') as $occasion)
+                        <li>{{ $occasion['title'] }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <a href="{{ $groupWhatsApp }}" class="pill pill--amber pill--lg group-strip__pill" target="_blank" rel="noopener">
+                <span>Enquire on WhatsApp</span>
+                <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+
     </div>
 </section>
 
 {{-- ══════════════════════════════════════════════════════════
-     09 — FAQ
-     The last doubts, cleared right before the final ask.
+     08 — FAQ
+     The last doubts, cleared right before the final ask. Centred eyebrow +
+     heading, then every question as its own rounded card, numbered; the open
+     one turns white with a hairline. Then a way to ask anything else.
+     (Scoped as .faq-home: /pricing keeps its own FAQ look.)
      ══════════════════════════════════════════════════════════ --}}
-<section class="faq-section" id="faq" aria-labelledby="faq-heading">
+@php
+    $faqWhatsApp = 'https://wa.me/' . config('shiftreality.contact.whatsapp')
+        . '?text=' . rawurlencode('Hi Reality Shift! I have a question about visiting.');
+@endphp
+<section class="faq-home" id="faq" aria-labelledby="faq-heading">
     <div class="container">
 
-        <div class="visit-faq">
-            <div class="visit-faq__aside" data-scrub>
-                <h2 class="visit-faq__title" id="faq-heading" data-split>Good to know.</h2>
-                <p class="visit-faq__sub">The questions people ask most before they book.</p>
-                <span class="visit-faq__links">
-                    <a href="{{ route('faq') }}" class="visit__more">See all questions →</a>
-                    <a href="{{ route('visit') }}" class="visit__more">Full visitor info →</a>
-                </span>
-            </div>
+        <div class="faq-home__intro">
+            <p class="faq-home__eyebrow">FAQ</p>
+            <h2 class="faq-home__title" id="faq-heading" data-split>Good to know.</h2>
+            <p class="faq-home__sub">The questions people ask most before they book.</p>
+        </div>
 
-            <div class="faq" role="list">
-                @foreach(array_slice($faq, 0, 4) as $i => $item)
-                {{-- each question rises in with the scroll --}}
+        <div class="faq faq-home__list" role="list">
+            @foreach ($faq as $i => $item)
                 <div class="faq__item" role="listitem" data-scrub>
                     <button class="faq__question" aria-expanded="false" aria-controls="faq-a-{{ $i }}" id="faq-q-{{ $i }}">
-                        {{ $item['question'] }}
+                        <span class="faq-home__num" aria-hidden="true">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                        <span class="faq-home__q">{{ $item['question'] }}</span>
                         <span class="faq__icon" aria-hidden="true"></span>
                     </button>
                     <div class="faq__answer" id="faq-a-{{ $i }}" role="region" aria-labelledby="faq-q-{{ $i }}">
@@ -567,124 +493,35 @@
                         </div>
                     </div>
                 </div>
-                @endforeach
-            </div>
+            @endforeach
+        </div>
+
+        <div class="faq-home__more">
+            <p>Still have a question?</p>
+            <a href="{{ $faqWhatsApp }}" class="pill pill--amber pill--lg" target="_blank" rel="noopener">
+                <span>Ask us on WhatsApp</span>
+                <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
         </div>
 
     </div>
 </section>
 
 {{-- ══════════════════════════════════════════════════════════
-     10 — BRAND BANNER
+     09 — FINAL CTA
+     The photo-collage band again, with closing words and the collage
+     turned round so it doesn't repeat the one above. Hands over to the
+     (light) footer.
      ══════════════════════════════════════════════════════════ --}}
-<div class="brand-banner" aria-hidden="true" data-brand-banner>
-    <div class="brand-banner__track">
-        {{-- Two identical sets, so the loop is seamless. brand-banner.js ties the drift
-             to scrolling; "Everything" turns upside down as it crosses the centre. --}}
-        @foreach ([0, 1] as $copy)
-            <span class="brand-banner__set">
-                <span class="brand-banner__word">Reality</span>
-                <span class="brand-banner__sep"></span>
-                <em class="brand-banner__word brand-banner__word--accent">Shift</em>
-                <span class="brand-banner__sep"></span>
-                <span class="brand-banner__word brand-banner__word--outline">Harare</span>
-                <span class="brand-banner__sep"></span>
-                <span class="brand-banner__word">Question</span>
-                <span class="brand-banner__sep"></span>
-                <em class="brand-banner__word brand-banner__word--accent brand-banner__word--flip" data-flip>Everything</em>
-                <span class="brand-banner__sep"></span>
-            </span>
-        @endforeach
-    </div>
-</div>
-
-{{-- ══════════════════════════════════════════════════════════
-     11 — FINAL CTA
-     The urgency close: dark, cinematic, flowing into the footer.
-     ══════════════════════════════════════════════════════════ --}}
-@php
-    $closeStatus = $openingHours->status();
-    $closeRating = config('shiftreality.google_rating');
-    $closeGeo    = config('shiftreality.location.coordinates');
-    $closeCoords = sprintf('%.4f° %s · %.4f° %s',
-        abs($closeGeo['lat']), $closeGeo['lat'] < 0 ? 'S' : 'N',
-        abs($closeGeo['lng']), $closeGeo['lng'] < 0 ? 'W' : 'E');
-    $closeTz     = config('shiftreality.timezone');
-@endphp
-<section class="final-booking" id="book" aria-labelledby="final-heading">
-
-    {{-- Atmosphere: two ring fields drifting into a moiré, under a fine grain.
-         The layer eases out toward the bottom so the footer takes over without a seam. --}}
-    <div class="final-booking__atmos" aria-hidden="true">
-    <svg class="final-booking__moire" viewBox="-400 -400 800 800" aria-hidden="true">
-        <defs>
-            <g id="final-rings">
-                @for ($r = 8; $r <= 400; $r += 8)
-                    <circle r="{{ $r }}" />
-                @endfor
-            </g>
-        </defs>
-        <use href="#final-rings" class="final-booking__rings" />
-        <use href="#final-rings" class="final-booking__rings final-booking__rings--drift" />
-    </svg>
-    <div class="final-booking__grain"></div>
-    </div>
-
-    <div class="container final-booking__inner">
-
-        {{-- Where and when, to the minute --}}
-        <div class="final-booking__meta" data-scrub>
-            <span class="final-booking__coords">{{ $closeCoords }}</span>
-            <span @class(['final-booking__status', 'is-open' => $closeStatus['open']])>
-                <span class="final-booking__dot" aria-hidden="true"></span>
-                {{ $closeStatus['label'] }}&nbsp;· {{ $closeStatus['detail'] }}
-            </span>
-            <span>{{ config('shiftreality.location.city') }} <time data-local-clock data-tz="{{ $closeTz }}">{{ now($closeTz)->format('H:i') }}</time></span>
-        </div>
-
-        {{-- Each line rises out of its own mask --}}
-        <h2 class="final-booking__title" id="final-heading" data-reveal>
-            <span class="final-booking__mask"><span class="final-booking__line">Don't be the last</span></span>
-            <span class="final-booking__mask final-booking__mask--end"><em class="final-booking__line">one to find out.</em></span>
-        </h2>
-
-        <div class="final-booking__foot">
-            <div class="final-booking__copy" data-scrub>
-                <p class="final-booking__sub">
-                    Weekends book out. Walk-ins are welcome, but a spot isn't guaranteed.
-                </p>
-                <ul class="final-booking__proof">
-                    <li>
-                        @include('partials.google-g', ['size' => 16])
-                        <span>{{ number_format($closeRating, 1) }}</span>
-                        @include('partials.stars', ['rating' => $closeRating, 'size' => 12])
-                        <span class="sr-only">out of 5 on Google Reviews</span>
-                    </li>
-                    <li>Ages {{ $visit['min_age'] }}+</li>
-                    <li>Photos encouraged</li>
-                </ul>
-                <a href="https://wa.me/{{ config('shiftreality.contact.whatsapp') }}" class="final-booking__wa" target="_blank" rel="noopener">
-                    Or ask us on WhatsApp <span aria-hidden="true">→</span>
-                </a>
-            </div>
-
-            {{-- The button: a disc with its label orbiting it --}}
-            <div class="final-booking__orbit-wrap" data-scrub>
-                <a href="{{ route('book') }}" class="orbit" aria-label="Book your spot, from ${{ $visit['price_from'] }}">
-                    <svg class="orbit__ring" viewBox="0 0 200 200" aria-hidden="true">
-                        <defs>
-                            <path id="orbit-path" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0" />
-                        </defs>
-                        <text><textPath href="#orbit-path" textLength="500" lengthAdjust="spacing">Book your spot · From ${{ $visit['price_from'] }} · Book your spot · From ${{ $visit['price_from'] }} ·</textPath></text>
-                    </svg>
-                    <span class="orbit__core" aria-hidden="true">
-                        <svg class="arrow" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
-                    </span>
-                </a>
-            </div>
-        </div>
-
-    </div>
-</section>
+@include('partials.visit-band', [
+    'id'        => 'visit-today',
+    'headingId' => 'final-heading',
+    'eyebrow'   => 'Visit today',
+    'title'     => 'Question everything.<br>Starting today.',
+    'sub'       => count($shifts) . ' rooms at ' . e(config('shiftreality.location.address')) . ', ' . e(config('shiftreality.location.city'))
+                 . '. Entry from $' . $visit['price_from'] . ', ages ' . $visit['min_age'] . '&nbsp;and&nbsp;up.',
+    'pill'      => 'Book Your Spot',
+    'offset'    => 4,
+])
 
 @endsection
