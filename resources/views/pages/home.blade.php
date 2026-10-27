@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
-{{-- The hero is light (after Artora), so the nav keeps its dark-on-light look,
-     under the same top bar as every page. --}}
+{{-- The hero sits on a dark blurred-photo field, so the header rests in its
+     light-on-dark look until scrolled (under the same top bar as every page). --}}
+@section('body_class', 'has-hero-photo')
 
 @section('title', 'Reality Shift — Zimbabwe\'s Optical Illusion Experience · Harare')
 @section('description', 'Your brain is about to be lied to. 4 mind-bending rooms at Westgate Shopping Complex, Harare. Zimbabwe\'s first optical illusion experience. Entry from $15. Book now.')
@@ -39,8 +40,8 @@
      ══════════════════════════════════════════════════════════ --}}
 {{-- Hero after Artora (artora.framer.website): a centred headline and one action,
      over a ring of photo cards seen from inside a turning cylinder — the cards at
-     the edges come closer and lean in (hero-ring.js). Flat light background,
-     our type, our navy pill. As on Artora, the ring runs off the bottom of the
+     the edges come closer and lean in (hero-ring.js). The background is a
+     blurred duotone photo field; white type, the white pill. As on Artora, the ring runs off the bottom of the
      first screen and the big edge cards rise beside the headline.
      ⚠ Cards are stand-ins except the kaleidoscope room (ours, from socials,
      AI-upscaled from a 387px copy, shown upside down as a wink) — replace them
@@ -61,19 +62,13 @@
 @endphp
 <section class="wh-hero" id="hero" aria-labelledby="hero-heading">
 
-    {{-- Background: flat frosted tiles that slowly rise and fade, out at the
-         sides (clear of the words). Positions are fixed numbers, not random,
-         so the page looks the same on every load. [left %, top px, size px,
-         seconds, delay] --}}
-    <div class="wh-hero__tiles" aria-hidden="true">
-        @foreach ([
-            [4, 150, 96, 13, 0],   [14, 330, 56, 11, 4],  [7, 470, 128, 16, 8],  [19, 120, 44, 10, 2],
-            [23, 420, 72, 14, 6],  [2, 290, 40, 12, 10],  [93, 140, 112, 15, 3], [82, 300, 52, 11, 7],
-            [89, 440, 84, 13, 1],  [76, 160, 40, 10, 9],  [72, 380, 64, 14, 5],  [96, 520, 48, 12, 11],
-            [34, 110, 36, 12, 7],  [64, 120, 32, 11, 2],
-        ] as [$x, $y, $size, $dur, $delay])
-            <span class="wh-hero__tile" style="--x: {{ $x }}%; --y: {{ $y }}px; --s: {{ $size }}px; --d: {{ $dur }}s; --t: -{{ $delay }}s"></span>
-        @endforeach
+    {{-- Background: one of our photos blurred until only its light is left,
+         mapped into the brand palette (navy shadows, soft-blue mid-tones,
+         white highlights) — after a blurred-portrait reference. Decorative. --}}
+    <div class="wh-hero__field" aria-hidden="true">
+        @if ($ours->isNotEmpty())
+            <img src="{{ asset(str_replace('-2064.', '-1000.', $ours[0][0])) }}" alt="" decoding="async" fetchpriority="high">
+        @endif
     </div>
 
     <div class="wh-hero__intro">
