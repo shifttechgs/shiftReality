@@ -61,6 +61,21 @@
 @endphp
 <section class="wh-hero" id="hero" aria-labelledby="hero-heading">
 
+    {{-- Background: flat frosted tiles that slowly rise and fade, out at the
+         sides (clear of the words). Positions are fixed numbers, not random,
+         so the page looks the same on every load. [left %, top px, size px,
+         seconds, delay] --}}
+    <div class="wh-hero__tiles" aria-hidden="true">
+        @foreach ([
+            [4, 150, 96, 13, 0],   [14, 330, 56, 11, 4],  [7, 470, 128, 16, 8],  [19, 120, 44, 10, 2],
+            [23, 420, 72, 14, 6],  [2, 290, 40, 12, 10],  [93, 140, 112, 15, 3], [82, 300, 52, 11, 7],
+            [89, 440, 84, 13, 1],  [76, 160, 40, 10, 9],  [72, 380, 64, 14, 5],  [96, 520, 48, 12, 11],
+            [34, 110, 36, 12, 7],  [64, 120, 32, 11, 2],
+        ] as [$x, $y, $size, $dur, $delay])
+            <span class="wh-hero__tile" style="--x: {{ $x }}%; --y: {{ $y }}px; --s: {{ $size }}px; --d: {{ $dur }}s; --t: -{{ $delay }}s"></span>
+        @endforeach
+    </div>
+
     <div class="wh-hero__intro">
         <p class="wh-hero__eyebrow">Zimbabwe&rsquo;s first optical illusion experience</p>
 
