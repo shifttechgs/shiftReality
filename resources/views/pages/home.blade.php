@@ -86,9 +86,9 @@
             </a>
 
             <span class="wh-hero__rating" role="img" aria-label="Rated {{ $rating }} out of 5, based on Google Reviews">
-                @include('partials.google-g', ['size' => 12, 'class' => 'wh-hero__rating-g'])
+                @include('partials.google-g', ['size' => 20, 'class' => 'wh-hero__rating-g'])
                 <span class="wh-hero__rating-score">{{ number_format($rating, 1) }}</span>
-                @include('partials.stars', ['rating' => $rating, 'size' => 10])
+                @include('partials.stars', ['rating' => $rating, 'size' => 16])
                 <span>Google Reviews</span>
             </span>
         </div>

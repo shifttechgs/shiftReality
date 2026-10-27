@@ -28,14 +28,18 @@ export function initHeroRing() {
     // drawn about 1.5× the front one, as on Artora
     const measure = () => {
         const w = ring.clientWidth;
-        // Phones: bigger cards, about two and a bit across
-        cardW  = w < 700 ? clamp(w * 0.56, 190, 300) : clamp(w * 0.195, 220, 320);
+        // About a fifth smaller than Artora's, so the big headline leads.
+        // Phones: bigger relative to the screen, about two and a half across
+        cardW  = w < 700 ? clamp(w * 0.46, 160, 240) : clamp(w * 0.155, 180, 260);
         radius = Math.max(w * 0.4, cardW * 2);
         // Push the cylinder back so the front card lands at FRONT_SCALE
         centre = radius - PERSPECTIVE * (1 / FRONT_SCALE - 1);
         ring.style.setProperty('--card-w', `${cardW}px`);
         ring.style.setProperty('--card-h', `${cardW * ASPECT}px`);
         step = (cardW * 1.1) / radius;
+        // The hero's background fades out over the ring (not the words): it
+        // needs the ring's height
+        ring.closest('.wh-hero')?.style.setProperty('--ring-h', `${ring.offsetHeight}px`);
     };
 
     let offset = 0;   // radians turned so far
