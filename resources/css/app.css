@@ -1,25 +1,24 @@
 @import 'tailwindcss';
-/* Artora's pair, self-hosted (both SIL OFL): Playfair Display for headings,
-   Inter with its optical-size axis (opsz.css) for everything else — at large
-   sizes it draws as Inter Display, as on Artora */
-@import '@fontsource-variable/playfair-display/wght.css';
-@import '@fontsource-variable/playfair-display/wght-italic.css';
-@import '@fontsource-variable/inter/opsz.css';
 
 /* ============================================================
    DESIGN TOKENS — Reality Shift
    ============================================================ */
 @theme {
-    /* Typography — Playfair Display for headings, Inter for everything else */
-    --font-heading: 'Playfair Display Variable', Georgia, 'Times New Roman', serif;
-    --font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-    --font-sans:    'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-    --font-mono:    'Inter Variable', ui-monospace, monospace;
+    /* Typography — Helvetica throughout. It's licensed, so it isn't bundled:
+       Apple devices draw the real Helvetica (Neue); Windows and Android get
+       Arial, drawn to Helvetica's widths */
+    --font-helvetica: 'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif;
+    --font-heading: var(--font-helvetica);
+    --font-display: var(--font-helvetica);
+    --font-sans:    var(--font-helvetica);
+    --font-mono:    var(--font-helvetica);
 
     /* Brand palette — WHITE THEME · Logo colors: navy #0C1A3E · blue #1855E8 */
     --color-sr-bg:              #FFFFFF;
-    --color-sr-surface:         #F4F6FA;
-    --color-sr-surface-raised:  #E8EDF5;
+    /* A frosted tint of the brand blue (after Artora's cream page, a tint of
+       their red); "raised" is the same tint a shade deeper (their top bar) */
+    --color-sr-surface:         #F1F5FE;
+    --color-sr-surface-raised:  #E3EBFC;
     --color-sr-text:            #0C1A3E;
     --color-sr-muted:           #4A5A7C;
     --color-sr-muted-2:         #8A9AB8;

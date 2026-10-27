@@ -26,7 +26,7 @@
     <meta name="twitter:description" content="@yield('og_description', config('shiftreality.description'))">
     <meta name="twitter:image"       content="@yield('og_image', asset('images/og-default.jpg'))">
 
-    {{-- Fonts: Playfair Display + Inter (Artora's pair) — self-hosted via npm, no external CDN --}}
+    {{-- Fonts: Helvetica from the visitor's system (Arial where it isn't installed) — nothing to download --}}
 
     {{-- ── Favicon & Manifest ─────────────────────────────────────── --}}
     {{-- Replace these with actual brand assets when available --}}
