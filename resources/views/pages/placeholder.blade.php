@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', ($title ?? 'Coming Soon') . ' — ' . config('shiftreality.name'))
+@section('title', ($title ?? 'Coming Soon') . ' · ' . config('shiftreality.name'))
 
 {{-- The banner is deep navy, so the nav rests in its light variant --}}
 @section('body_class', 'has-hero-photo')

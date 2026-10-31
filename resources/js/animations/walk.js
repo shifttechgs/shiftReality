@@ -26,6 +26,7 @@ const FLY    = [0, 1];                   // down the stairwell, slow and steady,
 const GLIDE  = [0, at(1.05)];            // …its centre coming to the middle, where the frame splits…
 const SPLIT  = [at(1.05), at(1.65)];       // …the frame splits, the slices flying to the cards…
 const FLIP   = (i) => [at(1.5 + i * 0.1), at(1.75 + i * 0.1)];   // …and each flips over into its card (the last at the pin's end)
+const JUMP   = 0.3;            // …unless it's this far behind (of the pin): then it lands at once
 const CHASE  = 0.12;           // how fast the stairwell, the split and the flips catch up with the scroll, per frame
 const FLOORS = 2.4;            // floors descended with the scroll
 const DRIFT  = 1 / 30;         // …and on their own, behind the copy (floors per second)
@@ -258,7 +259,9 @@ export function initWalk() {
     const chase = () => {
         qRaf = 0;
         q += (last - q) * CHASE;
-        if (Math.abs(last - q) < 0.0004) q = last;
+        // A jump (a link, a reload part way down, the hero off screen) lands at
+        // once: gliding there would replay the whole split over the page
+        if (Math.abs(last - q) < 0.0004 || Math.abs(last - q) > JUMP || !seen) q = last;
         renderSplit(q);
         drawWell(q);
         wakeWell();

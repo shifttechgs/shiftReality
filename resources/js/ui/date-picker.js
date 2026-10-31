@@ -135,7 +135,7 @@ function enhance(select) {
         page = k;
         pages.forEach((g, j) => { g.hidden = j !== k; });
         const inView = dates.filter((_, n) => pageOf(n) === k);
-        title.textContent = [...new Set(inView.map((d) => d.date.toLocaleDateString('en-GB', { month: 'long' })))].join(' – ');
+        title.textContent = [...new Set(inView.map((d) => d.date.toLocaleDateString('en-GB', { month: 'long' })))].join(' to ');
         prev.disabled = k === 0;
         next.disabled = k === pageCount - 1;
     };

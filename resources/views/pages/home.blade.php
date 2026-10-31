@@ -3,7 +3,7 @@
 {{-- The hero is the Infinity Room, deep navy: the header rests light-on-dark. --}}
 @section('body_class', 'has-hero-photo')
 
-@section('title', 'Reality Shift — Zimbabwe\'s Optical Illusion Experience · Harare')
+@section('title', 'Reality Shift · Zimbabwe\'s Optical Illusion Experience · Harare')
 @section('description', 'Your brain is about to be lied to. Mind-bending illusion rooms at Westgate Shopping Complex, Harare. Zimbabwe\'s first optical illusion experience. Entry from $15. Book now.')
 
 @push('head')
@@ -170,7 +170,7 @@
                                     <span @class(['is-on' => $i === 0])>{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
                                 @endforeach
                             </span>
-                            <i>&mdash;</i> {{ $slideCount }}
+                            <i>/</i> {{ $slideCount }}
                         </span>
                     </p>
                     <p class="walk__bar-blurb walk__roll" data-walk-roll>
@@ -279,13 +279,18 @@
      a stacked carousel — one big photo in the middle, the next ones each
      side smaller and behind it — with prev/next round the caption
      ("• In the room" + the room). Moves only when asked (moments.js).
-     Ours only: the kaleidoscope, the rooms' photos and the extra visitor
-     photos (config hero_extras); no stand-ins.
+     Ours only: it opens on the front desk (config moments_lead), then the
+     kaleidoscope, our visitors' photos (visitor_photos), the rooms' photos
+     and the extra ones (hero_extras); no stand-ins.
      ══════════════════════════════════════════════════════════ --}}
 @php
     // [image, srcset, upside down?, meta, title]
-    $momentSlides = collect($shifts)->filter(fn ($s) => ! empty($s['hero_photo']))
-        ->map(fn ($s) => [str_replace('-2064.', '-1000.', $s['hero_photo']), asset(str_replace('-2064.', '-1000.', $s['hero_photo'])) . ' 750w, ' . asset($s['hero_photo']) . ' 1548w', true, 'In the room', $s['title']])
+    $momentLead = config('shiftreality.moments_lead');
+    $momentSlides = collect($momentLead ? [[$momentLead[0], asset($momentLead[0]) . ' 800w, ' . asset(str_replace('-800.', '-1600.', $momentLead[0])) . ' 1001w', false, $momentLead[1], $momentLead[2]]] : [])
+        ->merge(collect($shifts)->filter(fn ($s) => ! empty($s['hero_photo']))
+            ->map(fn ($s) => [str_replace('-2064.', '-1000.', $s['hero_photo']), asset(str_replace('-2064.', '-1000.', $s['hero_photo'])) . ' 750w, ' . asset($s['hero_photo']) . ' 1548w', true, 'In the room', $s['title']]))
+        ->merge(collect(config('shiftreality.visitor_photos'))
+            ->map(fn ($v) => [$v[0], asset($v[0]) . ' 800w, ' . asset(str_replace('-800.', '-1600.', $v[0])) . ' 1600w', false, $v[1], $v[2]]))
         ->merge(collect($shifts)->filter(fn ($s) => ! empty($s['photo']))
             ->map(fn ($s) => [$s['photo'], asset($s['photo']) . ' 800w, ' . asset(str_replace('-800.', '-1600.', $s['photo'])) . ' 1600w', false, 'In the room', $s['title']]))
         ->merge(collect(config('shiftreality.hero_extras'))
@@ -330,6 +335,113 @@
 
 
 {{-- ══════════════════════════════════════════════════════════
+     04 — INLINE CTA
+     The visit band (partials/visit-band), mid-page, as a card: the picture
+     (config band_bg) dimmed behind it, the rooms listed beside the headline,
+     the ask and the pill in a bar along its foot. The final band matches.
+     Plain facts only (no countdowns, no claims about other visitors).
+     ══════════════════════════════════════════════════════════ --}}
+@include('partials.visit-band', [
+    'headingId' => 'inline-cta-heading',
+    'eyebrow'   => 'The rooms',
+    {{-- each phrase kept whole (no lone "like.") --}}
+    'title'     => '<span class="nowrap">Book a time.</span> <span class="nowrap">Walk in.</span><br><span class="nowrap">Stay as long as you like.</span>',
+    {{-- non-breaking hyphen keeps "Walk-ins" whole --}}
+    'sub'       => 'Walk&#8209;ins are welcome when there\'s space. Weekends and public holidays are the busiest, so booking ahead holds your time.',
+    'pill'      => 'Book My Spot',
+    'bg'        => config('shiftreality.band_bg'),
+    'ask'       => 'Ready to question everything?',
+])
+
+{{-- ══════════════════════════════════════════════════════════
+     05 — SOCIAL PROOF
+     Real proof: the Google score, one featured quote, the rest under it.
+     No Book button: the visit band just above is the ask.
+     ══════════════════════════════════════════════════════════ --}}
+<section class="reviews-section section" id="reviews" aria-labelledby="reviews-heading">
+    <div class="container">
+
+        {{-- Eyebrow and heading left, the line right, as the other sections --}}
+        <div class="reviews-section__intro">
+            <div>
+                <p class="reviews-section__eyebrow">Visitor reviews</p>
+                <h2 class="reviews-section__title" id="reviews-heading" data-split>
+                    Harare can't stop<br>talking about it.
+                </h2>
+            </div>
+            <p class="reviews-section__tagline" data-scrub>
+                Walk in sceptical, walk out arguing about what you saw.
+                Here's what visitors said.
+            </p>
+        </div>
+
+        @php
+            $googleRating = config('shiftreality.google_rating');
+            $reviewsUrl   = config('shiftreality.google_reviews_url');
+            [$lead, $others] = [$testimonials[0] ?? null, array_slice($testimonials, 1)];
+            // initials for each reviewer's mark: "Tatenda M." → "TM"
+            $initials = fn ($name) => collect(preg_split('/\s+/', trim($name)))
+                ->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))->take(2)->implode('');
+        @endphp
+
+        <div class="reviews">
+            {{-- The score first: the proof the quotes stand on, and where to read more --}}
+            <div class="reviews__score" data-scrub>
+                <p class="reviews__score-value" aria-hidden="true">
+                    <span data-count-to="{{ $googleRating }}">{{ number_format($googleRating, 1) }}</span><span class="reviews__score-max">/5</span>
+                </p>
+                @include('partials.stars', ['rating' => $googleRating, 'size' => 20])
+                <p class="reviews__score-source">
+                    @include('partials.google-g', ['size' => 18])
+                    <span>Rated {{ number_format($googleRating, 1) }} out of 5 on Google</span>
+                </p>
+                @if ($reviewsUrl)
+                    <a href="{{ $reviewsUrl }}" class="reviews__all" target="_blank" rel="noopener">
+                        Read them all on Google
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                    </a>
+                @endif
+            </div>
+
+            {{-- Quotes: one featured, the rest under it; each appears exactly once.
+                 Each: stars, the words, then who (their initials, name, how they came) --}}
+            <div class="reviews__quotes">
+                @if ($lead)
+                    <figure class="quote quote--lead" data-scrub>
+                        @include('partials.stars', ['rating' => $lead['rating'], 'size' => 16])
+                        <span class="sr-only">Rated {{ $lead['rating'] }} out of 5.</span>
+                        <blockquote class="quote__text">“{{ $lead['quote'] }}”</blockquote>
+                        <figcaption class="quote__who">
+                            <span class="quote__mark" aria-hidden="true">{{ $initials($lead['name']) }}</span>
+                            <span class="quote__name">{{ $lead['name'] }}</span>
+                            <span class="quote__tag">{{ $lead['detail'] }}</span>
+                        </figcaption>
+                    </figure>
+                @endif
+
+                @if ($others)
+                    <div class="reviews__more">
+                        @foreach ($others as $t)
+                            <figure class="quote" data-scrub>
+                                @include('partials.stars', ['rating' => $t['rating'], 'size' => 13])
+                                <span class="sr-only">Rated {{ $t['rating'] }} out of 5.</span>
+                                <blockquote class="quote__text">“{{ $t['quote'] }}”</blockquote>
+                                <figcaption class="quote__who">
+                                    <span class="quote__mark" aria-hidden="true">{{ $initials($t['name']) }}</span>
+                                    <span class="quote__name">{{ $t['name'] }}</span>
+                                    <span class="quote__tag">{{ $t['detail'] }}</span>
+                                </figcaption>
+                            </figure>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{{-- ══════════════════════════════════════════════════════════
      06 — ABOUT REALITY SHIFT
      After Artora's About band: solid deep navy, full bleed. Left: the
      eyebrow, a photo and where we are. Right: the line, a paragraph, one
@@ -338,9 +450,10 @@
      ⚠ The photo is ours (visitors, from socials, AI-upscaled).
      ══════════════════════════════════════════════════════════ --}}
 @php
-    $aboutPhoto = collect($shifts)->firstWhere(fn ($s) => ! empty($s['hero_photo']))['hero_photo'] ?? null;
+    $aboutPhoto = config('shiftreality.about_photo');
     $aboutRating = config('shiftreality.google_rating');
     $aboutDaysOpen = collect(config('shiftreality.hours'))->filter()->count();
+    $aboutMinAge = config('shiftreality.visit.min_age');
 @endphp
 <section class="about" id="about" aria-labelledby="about-heading">
     <div class="container about__grid">
@@ -348,12 +461,10 @@
         <div class="about__side">
             <p class="about__eyebrow">About Reality Shift</p>
             @if ($aboutPhoto)
-                <figure class="about__photo">
+                <figure class="about__photo" data-reveal-at="{{ $aboutPhoto[2] ?? '50 40' }}">
                     <img
-                        src="{{ asset(str_replace('-2064.', '-1000.', $aboutPhoto)) }}"
-                        srcset="{{ asset(str_replace('-2064.', '-1000.', $aboutPhoto)) }} 750w, {{ asset($aboutPhoto) }} 1548w"
-                        sizes="(max-width: 900px) 90vw, 340px"
-                        alt="Visitors in the Reality Shift kaleidoscope room"
+                        src="{{ asset($aboutPhoto[0]) }}"
+                        alt="{{ $aboutPhoto[1] }}"
                         loading="lazy"
                         decoding="async"
                     >
@@ -371,8 +482,8 @@
             </h2>
             <p class="about__text">
                 Reality Shift is Zimbabwe's first optical illusion experience: rooms built to make you
-                question something you've taken for granted your entire life. No experience needed, no age too old —
-                bring your eyes, your people and a camera.
+                question something you've taken for granted your entire life. No experience needed, no age too old.
+                Bring your eyes, your people and a camera.
             </p>
             <a href="{{ route('experience') }}" class="pill pill--amber pill--lg about__pill">
                 <span>Explore the rooms</span>
@@ -387,6 +498,10 @@
                 <div>
                     <dt>Google rating</dt>
                     <dd><span data-count-to="{{ number_format($aboutRating, 1) }}">{{ number_format($aboutRating, 1) }}</span><span class="about__unit">/5</span></dd>
+                </div>
+                <div>
+                    <dt>Years and up, welcome</dt>
+                    <dd><span data-count-to="{{ $aboutMinAge }}">{{ $aboutMinAge }}</span><span class="about__unit">+</span></dd>
                 </div>
             </dl>
         </div>
@@ -407,6 +522,7 @@
         ':price'    => $visit['price_from'],
         ':duration' => str_replace(' ', "\u{00A0}", $visit['duration']),   // never split "1.5 – 2.5 hours" across lines
         ':min_age'  => $visit['min_age'],
+        ':rooms'    => collect($shifts)->pluck('title')->implode(', '),
     ]);
     $ticket = config('shiftreality.pricing');
     $ticketStatus = $openingHours->status();
@@ -419,7 +535,7 @@
                 <p class="pricing__eyebrow">Tickets</p>
                 <h2 class="pricing__title" id="pricing-heading" data-split>One ticket.<br>Every room.</h2>
             </div>
-            <p class="pricing__sub">Book online to guarantee your slot, or walk in when there's space — then take your time inside.</p>
+            <p class="pricing__sub">Book online to guarantee your slot, or walk in when there's space. Then take your time inside.</p>
         </div>
 
         <div class="ticket" data-scrub>
@@ -447,17 +563,18 @@
             {{-- The tear: a dashed line between two notches --}}
             <span class="ticket__tear" aria-hidden="true"></span>
 
-            {{-- What it buys --}}
+            {{-- What it buys, as the back of a real ticket: its printed terms,
+                 a small label and the plain fact, row by row --}}
             <div class="ticket__body">
-                <p class="ticket__label">Included with every ticket</p>
-                <ul class="ticket__list">
-                    @foreach ($ticket['includes'] as $line)
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
-                            <span>{{ $fillPrice($line) }}</span>
-                        </li>
+                <p class="ticket__label">Every ticket</p>
+                <dl class="ticket__terms">
+                    @foreach ($ticket['terms'] as [$term, $fact])
+                        <div class="ticket__term">
+                            <dt>{{ $term }}</dt>
+                            <dd>{{ $fillPrice($fact) }}</dd>
+                        </div>
                     @endforeach
-                </ul>
+                </dl>
             </div>
         </div>
 
@@ -470,7 +587,7 @@
         <div class="group-strip" id="groups" data-scrub>
             <div class="group-strip__copy">
                 <h3 class="group-strip__title">Coming as a group?</h3>
-                <p class="group-strip__line">Group rates and priority entry — tell us your date and we'll handle the rest.</p>
+                <p class="group-strip__line">Group rates and priority entry. Tell us your date and we'll handle the rest.</p>
                 <ul class="group-strip__tags" aria-label="Popular group occasions">
                     @foreach (config('shiftreality.groups.occasions') as $occasion)
                         <li>{{ $occasion['title'] }}</li>
@@ -488,17 +605,17 @@
 
 {{-- ══════════════════════════════════════════════════════════
      08 — FAQ
-     The last doubts, cleared right before the final ask. Centred eyebrow +
-     heading, then every question as its own rounded card, numbered; the open
-     one turns white with a hairline. Then a way to ask anything else.
+     The last doubts, cleared right before the final ask. Centred: the
+     eyebrow, heading and line, then the questions as hairline rows. The
+     section holds still while you scroll, and the scroll walks down the
+     questions: the one you're on opens, the last one closes (faq-pin.js).
+     Tapping a question goes to it.
+     Rendered all open, so without JS or motion every answer simply shows.
      (Scoped as .faq-home: /pricing keeps its own FAQ look.)
      ══════════════════════════════════════════════════════════ --}}
-@php
-    $faqWhatsApp = 'https://wa.me/' . config('shiftreality.contact.whatsapp')
-        . '?text=' . rawurlencode('Hi Reality Shift! I have a question about visiting.');
-@endphp
 <section class="faq-home" id="faq" aria-labelledby="faq-heading">
     <div class="container">
+      <div class="faq-home__pin" data-faq-pin>
 
         <div class="faq-home__intro">
             <p class="faq-home__eyebrow">FAQ</p>
@@ -506,10 +623,10 @@
             <p class="faq-home__sub">The questions people ask most before they book.</p>
         </div>
 
-        <div class="faq faq-home__list" role="list">
+        <div class="faq faq-home__list" role="list" data-faq-scroll>
             @foreach ($faq as $i => $item)
-                <div class="faq__item" role="listitem" data-scrub>
-                    <button class="faq__question" aria-expanded="false" aria-controls="faq-a-{{ $i }}" id="faq-q-{{ $i }}">
+                <div class="faq__item is-open" role="listitem">
+                    <button class="faq__question" aria-expanded="true" aria-controls="faq-a-{{ $i }}" id="faq-q-{{ $i }}">
                         <span class="faq-home__num" aria-hidden="true">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
                         <span class="faq-home__q">{{ $item['question'] }}</span>
                         <span class="faq__icon" aria-hidden="true"></span>
@@ -523,32 +640,39 @@
             @endforeach
         </div>
 
-        <div class="faq-home__more">
-            <p>Still have a question?</p>
-            <a href="{{ $faqWhatsApp }}" class="pill pill--amber pill--lg" target="_blank" rel="noopener">
-                <span>Ask us on WhatsApp</span>
-                <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-        </div>
+      </div>
 
     </div>
 </section>
 
 {{-- ══════════════════════════════════════════════════════════
      09 — FINAL CTA
-     The photo-collage band again, with closing words and the collage
-     turned round so it doesn't repeat the one above. Hands over to the
-     (light) footer.
+     The visit band again (a card, the same photo): the closing words,
+     the visit's facts listed on the right (not the rooms again), and the
+     bar with the ask and the pill.
+     Hands over to the (light) footer.
      ══════════════════════════════════════════════════════════ --}}
+@php
+    $finalDays = collect(config('shiftreality.hours'))->filter()->count();
+    $finalMap  = 'https://www.google.com/maps/search/?api=1&query='
+        . rawurlencode(config('shiftreality.location.address') . ', ' . config('shiftreality.location.city'));
+@endphp
 @include('partials.visit-band', [
     'id'        => 'visit-today',
     'headingId' => 'final-heading',
-    'eyebrow'   => 'Visit today',
-    'title'     => 'Question everything.<br>Starting today.',
-    'sub'       => 'At ' . e(config('shiftreality.location.address')) . ', ' . e(config('shiftreality.location.city'))
-                 . '. Entry from $' . $visit['price_from'] . ', ages ' . $visit['min_age'] . '&nbsp;and&nbsp;up.',
+    'eyebrow'   => 'Your visit',
+    {{-- each phrase kept whole --}}
+    'title'     => '<span class="nowrap">Question everything.</span><br><span class="nowrap">Starting today.</span>',
+    'sub'       => 'Zimbabwe\'s first optical illusion experience. Come with your people and a camera.',
+    'list'      => [
+        [config('shiftreality.location.address') . ', ' . config('shiftreality.location.city'), $finalMap],
+        ['Entry from $' . $visit['price_from'], route('pricing')],
+        ['Ages ' . $visit['min_age'] . ' and up', null],
+        [$finalDays === 7 ? 'Open every day' : 'Open ' . $finalDays . ' days a week', null],
+    ],
+    'ask'       => 'Pick a day and time.',
     'pill'      => 'Book My Spot',
-    'offset'    => 4,
+    'bg'        => config('shiftreality.band_bg'),
 ])
 
 @endsection

@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     {{-- ── Primary Meta ─────────────────────────────────────────────── --}}
-    <title>@yield('title', config('shiftreality.name') . ' — ' . config('shiftreality.tagline'))</title>
+    <title>@yield('title', config('shiftreality.name') . ' · ' . config('shiftreality.tagline'))</title>
     <meta name="description" content="@yield('description', config('shiftreality.description'))">
     <link rel="canonical" href="@yield('canonical', url()->current())">
     <meta name="robots" content="@yield('robots', 'index, follow')">
@@ -14,7 +14,7 @@
     {{-- ── Open Graph ──────────────────────────────────────────────── --}}
     <meta property="og:type"        content="website">
     <meta property="og:url"         content="{{ url()->current() }}">
-    <meta property="og:title"       content="@yield('og_title', config('shiftreality.name') . ' — ' . config('shiftreality.tagline'))">
+    <meta property="og:title"       content="@yield('og_title', config('shiftreality.name') . ' · ' . config('shiftreality.tagline'))">
     <meta property="og:description" content="@yield('og_description', config('shiftreality.description'))">
     <meta property="og:image"       content="@yield('og_image', asset('images/og-default.jpg'))">
     <meta property="og:locale"      content="en_ZW">
@@ -51,13 +51,6 @@
 
     {{-- Intro screen (homepage only — pushed via @push('intro') in home.blade.php) --}}
     @stack('intro')
-
-    {{-- Custom cursor (desktop only — hidden via CSS on touch devices) --}}
-    <div class="cursor"      aria-hidden="true"></div>
-    <div class="cursor-ring" aria-hidden="true"></div>
-
-    {{-- Shooting-star trail behind the mouse, on every page (comet.js) --}}
-    <canvas class="comet" data-comet aria-hidden="true"></canvas>
 
     {{-- Page transition overlay --}}
     <div class="page-transition" aria-hidden="true"></div>

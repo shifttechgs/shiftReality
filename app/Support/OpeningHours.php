@@ -86,8 +86,8 @@ class OpeningHours
         return array_map(fn (array $g) => [
             'days'   => $g['from'] === $g['to']
                 ? self::DAYS[$g['from']]
-                : self::DAYS[$g['from']].' – '.self::DAYS[$g['to']],
-            'time'   => $g['hours'] ? "{$g['hours'][0]} – {$g['hours'][1]}" : 'Closed',
+                : self::DAYS[$g['from']].' to '.self::DAYS[$g['to']],
+            'time'   => $g['hours'] ? "{$g['hours'][0]} to {$g['hours'][1]}" : 'Closed',
             'today'  => $todayIso >= $g['from'] && $todayIso <= $g['to'],
             'closed' => $g['hours'] === null,
         ], $groups);

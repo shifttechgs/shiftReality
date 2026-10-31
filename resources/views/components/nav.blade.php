@@ -16,8 +16,10 @@
 
     {{-- LEFT: logo --}}
     <a href="{{ route('home') }}" class="nav__logo" aria-label="{{ config('shiftreality.name') }}">
-        <img src="{{ asset('images/logo-dark.png') }}" alt="{{ config('shiftreality.name') }}" class="nav__logo-img" width="88" height="88">
-        <img src="{{ asset('images/logo-light.png') }}" alt="" class="nav__logo-img nav__logo-img--light" width="88" height="88" aria-hidden="true">
+        {{-- The horizontal logo (mark beside the name, cut from the stacked artwork):
+             the stacked one is unreadable at header height --}}
+        <img src="{{ asset('images/logo-h-dark.png') }}" alt="{{ config('shiftreality.name') }}" class="nav__logo-img" width="570" height="137">
+        <img src="{{ asset('images/logo-h-light.png') }}" alt="" class="nav__logo-img nav__logo-img--light" width="504" height="118" aria-hidden="true">
     </a>
 
     {{-- RIGHT: links, then the Book pill --}}
@@ -25,8 +27,6 @@
         <li><a href="{{ route('experience') }}" class="nav__link">Exhibits</a></li>
         <li><a href="{{ route('pricing') }}"   class="nav__link">Pricing</a></li>
         <li><a href="{{ route('groups') }}"     class="nav__link">Group Visits</a></li>
-        <li><a href="{{ route('visit') }}"      class="nav__link">Current Events</a></li>
-        <li><a href="{{ route('book') }}"       class="nav__link">Membership</a></li>
         <li>
             <button type="button" class="nav__link nav__more" aria-expanded="false" aria-controls="nav-more-panel" data-nav-more>
                 More
@@ -56,7 +56,7 @@
                     <img src="{{ asset(str_replace('-2064.', '-1000.', $navPromo)) }}" alt="" class="nav-more__photo" loading="lazy" decoding="async">
                 @endif
                 <div class="nav-more__card-body">
-                    <p class="nav-more__card-title">Question everything &ndash; visit Reality Shift today</p>
+                    <p class="nav-more__card-title">Question everything. Visit Reality Shift today.</p>
                     <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
                         <span>Book My Spot</span>
                         <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -102,7 +102,7 @@
 
     <div class="nav-overlay__header">
         <a href="{{ route('home') }}" class="nav-overlay__logo">
-            <img src="{{ asset('images/logo-dark.png') }}" alt="{{ config('shiftreality.name') }}" class="nav__logo-img">
+            <img src="{{ asset('images/logo-h-dark.png') }}" alt="{{ config('shiftreality.name') }}" class="nav__logo-img" width="570" height="137">
         </a>
         <button class="nav-overlay__close" aria-label="Close menu">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
@@ -115,8 +115,6 @@
         <li class="nav-overlay__item"><a href="{{ route('experience') }}" class="nav-overlay__link">Exhibits</a></li>
         <li class="nav-overlay__item"><a href="{{ route('pricing') }}"   class="nav-overlay__link">Pricing</a></li>
         <li class="nav-overlay__item"><a href="{{ route('groups') }}"     class="nav-overlay__link">Group Visits</a></li>
-        <li class="nav-overlay__item"><a href="{{ route('visit') }}"      class="nav-overlay__link">Current Events</a></li>
-        <li class="nav-overlay__item"><a href="{{ route('book') }}"       class="nav-overlay__link">Membership</a></li>
         <li class="nav-overlay__item"><a href="{{ route('faq') }}"        class="nav-overlay__link">FAQ</a></li>
     </ul>
 

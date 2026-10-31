@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pricing — ' . config('shiftreality.name') . ' · Tickets from $' . $visit['price_from'])
+@section('title', 'Pricing · ' . config('shiftreality.name') . ' · Tickets from $' . $visit['price_from'])
 @section('description', 'One ticket, every room: $' . $visit['price_from'] . ' per person for every optical illusion room at ' . config('shiftreality.location.address') . ', ' . config('shiftreality.location.city') . '. Group rates on request.')
 
 @php
@@ -138,7 +138,7 @@
             @if ($perMinute)
                 <div class="pp-sum" data-scrub>
                     <dt>Per minute</dt>
-                    <dd>{{ $perMinute[0] }}–{{ $perMinute[1] }}¢</dd>
+                    <dd>{{ $perMinute[0] }} to {{ $perMinute[1] }}¢</dd>
                 </div>
             @endif
             <div class="pp-sum" data-scrub>
@@ -205,7 +205,7 @@
             <h2 class="pp-when__title" id="pp-when-heading" data-split>Book ahead,<br>or chance it.</h2>
             <p class="pp-when__sub" data-scrub>
                 Same price either way. Booking online guarantees your slot; walk&#8209;ins
-                are welcome when there's space — weekends and public holidays are the busiest.
+                are welcome when there's space. Weekends and public holidays are the busiest.
             </p>
             <a href="{{ route('book') }}" class="pill pill--amber pill--lg" data-scrub>
                 <span>Guarantee Your Slot</span>
@@ -280,7 +280,7 @@
         </h2>
         <div class="pp-close__actions" data-scrub>
             <a href="{{ route('book') }}" class="pill pill--amber pill--xl">
-                <span>Book Now — ${{ $visit['price_from'] }}</span>
+                <span>Book My Spot</span>
                 <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
             <a href="{{ route('home') }}#rooms" class="visit__more">See the rooms first →</a>

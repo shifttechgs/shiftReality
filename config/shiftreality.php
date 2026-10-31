@@ -58,7 +58,7 @@ return [
     ],
 
     'visit' => [
-        'duration'    => '1.5 – 2.5 hours',
+        'duration'    => '1.5 to 2.5 hours',
         'min_age'     => 5,
         'price_from'  => '15',
         'booking_url' => '/book',
@@ -77,8 +77,8 @@ return [
             'photo_real'  => true,
             'photo_alt'   => 'A visitor hanging from the ceiling of the Upside Down Room, the café table and chairs below',
             'tagline'     => 'Walk on the ceiling. Question which way is up.',
-            'hint'        => 'Scroll — the room turns, you don\'t',
-            'description' => 'An entire room flipped 180°. Furniture on the ceiling, lights on the floor — and you standing in the middle of it all.',
+            'hint'        => 'Scroll, and the room turns. You don\'t.',
+            'description' => 'An entire room flipped 180°. Furniture on the ceiling, lights on the floor, and you standing in the middle of it all.',
         ],
         [
             'title'       => 'Stranger in the Mirror',
@@ -92,7 +92,7 @@ return [
             // their drawn illusion. ⚠ Ours, from socials, AI-upscaled — swap for the original.
             'hero_photo'  => 'images/hero/kaleidoscope-2064.webp',
             'tagline'     => 'Your reflection isn\'t doing what you\'re doing.',
-            'hint'        => 'Move around — watch them disobey',
+            'hint'        => 'Move around and watch them disobey',
             'description' => 'A multi-mirror installation that splits, multiplies and distorts your image in ways your brain cannot reconcile.',
         ],
         [
@@ -119,25 +119,43 @@ return [
             'photo_alt'   => 'A visitor towering over the Beuchet chair, pretending to pick up his friend who looks tiny sitting on it',
             'tagline'     => 'One person looks giant. The other looks tiny. Same chair.',
             'hint'        => 'Scroll to line up the chair',
-            'description' => 'A forced-perspective illusion that makes two people the wrong size — simultaneously. Perfect for photos.',
+            'description' => 'A forced-perspective illusion that makes two people the wrong size at the same time. Perfect for photos.',
         ],
     ],
 
     // Homepage "Who It's For" card pile — 'route' is where the card leads.
     // Images are stand-ins (hero shots) until real audience photos are added.
+    // The About section's photo: [image (≥ 700px wide), alt, where it opens from as it
+    // scrolls in (x y, % of its frame: on the logo)]. The Infinity Room visual (its room card's file)
+    'about_photo' => ['images/rooms/infinity-800.webp', 'The Reality Shift Infinity Room: mirrored triangular walls lit in blue around the logo', '50 27'],
+
+    // Visitor Moments opens on this one: [image, meta, title]. Ours: visitors at the front
+    // desk, cropped near-square (as the carousel shows it); the -1600 file is 1001px
+    'moments_lead' => ['images/rooms/extra-reception-800.webp', 'At the front desk', 'Your visit starts here'],
+
+    // Our visitors' photos (from Downloads/Reality_Shift_Web_Ready_Images: enhanced, no
+    // generative AI), cropped near-square as Visitor Moments shows them, after the
+    // kaleidoscope: [image, meta, title]. One per scene: the folder's near-twins
+    // (a second upside-down, Beuchet, symmetry and platter shot), its second
+    // kaleidoscope and its three illusion posters are left out.
+    'visitor_photos' => [
+        ['images/moments/upside-down-room-pose-800.webp',    'In the room', 'Upside Down Room'],
+        ['images/moments/beuchet-chair-illusion-800.webp',   'In the room', 'Beuchet Chair'],
+        ['images/moments/infinity-mirror-room-800.webp',     'In the room', 'Infinity Room'],
+        ['images/moments/symmetry-mirror-room-800.webp',     'In the room', 'Symmetry Room'],
+        ['images/moments/head-on-platter-display-800.webp',  'In the room', 'Head on a Platter'],
+        ['images/moments/interactive-puzzle-zone-800.webp',  'Between the rooms', 'The puzzle zone'],
+    ],
+
     // Extra visitor photos (ours), after the rooms' in Visitor Moments and the visit band
     'hero_extras' => [
         // Visitors at the vortex wall, cropped near-square (as the carousel shows it)
         // to the right-hand visitor and the big vortex; the -1600 file is 944px
         'images/rooms/extra-vortex-800.webp',
     ],
-    // ⚠ Demo stand-ins (Unsplash License), only to fill the visit band's eight-photo
-    // collage until there are enough of ours; never in Visitor Moments
-    'standin_extras' => [
-        'images/rooms/extra-stripes-800.webp',   // striped tunnel, bahareh moradian
-        'images/rooms/extra-lights-800.webp',    // tunnel of lights, Alexandra Nicolae
-        'images/rooms/extra-mirrors-800.webp',   // two in the mirror, TinPics_
-    ],
+    // The mid-page visit band's full-bleed picture (a -960 file with a -1536 twin, the
+    // original's size): our visitors at the vortex wall, the whole width of it
+    'band_bg' => 'images/band/vortex-wall-960.webp',
 
     'audiences' => [
         [
@@ -154,7 +172,7 @@ return [
         ],
         [
             'name'  => 'Families',
-            'line'  => 'Ages 5 and up — the grown-ups get fooled just as badly.',
+            'line'  => 'Ages 5 and up. The grown-ups get fooled just as badly.',
             'route' => 'book',
             'image' => 'images/hero/hero-3-1200.webp',
         ],
@@ -166,7 +184,7 @@ return [
         ],
         [
             'name'  => 'Tourists',
-            'line'  => 'Zimbabwe\'s first optical illusion experience — a Harare must.',
+            'line'  => 'Zimbabwe\'s first optical illusion experience, and a Harare must.',
             'route' => 'book',
             'image' => 'images/hero/hero-2-1200.webp',
         ],
@@ -187,9 +205,17 @@ return [
         'unit'     => 'per person',
         'includes' => [
             'Every room',
-            'Go at your own pace — most visits take :duration',
+            'Go at your own pace. Most visits take :duration',
             'Photos encouraged',
             'Ages :min_age and up',
+        ],
+        // The home ticket's back, as a real ticket's printed terms: [label, fact].
+        // Plain facts, as the venue would print them. :rooms is every room's name, from 'shifts'
+        'terms' => [
+            ['Rooms',  ':rooms'],
+            ['Time',   'No time limit. Most visits take :duration.'],
+            ['Photos', 'Welcome in every room.'],
+            ['Ages',   ':min_age and up.'],
         ],
     ],
 
@@ -207,7 +233,7 @@ return [
             ],
             [
                 'title' => 'Birthdays',
-                'line'  => 'Party photos nobody else has — every room is a backdrop.',
+                'line'  => 'Party photos nobody else has. Every room is a backdrop.',
             ],
         ],
     ],
@@ -238,7 +264,7 @@ return [
     'faq' => [
         [
             'question' => 'How much does it cost?',
-            'answer'   => 'Entry is $15 per person. Group rates and special packages are available — contact us for details.',
+            'answer'   => 'Entry is $15 per person. Group rates and special packages are available. Contact us for details.',
         ],
         [
             'question' => 'Do I need to book in advance?',
@@ -250,7 +276,7 @@ return [
         ],
         [
             'question' => 'How long does the experience take?',
-            'answer'   => 'Most visitors spend between 1.5 and 2.5 hours. There\'s no rush — explore at your own pace.',
+            'answer'   => 'Most visitors spend between 1.5 and 2.5 hours. There\'s no rush. Explore at your own pace.',
         ],
         [
             'question' => 'Can I take photos inside?',

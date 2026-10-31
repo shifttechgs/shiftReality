@@ -26,7 +26,7 @@
     </div>
 
     @if ($openDays->isEmpty())
-        <p class="walk__card-note">No times are open in the next {{ $booking['days_ahead'] }} days online — message us on WhatsApp and we'll find you one.</p>
+        <p class="walk__card-note">No times are open online in the next {{ $booking['days_ahead'] }} days. Message us on WhatsApp and we'll find you one.</p>
     @else
         <div class="walk__card-grid">
             {{-- Day and Time are real selects, dressed by ui/date-picker.js (the
@@ -39,7 +39,7 @@
                         @php $date = \Carbon\Carbon::parse($day['date']); @endphp
                         <option value="{{ $day['date'] }}" data-slots='@json($day['slots'])' data-today="{{ $day['today'] ? 1 : 0 }}"
                                 @selected($day['date'] === $dayRow['date']) @disabled(! $day['slots'])>
-                            {{ $day['today'] ? 'Today, ' . $date->format('j M') : $date->format('D j M') }}{{ $day['slots'] ? '' : ' — closed' }}
+                            {{ $day['today'] ? 'Today, ' . $date->format('j M') : $date->format('D j M') }}{{ $day['slots'] ? '' : ' (closed)' }}
                         </option>
                     @endforeach
                 </select>
@@ -77,6 +77,6 @@
             <p class="walk__card-total">Total <strong data-hero-total>{{ $money($price * $people) }}</strong></p>
             <button type="submit" class="pill pill--amber pill--lg"><span>Book My Spot</span>{!! $arrow !!}</button>
         </div>
-        <p class="walk__card-note">Nothing to pay now — WhatsApp opens with your booking written out, and the team replies to confirm. More than {{ $max }}? <a href="{{ route('groups') }}">Group rates</a></p>
+        <p class="walk__card-note">Nothing to pay now. WhatsApp opens with your booking written out, and the team replies to confirm. More than {{ $max }}? <a href="{{ route('groups') }}">Group rates</a></p>
     @endif
 </form>

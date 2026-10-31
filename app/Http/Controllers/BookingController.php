@@ -38,7 +38,7 @@ class BookingController extends Controller
         ]);
 
         if (! BookingSlots::fromConfig()->isAvailable($data['date'], $data['time'])) {
-            return back()->withInput()->withErrors(['time' => 'That time is no longer available — please pick another.']);
+            return back()->withInput()->withErrors(['time' => 'That time is no longer available. Please pick another.']);
         }
 
         $price = (float) config('shiftreality.visit.price_from');

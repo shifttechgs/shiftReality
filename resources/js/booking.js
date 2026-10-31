@@ -36,9 +36,9 @@ export function initBooking() {
 
         const n = count();
         sum('day').textContent    = date?.dataset.label ?? 'Pick a day';
-        sum('time').textContent   = picked('time')?.value ?? '—';
+        sum('time').textContent   = picked('time')?.value ?? 'Not picked';
         sum('people').textContent = n;
-        sum('name').textContent   = name.value.trim() || '—';
+        sum('name').textContent   = name.value.trim() || 'Not given';
         sum('total').textContent  = money(n * price);
         form.querySelectorAll('[data-count]').forEach((b) => {
             b.disabled = (b.dataset.count < 0 && n <= min) || (b.dataset.count > 0 && n >= max);

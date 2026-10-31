@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Book Your Visit — ' . config('shiftreality.name') . ' · Harare')
-@section('description', 'Book your visit to ' . config('shiftreality.name') . ' at ' . config('shiftreality.location.address') . ', ' . config('shiftreality.location.city') . '. Pick a day and time — $' . $visit['price_from'] . ' per person, confirmed on WhatsApp.')
+@section('title', 'Book Your Visit · ' . config('shiftreality.name') . ' · Harare')
+@section('description', 'Book your visit to ' . config('shiftreality.name') . ' at ' . config('shiftreality.location.address') . ', ' . config('shiftreality.location.city') . '. Pick a day and time. $' . $visit['price_from'] . ' per person, confirmed on WhatsApp.')
 
 {{-- The banner is deep navy, so the nav rests in its light variant --}}
 @section('body_class', 'has-hero-photo')
@@ -26,6 +26,9 @@
     // Weekly closed days from the opening hours, e.g. "Mondays"
     $closedOn  = collect(config('shiftreality.hours'))->filter(fn ($h) => $h === null)->keys()
         ->map(fn ($iso) => now()->startOfWeek()->addDays($iso - 1)->format('l') . 's')->implode(' and ');
+    // 0790034005 → "079 003 4005" to read, "+263790034005" to dial (as the footer)
+    $phone     = preg_replace('/^(\d{3})(\d{3})(\d{4})$/', '$1 $2 $3', config('shiftreality.contact.phone'));
+    $tel       = '+263' . ltrim(config('shiftreality.contact.phone'), '0');
     $arrow     = '<svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
 @endphp
 
@@ -33,7 +36,7 @@
 @include('partials.page-banner', [
     'crumb' => 'Book',
     'title' => 'Book your visit.',
-    'intro' => 'Four quick questions, then your booking opens in WhatsApp — we\'ll reply to confirm.',
+    'intro' => 'Four quick questions, then your booking opens in WhatsApp. We\'ll reply to confirm.',
 ])
 
 <section class="bk" aria-label="Booking">
@@ -52,7 +55,7 @@
 
                 {{-- 01 — Day --}}
                 <fieldset class="bk-step" data-step-panel>
-                    <legend class="bk-step__title" tabindex="-1">Which <em>day</em> suits you?</legend>
+                    <legend class="bk-step__title" tabindex="-1">Which day suits you?</legend>
                     {{-- Four weeks to a page from today's week (booking.js shows one at
                          a time, with ‹ ›); without JS every page shows, each titled --}}
                     <div class="bk-cal-pages" data-cal>
@@ -60,7 +63,7 @@
                             <div class="bk-cal-page" data-cal-page>
                                 <div class="bk-cal__head">
                                     <button type="button" class="bk-cal__nav" data-cal-step="-1" aria-label="Earlier dates" hidden>&lsaquo;</button>
-                                    <p class="bk-cal__month">{{ $pageDays->pluck('month')->unique()->implode(' – ') }}</p>
+                                    <p class="bk-cal__month">{{ $pageDays->pluck('month')->unique()->implode(' to ') }}</p>
                                     <button type="button" class="bk-cal__nav" data-cal-step="1" aria-label="Later dates" hidden>&rsaquo;</button>
                                 </div>
                                 <div class="bk-cal">
@@ -81,7 +84,7 @@
                                                 @if ($firstOfMonth)<span class="bk-day__mon" aria-hidden="true">{{ substr($day['month'], 0, 3) }}</span>@endif
                                                 <span class="bk-day__d">{{ $day['day'] }}</span>
                                                 <span class="sr-only">{{ $day['label'] }}</span>
-                                                @if ($day['today'])<span class="bk-day__today">Today</span>@endif
+                                                @if ($day['today'])<span class="bk-day__today" aria-hidden="true"></span>@endif
                                             </label>
                                         @else
                                             {{-- Closed, or no times left today --}}
@@ -105,7 +108,7 @@
 
                 {{-- 02 — Time: one group per day; booking.js shows the picked day's --}}
                 <fieldset class="bk-step" data-step-panel>
-                    <legend class="bk-step__title" tabindex="-1">What <em>time</em> will you arrive?</legend>
+                    <legend class="bk-step__title" tabindex="-1">What time will you arrive?</legend>
                     @foreach ($days as $day)
                         @continue(! $day['slots'])
                         {{-- Without JS every day's times show, each under its day's name --}}
@@ -122,7 +125,7 @@
                             </div>
                         </div>
                     @endforeach
-                    <p class="bk-step__note">This is your entry time — once you're in, stay as long as you like. Most visits take {{ $visit['duration'] }}.</p>
+                    <p class="bk-step__note">This is your entry time. Once you're in, stay as long as you like. Most visits take {{ $visit['duration'] }}.</p>
                     @error('time')<p class="bk-step__error">{{ $message }}</p>@enderror
                     <div class="bk-nav">
                         <button type="button" class="bk-nav__back" data-prev>← Back</button>
@@ -132,7 +135,7 @@
 
                 {{-- 03 — Guests --}}
                 <fieldset class="bk-step" data-step-panel>
-                    <legend class="bk-step__title" tabindex="-1">How many <em>guests</em>?</legend>
+                    <legend class="bk-step__title" tabindex="-1">How many guests?</legend>
                     <div class="bk-count">
                         <button type="button" class="bk-count__btn" data-count="-1" aria-label="One fewer guest">−</button>
                         <input class="bk-count__input" type="number" name="people" id="bk-people" value="{{ $people }}" min="1" max="{{ $max }}" inputmode="numeric" aria-label="Number of guests">
@@ -148,14 +151,14 @@
 
                 {{-- 04 — Name, then send --}}
                 <fieldset class="bk-step" data-step-panel>
-                    <legend class="bk-step__title" tabindex="-1">Whose name is it <em>under</em>?</legend>
+                    <legend class="bk-step__title" tabindex="-1">Whose name is it under?</legend>
                     <div class="bk-fields">
                         <label class="bk-field">
                             <span class="bk-field__label">Full name</span>
                             <input type="text" name="name" value="{{ old('name') }}" autocomplete="name" maxlength="80" required>
                         </label>
                         <label class="bk-field">
-                            <span class="bk-field__label">Anything we should know? <em>Optional — a birthday, a surprise</em></span>
+                            <span class="bk-field__label">Anything we should know? <em>Optional: a birthday, a surprise</em></span>
                             <textarea name="note" rows="2" maxlength="300">{{ old('note') }}</textarea>
                         </label>
                     </div>
@@ -164,7 +167,7 @@
                         <button type="button" class="bk-nav__back" data-prev>← Back</button>
                         <button type="submit" class="pill pill--amber pill--xl"><span>Send on WhatsApp</span>{!! $arrow !!}</button>
                     </div>
-                    <p class="bk-step__note">Nothing to pay now. WhatsApp opens with your booking written out — press send, and we'll reply to confirm.</p>
+                    <p class="bk-step__note">Nothing to pay now. WhatsApp opens with your booking written out. Press send, and we'll reply to confirm.</p>
                 </fieldset>
 
             </div>
@@ -180,9 +183,9 @@
                 <p class="bk-pass__day" data-sum="day">{{ $pickedDay['label'] ?? 'Pick a day' }}</p>
 
                 <dl class="bk-pass__rows">
-                    <div><dt>Entry</dt><dd data-sum="time">{{ old('time', '—') }}</dd></div>
+                    <div><dt>Entry</dt><dd data-sum="time">{{ old('time', 'Not picked') }}</dd></div>
                     <div><dt>Guests</dt><dd data-sum="people">{{ $people }}</dd></div>
-                    <div><dt>Name</dt><dd data-sum="name">{{ old('name') ?: '—' }}</dd></div>
+                    <div><dt>Name</dt><dd data-sum="name">{{ old('name') ?: 'Not given' }}</dd></div>
                 </dl>
 
                 <p class="bk-pass__total">
@@ -193,7 +196,7 @@
                 <dl class="bk-pass__info">
                     <div><dt>Where</dt><dd>{{ $location['address'] }}</dd></div>
                     <div><dt>Today</dt><dd>{{ $status['label'] }}&nbsp;· {{ $status['detail'] }}</dd></div>
-                    <div><dt>Call</dt><dd><a href="tel:{{ config('shiftreality.contact.phone') }}">{{ config('shiftreality.contact.phone') }}</a></dd></div>
+                    <div><dt>Call</dt><dd><a href="tel:{{ $tel }}">{{ $phone }}</a></dd></div>
                 </dl>
             </aside>
 

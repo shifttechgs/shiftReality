@@ -73,8 +73,8 @@ class OpeningHoursTest extends TestCase
     {
         $rows = $this->hours->rows($this->at('2026-10-24 12:00')); // Saturday
 
-        $this->assertSame(['Monday', 'Tuesday – Friday', 'Saturday – Sunday'], array_column($rows, 'days'));
-        $this->assertSame(['Closed', '10:00 – 19:00', '09:00 – 20:00'], array_column($rows, 'time'));
+        $this->assertSame(['Monday', 'Tuesday to Friday', 'Saturday to Sunday'], array_column($rows, 'days'));
+        $this->assertSame(['Closed', '10:00 to 19:00', '09:00 to 20:00'], array_column($rows, 'time'));
         $this->assertSame([false, false, true], array_column($rows, 'today'));
     }
 

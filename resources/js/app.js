@@ -1,55 +1,15 @@
 // ─── Critical path — no GSAP, runs immediately ───────────────────────────────
 import { initScroll }  from './animations/scroll.js';
-import { initComet } from './animations/comet.js';
 import { initMoments } from './animations/moments.js';
+import { initAbout } from './animations/about.js';
+import { initFocusPull } from './animations/focus-pull.js';
 import { initCountUp } from './animations/count-up.js';
 import { initLocalClock } from './local-clock.js';
 import { initLazyEmbeds } from './lazy-embeds.js';
 import { initBooking } from './booking.js';
 import { initHeroBook } from './hero-book.js';
 import { initNavMore } from './nav-more.js';
-import { isTouchDevice, prefersReducedMotion } from './utils/motion.js';
-
-// ─── Custom Cursor (no GSAP — pure rAF) ──────────────────────────────────────
-function initCursor() {
-    if (isTouchDevice()) return;
-
-    const dot  = document.querySelector('.cursor');
-    const ring = document.querySelector('.cursor-ring');
-    if (!dot || !ring) return;
-
-    let dotX = 0, dotY = 0, ringX = 0, ringY = 0;
-    let mouseX = 0, mouseY = 0;
-
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        // first move: show both, the ring starting under the mouse rather than flying in from 0,0
-        if (!document.body.classList.contains('cursor--on')) {
-            ringX = mouseX;
-            ringY = mouseY;
-            document.body.classList.add('cursor--on');
-        }
-    }, { passive: true });
-
-    const tick = () => {
-        dotX   = mouseX;
-        dotY   = mouseY;
-        ringX += (mouseX - ringX) * 0.15;
-        ringY += (mouseY - ringY) * 0.15;
-
-        dot.style.transform  = `translate(${dotX}px,${dotY}px) translate(-50%,-50%)`;
-        ring.style.transform = `translate(${ringX}px,${ringY}px) translate(-50%,-50%)`;
-
-        requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-
-    document.querySelectorAll('a, button, .faq__question').forEach(el => {
-        el.addEventListener('mouseenter', () => document.body.classList.add('cursor--hovering'),    { passive: true });
-        el.addEventListener('mouseleave', () => document.body.classList.remove('cursor--hovering'), { passive: true });
-    });
-}
+import { prefersReducedMotion } from './utils/motion.js';
 
 // ─── Nav overlay (no GSAP) ────────────────────────────────────────────────────
 function initNav() {
@@ -80,7 +40,8 @@ function initNav() {
 
 // ─── FAQ accordion (no GSAP) ─────────────────────────────────────────────────
 function initFaq() {
-    const items = [...document.querySelectorAll('.faq__item')];
+    // (the home FAQ opens as you scroll instead: initFaqScroll)
+    const items = [...document.querySelectorAll('.faq:not([data-faq-scroll]) .faq__item')];
     if (!items.length) return;
 
     // Opens one item (or none), closing the rest
@@ -115,11 +76,32 @@ function initFaq() {
         });
     });
 
-    document.querySelectorAll('.faq').forEach(list => {
+    document.querySelectorAll('.faq:not([data-faq-scroll])').forEach(list => {
         list.addEventListener('pointerleave', (e) => {
             if (e.pointerType === 'mouse') later(() => openOnly(null), 250);
         });
     });
+}
+
+// ─── FAQ (home): read down it ──────────────────────────────────────────────
+// One answer open at a time: the first, until faq-pin.js (with GSAP) takes
+// over and the scroll walks down them. Tapping a question goes to it.
+// It's rendered all open: without JS, or with reduced motion, every answer
+// simply shows.
+function initFaqScroll() {
+    const list = document.querySelector('[data-faq-scroll]');
+    if (!list || prefersReducedMotion()) return;
+    const items = [...list.querySelectorAll('.faq__item')];
+    const only = (i) => items.forEach((item, k) => {
+        item.classList.toggle('is-open', k === i);
+        item.querySelector('.faq__question').setAttribute('aria-expanded', String(k === i));
+    });
+    list.closest('.faq-home')?.classList.add('faq-home--live');
+    only(0);
+    items.forEach((item, i) => item.querySelector('.faq__question').addEventListener('click', () => {
+        if (list._faqGoTo) list._faqGoTo(i);
+        else only(i);
+    }));
 }
 
 // ─── Walk in: mark it live before GSAP arrives, so the stage doesn't jump ─────
@@ -130,14 +112,15 @@ function prepWalk() {
 
 // ─── Boot critical path ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    initCursor();
     initNav();
     initNavMore();
     initFaq();
+    initFaqScroll();
     initScroll();   // nav scroll class + parallax — no GSAP
-    initComet();
     prepWalk();
     initMoments();
+    initAbout();
+    initFocusPull();
     initCountUp();
     initLocalClock();
     initLazyEmbeds();
@@ -163,6 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { initSplitHeadings },
             { initScrubReveal },
             { initWalk },
+            { initFaqPin },
         ] = await Promise.all([
             import('./animations/reveals.js'),
             import('./animations/rooms.js'),
@@ -171,11 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
             import('./animations/split-headings.js'),
             import('./animations/scrub-reveal.js'),
             import('./animations/walk.js'),
+            import('./animations/faq-pin.js'),
         ]);
 
         initTransitions();
         initWalk();
         initRooms();
+        initFaqPin();
         initFooterMotion();
         initSplitHeadings();
         initScrubReveal();
