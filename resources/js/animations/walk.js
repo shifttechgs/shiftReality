@@ -3,68 +3,42 @@ import { clamp, lerp } from '../utils/motion.js';
 import { createStairwell } from './stairwell.js';
 
 /**
- * The hero, as a walk in. You land on two slides that take turns (after
- * arlink28.com: blinds, rolling captions, thumbnails with progress lines,
- * pause), each with its own copy: a stairwell that never ends
- * (stairwell.js), drifting slowly down it, and a mirrored hall. Scrolling
- * pins the stage, lifts the copy away and takes you down floor after floor
- * (scrolling up climbs back); out of the well comes the logo's impossible
- * triangle as a real 3D object (impossible.js) — three beams that plainly
- * don't meet. The camera turns until, from the one angle where it works,
- * they close into the logo; the flat mark takes over, its hole lights up
- * on the reception, and the camera flies through it, pushes in on the
- * desk, then through the desk sign's triangle onto the illusion entrance —
- * and on into the rooms. Each window is a clip-path triangle that tracks
- * the hole of the spinning mark exactly, so the photo always shows
- * *through* the A.
+ * The hero. You land on the slides after arlink28.com (with two or more:
+ * blinds, rolling captions, thumbnails with progress lines, pause): for
+ * now one, a stairwell that never ends (stairwell.js), drifting slowly
+ * down it behind the copy and the booking card. Scrolling pins the stage,
+ * lifts the copy away and takes you down floor after floor, its centre coming
+ * to the middle; then that frame splits (after Framer's Scroll Split
+ * Cards): cut into a slice per room card, the slices draw apart and fly
+ * to the cards' places in the row, the stairwell broken across them, and
+ * flip over one after another into the cards. The rooms sit pulled up
+ * under the hero's screen and held in place while the pin runs, so when
+ * it lets go, the row is simply there.
  *
- * Reduced motion / no JS: no pin — the headline, then the two photos and
- * their copy side by side (see .walk:not(.walk--live)).
+ * Reduced motion / no JS: no pin — just the landing.
  */
 
-// The flat triangle (the inline svg.walk__mark, 280×242.48): its hole, in its own units
-const MARK = { w: 280, h: 242.48 };
-const HOLE = [[140, 79.8], [76.79, 189.28], [203.21, 189.28]];
-const HOLE_C = [140, (79.8 + 189.28 + 189.28) / 3];   // centroid: the mark turns about it
-const HOLE_R = Math.hypot(HOLE[0][0] - HOLE_C[0], HOLE[0][1] - HOLE_C[1]);
-const HOLE_W = HOLE[2][0] - HOLE[1][0];
-// Its three faces (the 3D object's, by the axis they face; see impossible.js)
-const FACES = { x: '#3D74F5', y: '#F1F5FE', z: '#1855E8' };
-
-const IMG = { w: 764, h: 1024 };     // both photos are this shape (±2px)
-const DESK_SIGN = [0.849, 0.583];    // the triangle on the reception desk…
-const SIGN_W = 0.088;                // …and its width, as a share of the photo's
-const SIGN_HOLE = 76 / 270;          // the printed logo's hole, as a share of its width
-const FOCUS = [0.52, 0.43];          // what the mark's window frames first: the desk and its people
-const FOCUS_K = 0.36;                // …with the photo at this scale
-const CORRIDOR  = [0.33, 0.6];       // the striped steps into the rooms
-
-// Scroll beats (0–1 through the pin)
-const LEAVE  = 0.015;          // the landing headline lifts away
-const FLY    = [0, 0.22];      // down the stairwell…
-const DIM    = [0.15, 0.25];   // …and it goes out
-const EMERGE = [0.13, 0.24];   // the beams come out of the far end…
-const TURN   = [0.13, 0.4];    // …and the camera turns into the one view
-const SWAP   = [0.4, 0.43];    // the flat mark takes over; its hole lights up
-const OPEN_1 = [0.46, 0.64];   // the A opens onto reception
-const PUSH_1 = [0.62, 0.76];   // walk up to the desk
-const OPEN_2 = [0.74, 0.89];   // the desk's A opens onto the rooms
-const PUSH_2 = [0.87, 1];      // walk on into the corridor
-const PHOTO  = 0.58;           // the reception has the screen: shade + copy
-const SWITCH = 0.88;           // the copy moves on to the rooms (once the desk's A has opened)
-const SOLID  = [0.29, 0.53];   // the impossible triangle's own line of copy
-const TURN_FROM = { yaw: 1.2, pitch: -0.55 };   // radians off the one view, as it emerges
-const FLOORS = 2.2;            // floors descended with the scroll
+// Scroll beats, in screens of scroll, then as 0–1 through the pin
+const PIN = 2.05;              // the pin's length, in screens
+const at  = (screens) => screens / PIN;
+const LEAVE  = at(0.05);                 // the landing copy lifts away
+const FLY    = [0, 1];                   // down the stairwell, slow and steady, all the way through the split…
+const GLIDE  = [0, at(1.05)];            // …its centre coming to the middle, where the frame splits…
+const SPLIT  = [at(1.05), at(1.65)];       // …the frame splits, the slices flying to the cards…
+const FLIP   = (i) => [at(1.5 + i * 0.1), at(1.75 + i * 0.1)];   // …and each flips over into its card (the last at the pin's end)
+const CHASE  = 0.12;           // how fast the stairwell, the split and the flips catch up with the scroll, per frame
+const FLOORS = 2.4;            // floors descended with the scroll
 const DRIFT  = 1 / 30;         // …and on their own, behind the copy (floors per second)
 const SLIDE_MS  = 7000;        // each landing slide's turn
 const BANDS     = 30;          // the switch: horizontal blinds…
 const BAND_MS   = 300;         // …each opening upwards this long…
 const BLINDS_MS = 600;         // …the top one done this long after the bottom one starts
-const WELL_GLOW = [1, 0.85];   // the stairwell's opacity on the navy (wide, narrow: the copy covers more of it)
+const WELL_GLOW = [0.44, 0.4]; // the stairwell's opacity on the navy (wide, narrow): the picture is bright, and the white copy needs ≥ 4.5:1 (3:1 for the large accent)
 
 const span = (p, [a, b]) => clamp((p - a) / (b - a), 0, 1);
 const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+const easeSine = (t) => (1 - Math.cos(Math.PI * t)) / 2;
 
 export function initWalk() {
     const root = document.querySelector('[data-walk]');
@@ -72,116 +46,95 @@ export function initWalk() {
     if (!root || !root.classList.contains('walk--live')) return;
 
     const stage    = root.querySelector('.walk__stage');
-    const frame    = root.querySelector('[data-walk-frame]');
-    const [sceneA, sceneB] = root.querySelectorAll('[data-walk-scene]');
-    const [imgA, imgB]     = [sceneA, sceneB].map((s) => s.querySelector('img'));
-    const mark     = root.querySelector('[data-walk-mark]');
-    const solidEl  = root.querySelector('[data-walk-solid]');
-    const chapters = [...root.querySelectorAll('[data-walk-chapter]')];
+    // What comes next sits pulled up under the hero's last screen (see
+    // pullNext), its room cards waiting for the slices
+    const next     = root.nextElementSibling;
+    const cards    = next ? [...next.querySelectorAll('[data-walk-card]')] : [];
+    const slices   = cards.map(() => {
+        const el = document.createElement('div');
+        el.className = 'walk__slice';
+        el.setAttribute('aria-hidden', 'true');
+        const cv = document.createElement('canvas');   // its piece of the stairwell, still going down
+        el.append(cv);
+        stage.append(el);
+        return { el, cv, ctx: cv.getContext('2d') };
+    });
+    const navy = getComputedStyle(stage).backgroundColor;
     const slides   = [...root.querySelectorAll('[data-walk-slide]')];
 
     let last = 0, seen = true;
 
     // The stairwell (the large photo everywhere: phones magnify it most)
     const wellEl = root.querySelector('[data-walk-well]');
-    const well = createStairwell(wellEl, wellEl.dataset.src);
+    // (the page passes what was measured on the picture, and its opacity)
+    const wellOpts = JSON.parse(wellEl.dataset.well || '{}');
+    const well = createStairwell(wellEl, wellEl.dataset.src, wellOpts);
+    const glows = JSON.parse(wellEl.dataset.glow || 'null') ?? WELL_GLOW;
 
-    // The 3D object loads on its own (three.js stays off every other page)
-    let solid = null;
-    import('./impossible.js').then(({ createImpossible }) => {
-        solid = createImpossible(solidEl, FACES);
-        solid.resize(F.w, F.h);
-        render(last);
-    });
-
-    // Geometry, re-measured on refresh: the frame inside the stage, and where
-    // a point of the (object-fit: cover) photo lands inside the frame
-    let F = { x: 0, y: 0, w: 1, h: 1 };
-    let REST = { x: 0, y: 0, k: 0.5 };   // where the triangle comes to rest, in frame coords
-    let POS = [0.5, 0.5];                // each photo's horizontal object-position
-    let WELL_AT = [[0, 0], [0, 0]];      // the well's centre: landing → where the triangle rests
-    let wellGlow = WELL_GLOW[0];
+    // Geometry, re-measured on refresh: the stage, and the well's centre
+    let S = { w: 1, h: 1 };
+    let WELL_AT = [[0, 0], [0, 0]];      // the well's centre: landing → the middle, where the frame splits
+    let wellGlow = glows[0];
     const measure = () => {
         const s = stage.getBoundingClientRect();
-        const f = frame.getBoundingClientRect();
-        F = { x: f.left - s.left, y: f.top - s.top, w: f.width, h: f.height };
-
-        // Tall screens crop the photos' sides: slide each one just enough
-        // that the point we walk towards stays well inside the screen
-        POS = [fitPos(DESK_SIGN[0], 0.22), fitPos(CORRIDOR[0], 0.3)];
-        imgA.style.objectPosition = `${(POS[0] * 100).toFixed(2)}% 50%`;
-        imgB.style.objectPosition = `${(POS[1] * 100).toFixed(2)}% 50%`;
-
-        // The triangle settles right of centre, clear of the copy at the
-        // bottom left; on narrow screens, centred above the copy
-        const wide = s.width > 900;
-        const k = wide
-            ? Math.min(s.width * 0.34 / MARK.w, s.height * 0.5 / MARK.h)
-            : Math.min(s.width * 0.7 / MARK.w, s.height * 0.34 / MARK.h);
-        const box = wide ? [s.width * 0.6, s.height * 0.5] : [s.width * 0.5, s.height * 0.38];
-        REST = { x: box[0] - F.x, y: box[1] + (HOLE_C[1] - MARK.h / 2) * k - F.y, k };
+        S = { w: s.width, h: s.height };
 
         // The well's centre sits up and to the right of the copy on landing
-        // (high up on phones), and comes to the triangle's place as you go
-        // down, so the beams come up out of it
-        WELL_AT = [wide ? [s.width * 0.62, s.height * 0.42] : [s.width * 0.5, s.height * 0.3], [REST.x + F.x, REST.y + F.y]];
-        wellGlow = WELL_GLOW[wide ? 0 : 1];
+        // (high up on phones)
+        const wide = s.width > 900;
+        WELL_AT = [wide ? [s.width * 0.62, s.height * 0.42] : [s.width * 0.5, s.height * 0.3], [s.width / 2, s.height / 2]];
+        // A tunnel ('zoom') keeps its vanishing point where the picture has it,
+        // so it covers the screen at the least magnification
+        if (wellOpts.mode === 'zoom') {
+            const vp = [s.width * wellOpts.well[0], s.height * wellOpts.well[1]];
+            WELL_AT = [vp, vp];
+        }
+        wellGlow = glows[wide ? 0 : 1];
 
         well.resize(s.width, s.height);
-        if (solid) solid.resize(F.w, F.h);
+
+        // Each room card's box on screen when the pin lets go (the rooms'
+        // top is then the screen's), and their corners
+        const n = next?.getBoundingClientRect();
+        CARDS = cards.map((el) => {
+            el.style.transform = '';
+            const r = el.getBoundingClientRect();
+            return { x: r.left, y: r.top - n.top, w: r.width, h: r.height };
+        });
+        radius = cards.length ? parseFloat(getComputedStyle(cards[0]).borderTopLeftRadius) || 0 : 0;
+        // a slice's canvas: its size at the start (its largest), at most 1.5×
+        const r = Math.min(window.devicePixelRatio || 1, 1.5);
+        slices.forEach(({ cv }) => {
+            cv.width = Math.round((S.w / Math.max(1, slices.length)) * r);
+            cv.height = Math.round(S.h * r);
+        });
     };
-    const cover = () => Math.max(F.w / IMG.w, F.h / IMG.h);
-    const onPhoto = ([u, v], pos = 0.5) => {
-        const s = cover();
-        return [(F.w - IMG.w * s) * pos + u * IMG.w * s, (F.h - IMG.h * s) / 2 + v * IMG.h * s];
-    };
-    const fitPos = (u, keep) => {
-        const W = IMG.w * cover();
-        if (W - F.w < 1) return 0.5;
-        const at = (pos) => (F.w - W) * pos + u * W;
-        const lo = keep * F.w, hi = (1 - keep) * F.w;
-        let pos = 0.5;
-        if (at(pos) > hi) pos = (hi - u * W) / (F.w - W);
-        if (at(pos) < lo) pos = (lo - u * W) / (F.w - W);
-        return clamp(pos, 0, 1);
+    let CARDS = [], radius = 0;
+
+    // Each slice shows the stairwell as it's drawn, so the descent carries
+    // on in the pieces (the navy under it, as on the stage): just its own
+    // piece (src: the part of the stage it shows, set by renderSplit),
+    // stretched over its canvas, which fills the slice
+    const paintSlices = () => {
+        const R = wellEl.width / S.w;
+        slices.forEach(({ el, cv, ctx, src }) => {
+            if (el.style.visibility !== 'visible' || !src) return;
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = navy;
+            ctx.fillRect(0, 0, cv.width, cv.height);
+            ctx.globalAlpha = wellGlow;
+            ctx.drawImage(wellEl, src[0] * R, src[1] * R, src[2] * R, src[3] * R, 0, 0, cv.width, cv.height);
+        });
     };
 
-    // A triangle window: the mark's hole at scale k, turned θ, centred (cx, cy) in the frame
-    const windowAt = (cx, cy, k, deg) => {
-        const a = (deg * Math.PI) / 180, cos = Math.cos(a), sin = Math.sin(a);
-        return 'polygon(' + HOLE.map(([x, y]) => {
-            const dx = (x - HOLE_C[0]) * k, dy = (y - HOLE_C[1]) * k;
-            return `${(cx + dx * cos - dy * sin).toFixed(1)}px ${(cy + dx * sin + dy * cos).toFixed(1)}px`;
-        }).join(',') + ')';
-    };
-    const placeMark = (cx, cy, k, deg, alpha) => {
-        mark.style.opacity = alpha.toFixed(3);
-        mark.style.transform =
-            `translate(${(F.x + cx - HOLE_C[0]).toFixed(1)}px, ${(F.y + cy - HOLE_C[1]).toFixed(1)}px) rotate(${deg.toFixed(2)}deg) scale(${k.toFixed(4)})`;
-    };
-
-    // Opening: the hole grows exponentially (it reads as flying at it) until
-    // its inscribed circle clears the frame's corners
-    const opening = (t, k0) => {
-        const kEnd = (2 * Math.hypot(F.w, F.h)) / (2 * HOLE_R) * 1.08;   // inradius = R/2 ≥ half-diagonal
-        const e = easeInOut(t);
-        return { k: k0 * Math.pow(kEnd / k0, e), e };
-    };
-
-    let chapter = -1;
-    const setChapter = (i) => {
-        if (i === chapter) return;
-        chapter = i;
-        chapters.forEach((c, n) => c.classList.toggle('is-on', n === i));
-        const eyebrow = chapters[i]?.querySelector('[data-decode]');
-        if (eyebrow) decode(eyebrow);
-    };
+    const pullNext = () => { if (next) next.style.marginTop = `-${stage.offsetHeight}px`; };
+    let pinLen = 0;   // the pin's scroll length, px
 
     // The landing's slides, after arlink28.com: each runs SLIDE_MS while its
     // thumbnail's line fills, then the next background opens over it
     // through BANDS horizontal blinds, bottom band first, and its copy and
     // caption roll in. Only on the landing; going on, it's back to the
-    // stairwell (the beams come up out of it)
+    // stairwell (it's what splits)
     const bgs    = [...root.querySelectorAll('[data-walk-bg]')];
     const thumbs = [...root.querySelectorAll('[data-walk-thumb]')];
     const bars   = thumbs.map((t) => t.querySelector('[data-walk-progress]'));
@@ -263,137 +216,118 @@ export function initWalk() {
         pauseBtn.setAttribute('aria-label', paused ? 'Play slides' : 'Pause slides');
     });
 
-    // The stairwell drifts down on its own while it's on screen and lit
-    // (the same loop runs the slides' clock and blinds)
+    // The stairwell drifts down on its own while it's on screen (the same
+    // loop runs the slides' clock and blinds)
     let drift = 0, raf = 0, prev = 0;
     const tick = (now) => {
         const dt = Math.min(50, now - prev);
         prev = now;
         drift += (dt / 1000) * DRIFT;
-        drawWell(last);
+        drawWell(q);
         runSlides(now, dt);
         raf = 0;
         wakeWell();
     };
     const wakeWell = () => {
-        if (!raf && seen && !document.hidden && (last < DIM[1] || blinds)) {
+        if (!raf && seen && !document.hidden && (q < 1 || blinds)) {
             prev = performance.now();
             raf = requestAnimationFrame(tick);
         }
     };
     const drawWell = (p) => {
-        const dim = 1 - span(p, DIM);
-        wellEl.style.opacity = (wellGlow * dim).toFixed(3);
-        if (dim <= 0) return;
-        const g = easeInOut(span(p, FLY));
-        well.render(drift + FLOORS * g,
+        if (p >= 1) return;
+        const split = p >= SPLIT[0];   // from there, the slices carry it
+        wellEl.style.opacity = split ? '0' : wellGlow.toFixed(3);
+        const g = easeInOut(span(p, GLIDE));
+        well.render(drift + FLOORS * span(p, FLY),
             lerp(WELL_AT[0][0], WELL_AT[1][0], g), lerp(WELL_AT[0][1], WELL_AT[1][1], g));
+        if (split) paintSlices();
     };
 
+    // The rooms are held where they'll be when the pin lets go (this has to
+    // match the scroll exactly); the rest follows it a little behind
     const render = (p) => {
-        const mid = [F.w / 2, F.h / 2];
-
-        // 0 — down the stairwell, floor after floor, until the beams come up out of it
-        drawWell(p);
-        wakeWell();
-
-        // 1 — the beams, turning into the one view; the flat mark takes over there
-        const swap = easeInOut(span(p, SWAP));
-        const em = easeOut(span(p, EMERGE));
-        const turn = 1 - easeOut(span(p, TURN));
-        solidEl.style.opacity = (em * (1 - swap)).toFixed(3);
-        if (solid && em > 0 && swap < 1) {
-            solid.render({
-                x: REST.x, y: REST.y, k: REST.k * (0.55 + 0.45 * em),
-                yaw: TURN_FROM.yaw * turn, pitch: TURN_FROM.pitch * turn,
-            });
-        }
-
-        // 2 — the A opens onto the reception
-        const t1 = span(p, OPEN_1);
-        const k1 = REST.k;
-        const o1 = opening(t1, k1);
-        const spin1 = -360 * (1 - o1.e);              // one turn as it opens, landing upright
-        const c1 = [lerp(REST.x, mid[0], o1.e), lerp(REST.y, mid[1], o1.e)];
-        sceneA.style.opacity = swap.toFixed(3);
-        sceneA.style.clipPath = t1 < 1 ? windowAt(c1[0], c1[1], o1.k, spin1) : 'none';
-
-        // 3 — walk up to the desk. At first the photo is small and framed in
-        // the window (the desk's people in the hole); opening, it grows to
-        // the screen ahead of the window, then pushes in on the desk
-        const desk  = onPhoto(DESK_SIGN, POS[0]);
-        const focus = onPhoto(FOCUS, POS[0]);
-        const z1 = 1 + 0.55 * easeInOut(span(p, PUSH_1)) + 0.9 * easeInOut(span(p, OPEN_2));
-        const g  = 1 - Math.pow(1 - o1.e, 2);
-        const m  = lerp(FOCUS_K, z1, g);
-        const at = [lerp(REST.x, desk[0], g), lerp(REST.y, desk[1], g)];
-        const of = [lerp(focus[0], desk[0], g), lerp(focus[1], desk[1], g)];
-        imgA.style.transformOrigin = '0 0';
-        imgA.style.transform = `translate(${(at[0] - m * of[0]).toFixed(1)}px, ${(at[1] - m * of[1]).toFixed(1)}px) scale(${m.toFixed(4)})`;
-
-        // 4 — the desk sign's A opens onto the rooms, drifting to the centre as it grows
-        const t2 = span(p, OPEN_2);
-        const signK = (SIGN_W * SIGN_HOLE * IMG.w * cover() * 1.55) / HOLE_W;   // its hole on the printed sign's, once we're at the desk
-        const o2 = opening(t2, signK);
-        const spin2 = 360 * o2.e;                     // one turn the other way
-        const c2 = [lerp(desk[0], mid[0], o2.e), lerp(desk[1], mid[1], o2.e)];
-        sceneB.style.visibility = t2 > 0 ? 'visible' : 'hidden';
-        sceneB.style.clipPath = t2 < 1 ? windowAt(c2[0], c2[1], o2.k, spin2) : 'none';
-
-        // 5 — on into the corridor
-        const hall = onPhoto(CORRIDOR, POS[1]);
-        const z2 = 1.12 - 0.12 * easeInOut(t2) + 0.4 * easeInOut(span(p, PUSH_2));
-        imgB.style.transformOrigin = `${hall[0]}px ${hall[1]}px`;
-        imgB.style.transform = `scale(${z2.toFixed(4)})`;
-
-        // The flat mark rides whichever window is opening, fading as it
-        // passes the camera (a flat logo blown up past ~3× only goes soft)
-        const fade = (o, k0) => clamp(1 - (Math.log(o.k / k0) / Math.log(3.2)), 0, 1);
-        if (t2 > 0) placeMark(c2[0], c2[1], o2.k, spin2, fade(o2, signK) * clamp(t2 * 6, 0, 1));
-        else        placeMark(c1[0], c1[1], o1.k, spin1, fade(o1, k1) * swap);
-
+        if (next) next.style.transform = p < 1 ? `translate3d(0, ${(-(1 - p) * pinLen).toFixed(1)}px, 0)` : '';
         root.classList.toggle('is-walking', p > LEAVE);
-        root.classList.toggle('is-photo', p > PHOTO);
-        setChapter(p > SOLID[0] && p < SOLID[1] ? 0 : p <= PHOTO ? -1 : p < SWITCH ? 1 : 2);
+        follow();
     };
+
+    // The stairwell, the split and the flips follow the scroll a little
+    // behind, so they glide rather than step
+    let q = 0, qRaf = 0;
+    const chase = () => {
+        qRaf = 0;
+        q += (last - q) * CHASE;
+        if (Math.abs(last - q) < 0.0004) q = last;
+        renderSplit(q);
+        drawWell(q);
+        wakeWell();
+        if (q !== last) qRaf = requestAnimationFrame(chase);
+    };
+    const follow = () => { if (!qRaf) qRaf = requestAnimationFrame(chase); };
+
+    const renderSplit = (p) => {
+        const split = p >= SPLIT[0] && CARDS.length > 0;
+
+        // 0 — down the stairwell, its centre coming to the middle (drawWell)
+        // 1 — the split: the frame, cut into a slice per card, the slices
+        // drawing apart to the cards' boxes, the picture shrinking with them
+        // (each keeps its own piece of it, centred, still going down), then
+        // each turns its first half-flip…
+        stage.classList.toggle('is-split', split);
+        const e = easeInOut(span(p, SPLIT));
+        const a = S.w / slices.length;
+        slices.forEach((sl, i) => {
+            const { el } = sl;
+            const f = easeSine(span(p, FLIP(i)));
+            const on = split && f < 0.5;
+            el.style.visibility = on ? 'visible' : 'hidden';
+            if (!on) return;
+            const to = CARDS[i];
+            const x = lerp(i * a, to.x, e), y = lerp(0, to.y, e);
+            const w = lerp(a, to.w, e), h = lerp(S.h, to.h, e);
+            const z = lerp(1, Math.min(1, to.w / a), e);   // never magnified (phones' cards are wider than their slices)
+            el.style.width = `${w.toFixed(1)}px`;
+            el.style.height = `${h.toFixed(1)}px`;
+            el.style.borderRadius = `${(radius * e).toFixed(1)}px`;
+            // the part of the stage it shows: its own piece, centred, at z
+            sl.src = [(i + 0.5) * a - w / 2 / z, S.h / 2 - h / 2 / z, w / z, h / z];
+            el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) ${turnover(f)}`;
+        });
+
+        // 2 — …and its card turns the second half. Till then the cards are
+        // hidden; the rooms are held where they'll be when the pin lets go
+        cards.forEach((el, i) => {
+            const f = easeSine(span(p, FLIP(i)));
+            el.style.opacity = f > 0.5 || p >= 1 ? '' : '0';
+            el.style.transform = f > 0.5 && f < 1 ? turnover(f) : '';
+        });
+
+        // Done: the stage is gone, and lets clicks through to the rooms
+        stage.style.visibility = p >= 1 ? 'hidden' : '';
+        root.style.pointerEvents = p >= 1 ? 'none' : '';   // its scroll wrapper still lies over the rooms
+    };
+    // A turn f (0–1) of the flip: the slice's half, then the card's, lifting
+    // a touch towards you at the edge-on middle
+    const turnover = (f) => `perspective(1600px) rotateY(${((f < 0.5 ? f : f - 1) * 180).toFixed(2)}deg) scale(${(1 + 0.05 * Math.sin(Math.PI * f)).toFixed(4)})`;
 
     new IntersectionObserver(([e]) => { seen = e.isIntersecting; render(last); }).observe(stage);
     document.addEventListener('visibilitychange', () => render(last));
 
+    pullNext();
     measure();
+    pinLen = Math.round(window.innerHeight * PIN);
+    ScrollTrigger.addEventListener('refreshInit', pullNext);
     render(0);
+    renderSplit(0);
 
     ScrollTrigger.create({
         trigger: root,
         start: 'top top',
-        end: () => '+=' + Math.round(window.innerHeight * 5.2),
+        end: () => '+=' + Math.round(window.innerHeight * PIN),
         pin: stage,
         scrub: true,
         onUpdate: (self) => { last = self.progress; render(last); },
-        onRefresh: () => { measure(); render(last); },
+        onRefresh: (self) => { last = q = self.progress; pinLen = self.end - self.start; measure(); render(last); renderSplit(q); },
     });
-}
-
-/**
- * Monolith-style label decode: resolves left to right in 400ms, trailing a
- * short band of random capitals. The final text is restored either way.
- */
-function decode(el) {
-    const text = el.dataset.decode || (el.dataset.decode = el.textContent);
-    const ABC = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const t0 = performance.now(), dur = 400, band = 3.6;
-    clearTimeout(el._decodeEnd);
-    const step = (now) => {
-        const done = Math.min(1, (now - t0) / dur) * text.length;
-        let out = '';
-        for (let i = 0; i < text.length; i++) {
-            if (i < done || text[i] === ' ') out += text[i];
-            else if (i < done + band) out += ABC[(Math.random() * 26) | 0];
-        }
-        el.textContent = out;
-        if (done < text.length) el._decodeRaf = requestAnimationFrame(step);
-    };
-    cancelAnimationFrame(el._decodeRaf);
-    el._decodeRaf = requestAnimationFrame(step);
-    el._decodeEnd = setTimeout(() => { cancelAnimationFrame(el._decodeRaf); el.textContent = text; }, dur + 500);
 }

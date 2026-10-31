@@ -35,29 +35,21 @@
 @section('content')
 
 {{-- ══════════════════════════════════════════════════════════
-     01 — HERO: THE WALK IN
+     01 — HERO
      You land on a stairwell that never ends, drifting slowly down, with
      the rating, title and line bottom left, a booking card on the right
      (partials/hero-book: day, time, guests, name → WhatsApp), and under a
      faint line a link to every date (on phones, a short day + guests form).
-     Built as slides after arlink28.com: add
-     a room to $heroSlides and they take turns every 7s, switching through
-     30 horizontal blinds opening from the bottom up, with the count,
-     thumbnails with progress lines and pause in the bar. Scrolling pins the hero (walk.js): the copy lifts
-     away, you go down floor after floor, and the logo's impossible
-     triangle comes up out of the well as a real 3D object
-     (impossible.js), three beams that don't
-     meet. The camera turns until, from the one angle where it works,
-     they close into the logo; the flat mark takes over, its hole lights
-     up on the reception, and the camera flies through it, pushes in on
-     the desk, then through the desk sign's triangle onto the illusion
-     entrance — and on into the rooms.
-     The chapter copy changes as it goes (masked rows rise, the eyebrow
-     decodes — after MotionSites' Monolith).
-     Without motion it's the headline, then the two photos side by side.
-     ⚠ Both photos are one AI-rendered visual (reception | entrance),
-     split in two and upscaled 4× (Real-ESRGAN) to fill the screen —
-     replace with real venue photos before launch.
+     Built as slides after arlink28.com: add a room to $heroSlides and they
+     take turns every 7s, switching through 30 horizontal blinds opening
+     from the bottom up, with the count, thumbnails with progress lines
+     and pause in the bar.
+     Scrolling pins the hero (walk.js): the copy lifts away, you go down
+     floor after floor, and the frame splits into a slice per room card; the slices fly
+     to the cards' places and flip over into them (walk.js pulls the rooms
+     up under the hero and holds them), so the hero hands straight on to
+     the row.
+     Without motion it's just the landing, then the rooms.
      ══════════════════════════════════════════════════════════ --}}
 @php $rating = config('shiftreality.google_rating'); @endphp
 <section class="walk" id="hero" aria-labelledby="hero-heading" data-walk>
@@ -70,8 +62,26 @@
              'bg' its full-screen photo. With two or more, the bar shows the
              count, thumbnails with progress lines and pause, and they take turns. --}}
         @php
+            // The picture drawn inside itself (stairwell.js), with what was measured on
+            // it: its centre ('well'), its step in ('f'), its outer loop ('edge'); and its
+            // opacity on the navy, wide / narrow ('glow': the white copy must read).
+            // Testing the tunnel; ?bg=stairwell shows the stairwell to compare.
+            $heroBgs = [
+                'tunnel' => [
+                    // baked darker (multiplied, so it stays crisp) and enlarged once, offline
+                    'src' => 'images/walk/tunnel-2560.webp', 'thumb' => 'images/walk/tunnel-thumb.webp',
+                    'label' => 'The endless tunnel', 'blurb' => 'A mirrored tunnel that keeps going, however far you go.',
+                    'well' => ['well' => [0.5, 0.569], 'f' => 0.85, 'mode' => 'zoom'], 'glow' => [1, 1],
+                ],
+                'stairwell' => [
+                    'src' => 'images/walk/stairwell-2560.webp', 'thumb' => 'images/walk/stairwell-thumb.webp',
+                    'label' => 'The endless stair', 'blurb' => 'A stairwell that keeps going down, however far you go.',
+                    'well' => [], 'glow' => [0.44, 0.4],
+                ],
+            ];
+            $heroBg = $heroBgs[request('bg')] ?? $heroBgs['tunnel'];
             $heroSlides = [
-                ['label' => 'The endless stair', 'blurb' => 'A stairwell that keeps going down, however far you go.', 'thumb' => 'images/walk/stairwell-thumb.webp'],
+                ['label' => $heroBg['label'], 'blurb' => $heroBg['blurb'], 'thumb' => $heroBg['thumb']],
                 // ['label' => 'Infinity Room', 'blurb' => '…', 'thumb' => 'images/…-thumb.webp', 'bg' => 'images/…-2000.webp',
                 //  'rows' => ['…', '…'], 'accent' => '…', 'line' => '…'],
             ];
@@ -190,88 +200,28 @@
             @endif
         </div>
 
-        {{-- The stairwell that never ends (stairwell.js): a photo looking down an
-             oval stairwell, toned to the palette and drawn inside itself.
-             ⚠ Stand-in: Wolfgang Weiser on Unsplash — replace before launch. --}}
+        {{-- The well that never ends (stairwell.js): $heroBg, drawn inside itself,
+             dimmed on the navy (walk.js) --}}
         <canvas class="walk__well is-on" aria-hidden="true" data-walk-well data-walk-bg
-                data-src="{{ asset('images/walk/stairwell-2000.webp') }}"></canvas>
+                data-src="{{ asset($heroBg['src']) }}"
+                data-well='@json((object) $heroBg['well'])' data-glow='@json($heroBg['glow'])'></canvas>
 
         {{-- Each further slide's photo, under the copy (see $heroSlides) --}}
         @foreach (array_slice($heroSlides, 1) as $s)
             <img class="walk__slide-bg" data-walk-bg src="{{ asset($s['bg']) }}" alt="" aria-hidden="true" decoding="async" loading="lazy">
         @endforeach
 
-        <div class="walk__frame" data-walk-frame>
-            <div class="walk__scene" data-walk-scene>
-                <img src="{{ asset('images/walk/reception-1528.webp') }}"
-                     srcset="{{ asset('images/walk/reception-764.webp') }} 764w, {{ asset('images/walk/reception-1528.webp') }} 1528w, {{ asset('images/walk/reception-2292.webp') }} 2292w"
-                     sizes="(max-aspect-ratio: 764/1024) 75vh, 100vw" width="1528" height="2048"
-                     alt="Visitors checking in at the Reality Shift front desk, under the triangle logo" decoding="async" fetchpriority="high">
-            </div>
-            <div class="walk__scene" data-walk-scene>
-                <img src="{{ asset('images/walk/entrance-1528.webp') }}"
-                     srcset="{{ asset('images/walk/entrance-762.webp') }} 762w, {{ asset('images/walk/entrance-1528.webp') }} 1528w, {{ asset('images/walk/entrance-2292.webp') }} 2292w"
-                     sizes="(max-aspect-ratio: 764/1024) 75vh, 100vw" width="1528" height="2048"
-                     alt="A host showing two visitors into the Illusion Experience entrance" decoding="async">
-            </div>
-        </div>
-
-        <div class="walk__shade" aria-hidden="true"></div>
-
-        <canvas class="walk__solid" aria-hidden="true" data-walk-solid></canvas>
-
-        {{-- The logo's impossible triangle, flat: the 3D one's nine faces as seen
-             from the one view (beams x, y, then z on top), in the two blues
-             and frosted white, line for line --}}
-        <svg class="walk__mark" width="280" height="243" viewBox="0 0 280 242.48" aria-hidden="true" focusable="false" data-walk-mark>
-            <path fill="#3D74F5" d="M155.35 0.00 170.71 26.60 140.00 26.60 124.64 0.00Z"/>
-            <path fill="#F1F5FE" d="M46.07 242.48 170.71 26.60 140.00 26.60 15.36 242.48Z"/>
-            <path fill="#1855E8" d="M0.00 215.88 124.64 0.00 140.00 26.60 15.36 242.48Z"/>
-            <path fill="#3D74F5" d="M155.35 0.00 279.99 215.88 249.28 215.88 124.64 0.00Z"/>
-            <path fill="#F1F5FE" d="M264.63 242.48 279.99 215.88 249.28 215.88 233.92 242.48Z"/>
-            <path fill="#1855E8" d="M109.28 26.60 124.64 0.00 249.28 215.88 233.92 242.48Z"/>
-            <path fill="#3D74F5" d="M264.63 189.28 279.99 215.88 30.72 215.88 15.36 189.28Z"/>
-            <path fill="#F1F5FE" d="M264.63 242.48 279.99 215.88 30.72 215.88 15.36 242.48Z"/>
-            <path fill="#1855E8" d="M0.00 215.88 15.36 189.28 30.72 215.88 15.36 242.48Z"/>
-        </svg>
-
-        <div class="walk__copy">
-            <div class="walk__chapter walk__chapter--live" data-walk-chapter aria-hidden="true">
-                <p class="walk__eyebrow" data-decode>The impossible triangle</p>
-                <p class="walk__title">
-                    <span class="walk__row"><span>Three beams.</span></span>
-                    <span class="walk__row"><span>They never meet.</span></span>
-                </p>
-                <p class="walk__sub">Except from exactly here, which is all your brain needs.</p>
-            </div>
-            <div class="walk__chapter" data-walk-chapter>
-                <p class="walk__eyebrow" data-decode>01 — Reception</p>
-                <h2 class="walk__title">
-                    <span class="walk__row"><span>It starts at</span></span>
-                    <span class="walk__row"><span>the front desk.</span></span>
-                </h2>
-                <p class="walk__sub">Check in at {{ config('shiftreality.location.address') }}, then follow the triangle inside.</p>
-            </div>
-            <div class="walk__chapter walk__chapter--end" data-walk-chapter>
-                <p class="walk__eyebrow" data-decode>02 — The rooms</p>
-                <p class="walk__title">
-                    <span class="walk__row"><span>Step in.</span></span>
-                    <span class="walk__row"><span>Question everything.</span></span>
-                </p>
-                <p class="walk__sub">From here on, see reality differently.</p>
-            </div>
-        </div>
-
     </div>
 </section>
 
 {{-- ══════════════════════════════════════════════════════════
      02 — THE ROOMS
-     After Artora's featured exhibitions, on the hero's off-white so the
-     two run together: eyebrow + heading left, a line and Book right, then
-     a 2×2 grid of room cards. Each card's stage is that room's live
-     illusion (rooms.js plays it as the card scrolls up, or runs it while
-     it's on screen), with "• tagline" and the room's name.
+     On the off-white: eyebrow + heading left, a line and a quiet link to
+     the rooms right, then the rooms as one row of upright cards, the
+     whole set in one screen (2 × 2 on tablets, a swipe row on phones).
+     Each card's stage is that room's live illusion: rooms.js turns it as
+     the card scrolls up, and the looping ones play on hover (on screen,
+     on touch), with the others dimming; then "• tagline" and the name.
      ══════════════════════════════════════════════════════════ --}}
 <section class="rooms" id="rooms" aria-labelledby="rooms-heading">
     <div class="container">
@@ -288,19 +238,25 @@
                     Each room is designed to make you question something you've taken for granted your entire life.
                     You'll walk out differently than you walked in.
                 </p>
-                <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
-                    <span>Book My Spot</span>
-                    <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </a>
+                <a href="{{ route('experience') }}" class="rooms__more">Explore the rooms <span aria-hidden="true">&rarr;</span></a>
             </div>
         </div>
 
         <div class="rooms__grid" data-rooms>
             @foreach ($shifts as $shift)
-                <article class="room-card" data-room="{{ $shift['slug'] }}" aria-labelledby="room-{{ $shift['slug'] }}" data-scrub>
+                <article class="room-card" data-room="{{ $shift['slug'] }}" aria-labelledby="room-{{ $shift['slug'] }}" data-walk-card
+                         @if (! empty($shift['photo_real'])) data-room-photo @endif>
                     <div @class(['room-card__stage', 'room-card__stage--dark' => $shift['slug'] === 'infinity']) data-room-stage>
-                        @include('partials.rooms.' . $shift['slug'])
-                        <p class="room-card__hint" aria-hidden="true">{{ $shift['hint'] }}</p>
+                        @if (! empty($shift['photo_real']))
+                            {{-- A real photo of the room, in place of its drawing --}}
+                            <img class="room-card__photo" src="{{ asset($shift['photo']) }}"
+                                 srcset="{{ asset($shift['photo']) }} 800w, {{ asset(str_replace('-800.', '-1600.', $shift['photo'])) }} 1086w"
+                                 sizes="(max-width: 600px) 80vw, (max-width: 1100px) 45vw, 25vw"
+                                 alt="{{ $shift['photo_alt'] ?? $shift['title'] }}" loading="lazy" decoding="async">
+                        @else
+                            @include('partials.rooms.' . $shift['slug'])
+                            <p class="room-card__hint" aria-hidden="true">{{ $shift['hint'] }}</p>
+                        @endif
                     </div>
                     <div class="room-card__body">
                         <p class="room-card__meta">
@@ -323,8 +279,8 @@
      a stacked carousel — one big photo in the middle, the next ones each
      side smaller and behind it — with prev/next round the caption
      ("• In the room" + the room). Moves only when asked (moments.js).
-     ⚠ Only the kaleidoscope photo is ours (visitors, from socials); the rest
-     are the Unsplash stand-ins — replace with real visitor photos.
+     Ours only: the kaleidoscope, the rooms' photos and the extra visitor
+     photos (config hero_extras); no stand-ins.
      ══════════════════════════════════════════════════════════ --}}
 @php
     // [image, srcset, upside down?, meta, title]
@@ -372,92 +328,6 @@
     </div>
 </section>
 
-{{-- ══════════════════════════════════════════════════════════
-     04 — INLINE CTA
-     The photo-collage band (partials/visit-band), mid-page.
-     ⚠ Photos are the hero ring's stand-ins, bar ours.
-     ══════════════════════════════════════════════════════════ --}}
-@include('partials.visit-band', [
-    'headingId' => 'inline-cta-heading',
-    'eyebrow'   => "Don't wait until it's sold out",
-    'title'     => 'Your spot is one click away.',
-    {{-- non-breaking hyphen keeps "Walk-ins" whole --}}
-    'sub'       => 'Most people who visit say they wish they\'d come sooner. Walk&#8209;ins are welcome but weekends fill up — secure yours now.',
-    'pill'      => 'Book Now — From $' . $visit['price_from'],
-])
-
-{{-- ══════════════════════════════════════════════════════════
-     05 — SOCIAL PROOF
-     Real proof: the Google score, one featured quote, the rest beside it.
-     ══════════════════════════════════════════════════════════ --}}
-<section class="reviews-section section" id="reviews" aria-labelledby="reviews-heading">
-    <div class="container">
-
-        <div class="reviews-section__intro">
-            <h2 class="reviews-section__title" id="reviews-heading" data-split>
-                Harare can't stop<br>talking about it.
-            </h2>
-            <p class="reviews-section__tagline" data-scrub>
-                Walk in sceptical, walk out arguing about what you saw.
-                Here's what visitors said.
-            </p>
-        </div>
-
-        @php
-            $googleRating = config('shiftreality.google_rating');
-            $reviewsUrl   = config('shiftreality.google_reviews_url');
-            [$lead, $others] = [$testimonials[0] ?? null, array_slice($testimonials, 1)];
-        @endphp
-
-        <div class="reviews">
-            {{-- Score: the real proof, then the ask --}}
-            <div class="reviews__score" data-scrub>
-                <p class="reviews__score-value" aria-hidden="true">
-                    <span data-count-to="{{ $googleRating }}">{{ number_format($googleRating, 1) }}</span><span class="reviews__score-max">/5</span>
-                </p>
-                @include('partials.stars', ['rating' => $googleRating, 'size' => 22])
-                <p class="reviews__score-source">
-                    @include('partials.google-g', ['size' => 18])
-                    <span>Rated {{ number_format($googleRating, 1) }} out of 5 on Google Reviews</span>
-                </p>
-                @if ($reviewsUrl)
-                    <a href="{{ $reviewsUrl }}" class="reviews__all" target="_blank" rel="noopener">Read all reviews on Google ↗</a>
-                @endif
-
-                <a href="{{ route('book') }}" class="pill pill--amber pill--lg reviews__cta">
-                    <span>Book My Spot</span>
-                    <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </a>
-            </div>
-
-            {{-- Quotes: one featured, the rest beside it; each appears exactly once --}}
-            <div class="reviews__quotes">
-                @if ($lead)
-                    <figure class="quote quote--lead" data-scrub>
-                        @include('partials.stars', ['rating' => $lead['rating'], 'size' => 16])
-                        <span class="sr-only">Rated {{ $lead['rating'] }} out of 5.</span>
-                        <blockquote class="quote__text">“{{ $lead['quote'] }}”</blockquote>
-                        <figcaption class="quote__who">{{ $lead['name'] }} <span>· {{ $lead['detail'] }}</span></figcaption>
-                    </figure>
-                @endif
-
-                @if ($others)
-                    <div class="reviews__more">
-                        @foreach ($others as $t)
-                            <figure class="quote" data-scrub>
-                                @include('partials.stars', ['rating' => $t['rating'], 'size' => 13])
-                                <span class="sr-only">Rated {{ $t['rating'] }} out of 5.</span>
-                                <blockquote class="quote__text">“{{ $t['quote'] }}”</blockquote>
-                                <figcaption class="quote__who">{{ $t['name'] }} <span>· {{ $t['detail'] }}</span></figcaption>
-                            </figure>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        </div>
-
-    </div>
-</section>
 
 {{-- ══════════════════════════════════════════════════════════
      06 — ABOUT REALITY SHIFT
@@ -523,6 +393,7 @@
 
     </div>
 </section>
+
 
 {{-- ══════════════════════════════════════════════════════════
      07 — PRICING

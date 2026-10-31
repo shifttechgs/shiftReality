@@ -1,7 +1,7 @@
 {{-- Photo-collage band, after Artora's "Visit Today": solid deep navy, the
      eyebrow, the line, an optional sub-line, one white pill and the live
      status centred, with eight photos scattered round the edges — still.
-     Our kaleidoscope photo first (upside down), then the stand-ins; `offset`
+     Our kaleidoscope photo first (upside down), then ours, then stand-ins to fill; `offset`
      rotates the set so two bands on one page don't repeat the same collage.
      Params: id, headingId, eyebrow, title (HTML), sub (HTML, optional),
      pill, offset (int, optional). Needs $shifts and $openingHours.
@@ -11,7 +11,7 @@
     $bandStatus = $openingHours->status();
     $bandPhotos = collect($shifts)->filter(fn ($s) => ! empty($s['hero_photo']))
         ->map(fn ($s) => [str_replace('-2064.', '-1000.', $s['hero_photo']), true])
-        ->merge(collect($shifts)->pluck('photo')->merge(config('shiftreality.hero_extras'))->filter()->map(fn ($p) => [$p, false]))
+        ->merge(collect($shifts)->pluck('photo')->merge(config('shiftreality.hero_extras'))->merge(config('shiftreality.standin_extras'))->filter()->map(fn ($p) => [$p, false]))
         ->take(8)->values();
     $bandShift  = (int) ($offset ?? 0) % max(1, $bandPhotos->count());
     $bandPhotos = $bandPhotos->slice($bandShift)->merge($bandPhotos->take($bandShift))->values();

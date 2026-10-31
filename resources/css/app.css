@@ -30,9 +30,9 @@
     /* Corner radii — one scale for the whole site.
        Cards and panels / anything inside a card / small tags and focus rings.
        Buttons are full pills; dots and avatars are circles. */
-    --radius-card:  8px;
-    --radius-inner: 6px;
-    --radius-tag:   4px;
+    --radius-card:  4px;
+    --radius-inner: 3px;
+    --radius-tag:   2px;
 
     /* Section headings — one size for every section's h2 */
     --text-section: clamp(2rem, 4.5vw, 4rem);
@@ -2251,7 +2251,7 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
 .walk__stage {
     position: relative;
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);   /* static: photos | copy */
+    grid-template-columns: minmax(0, 1fr);
     align-items: end;
     gap: clamp(1.5rem, 4vw, 4rem);
     padding: calc(var(--site-head) + clamp(3rem, 9svh, 5rem)) var(--head-edge) clamp(4rem, 8vw, 7rem);
@@ -2627,79 +2627,41 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
     font-variant-numeric: lining-nums tabular-nums;
 }
 
-/* Masked rows: the headline's, and each chapter's */
+/* Masked rows: the headline's */
 .walk__row { display: block; overflow: hidden; padding-bottom: 0.08em; }
 .walk__row > span { display: block; }
 
-/* ── The walk: frame, mark, chapter copy ──────────────────── */
-.walk__frame {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.5rem;
-    width: min(56rem, 60vw);
-}
-.walk__scene {
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--radius-card);
-    aspect-ratio: 764 / 1024;
-}
-.walk__scene img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    will-change: transform;
-}
-
-.walk__mark {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 280px;
-    height: 242.48px;
-    max-width: none;
-    overflow: visible;
-    transform-origin: 140px 152.79px;   /* the hole's centroid — walk.js turns it about this */
-    pointer-events: none;
-    will-change: transform, opacity;
-    display: none;
-}
-
-.walk__copy { display: grid; gap: 2.5rem; align-self: end; }
-
-.walk__eyebrow {
-    margin-bottom: 1.25rem;
-    font-size: 0.8125rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.85);
-}
-.walk__title {
-    font-size: clamp(2rem, 3.4vw, 3.25rem);
-    font-weight: 400;
-    line-height: 1.04;
-    letter-spacing: -0.035em;
-    color: #ffffff;
-}
-.walk__sub {
-    max-width: 30ch;
-    margin-top: 1.25rem;
-    font-size: clamp(0.9375rem, 1.3vw, 1.0625rem);
-    line-height: 1.7;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-/* Live only: the slider bar, the stairwell, slide 2, the 3D triangle and its line */
+/* Live only: the slider bar, the stairwell, slide 2 */
 .walk__bar,
 .walk__well,
 .walk__slide--live,
-.walk__slide-bg,
-.walk__solid,
-.walk__chapter--live { display: none; }
+.walk__slide-bg { display: none; }
 
-/* ── Live: one screen, pinned; the photos stack in one frame ── */
+/* ── Live: one screen, pinned ─────────────────────────────── */
+/* The navy is the stage's own, so when its frame splits (walk.js) the
+   gaps show what's behind it: the rooms, pulled up under the hero's
+   screen; the stage stays above them */
+.walk--live { background: var(--color-sr-surface); }   /* the rooms' own colour, under it all */
+.walk--live .walk__stage.is-split { background: transparent; }   /* the slices carry the navy now */
+
+/* The split: a slice of the frame per room card, flying to its card and
+   turning the first half of a flip (walk.js sets the box, and draws its
+   piece of the stairwell into its canvas) */
+.walk__slice {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 4;
+    visibility: hidden;
+    overflow: hidden;
+    background: var(--color-sr-deep);
+    backface-visibility: hidden;
+    will-change: transform;
+}
+.walk__slice canvas { display: block; width: 100%; height: 100%; }
 .walk--live .walk__stage {
+    z-index: 2;
+    background: var(--color-sr-deep);
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-rows: minmax(0, 1fr);
     align-items: end;
@@ -2898,15 +2860,6 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
 .walk.is-walking .walk__cta,
 .walk.is-walking .walk__bar { opacity: 0 !important; translate: 0 -1rem; }
 
-.walk--live .walk__frame {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    display: block;
-    width: auto;
-    overflow: hidden;
-}
-
 /* The stairwell that never ends (stairwell.js), full bleed under
    everything; walk.js sets its opacity and fades it out as the beams
    come up out of it */
@@ -2921,89 +2874,9 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
     pointer-events: none;
 }
 
-/* The 3D impossible triangle (impossible.js), drawn over the stage */
-.walk--live .walk__solid {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    display: block;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* The one shade: navy from the foot, under the copy — only once the photo has the screen */
-.walk__shade { display: none; }
-.walk--live .walk__shade {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    display: block;
-    background: linear-gradient(0deg, rgba(6, 11, 31, 0.78) 0%, rgba(6, 11, 31, 0.4) 26%, rgba(6, 11, 31, 0) 52%);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.6s var(--ease-out);
-}
-.walk.is-photo .walk__shade { opacity: 1; }
-.walk--live .walk__scene {
-    position: absolute;
-    inset: 0;
-    aspect-ratio: auto;
-    border-radius: 0;
-    clip-path: polygon(50% 50%, 50% 50%, 50% 50%);   /* closed until walk.js runs */
-}
-.walk--live .walk__scene:first-child { opacity: 0; }   /* lit by walk.js once the flat mark is in */
-.walk--live .walk__scene + .walk__scene { visibility: hidden; }
-.walk--live .walk__mark { display: block; z-index: 2; opacity: 0; }
-
-/* Over the photo, the walk's copy is white (small text soft white) */
-.walk--live .walk__copy { position: relative; z-index: 3; }
-.walk--live .walk__copy { grid-column: 1 / -1; grid-row: 1; pointer-events: none; }   /* shares the cell with the landing copy: clicks pass through to it (a chapter that's on takes them back) */
-/* each chapter sits across from what the camera walks toward: the
-   triangle and the desk sign are right of centre, the corridor left */
-.walk--live .walk__chapter { width: min(100%, 26rem); }
-.walk--live .walk__chapter--live { display: block; }
-.walk--live .walk__chapter--end { justify-self: end; }
-.walk--live .walk__title   { color: #ffffff; }
-.walk--live .walk__eyebrow { color: rgba(255, 255, 255, 0.85); }
-.walk--live .walk__sub     { color: rgba(255, 255, 255, 0.8); }
-
-
-.walk--live .walk__copy { gap: 0; align-self: end; }
-.walk--live .walk__chapter { grid-area: 1 / 1; pointer-events: none; }
-.walk--live .walk__chapter.is-on { pointer-events: auto; }
-
-/* chapter in/out: rows rise out of their masks, the line settles */
-.walk--live .walk__chapter .walk__row > span {
-    transform: translateY(112%);
-    transition: transform 0.5s var(--ease-out);
-}
-.walk--live .walk__chapter.is-on .walk__row > span {
-    transform: none;
-    transition-duration: 0.9s;
-}
-.walk--live .walk__chapter.is-on .walk__row + .walk__row > span { transition-delay: 0.1s; }
-.walk--live .walk__eyebrow,
-.walk--live .walk__sub {
-    opacity: 0;
-    translate: 0 0.5rem;
-    transition: opacity 0.4s var(--ease-out), translate 0.4s var(--ease-out);
-}
-.walk--live .walk__chapter.is-on .walk__eyebrow { opacity: 1; translate: none; transition-duration: 0.56s; }
-.walk--live .walk__chapter.is-on .walk__sub     { opacity: 1; translate: none; transition-duration: 0.72s; transition-delay: 0.28s; }
-
-/* Phones and narrow tablets: frame on top, copy under it, no rail */
+/* Phones and narrow tablets: one column */
 @media (max-width: 900px) {
-    .walk__stage { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
-    .walk__frame { width: 100%; }
-    .walk--live .walk__stage {
-        grid-template-columns: minmax(0, 1fr);
-        align-items: end;
-    }
-    .walk--live .walk__chapter,
-    .walk--live .walk__chapter--end { justify-self: stretch; width: auto; }
-    .walk__title { font-size: clamp(1.75rem, 7.5vw, 2.5rem); }
+    .walk--live .walk__stage { grid-template-columns: minmax(0, 1fr); }
     .walk__intro-title { font-size: clamp(2.25rem, 10vw, 3.25rem); }
 }
 
@@ -3023,7 +2896,12 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
    under it, "• tagline" and the room's name.
    ──────────────────────────────────────────────────────────── */
 .rooms {
-    padding-block: clamp(4rem, 8vw, 7rem);
+    position: relative;
+    z-index: 1;   /* under the hero's stage, which it rises behind */
+    padding-block: clamp(3.5rem, 7vw, 6rem);
+    /* the hero hands over with the rooms' top at the screen's: clear the
+       pinned pill bar (as the hero's copy does), then some air */
+    padding-top: calc(clamp(6rem, 13svh, 8rem) + clamp(1.5rem, 3vw, 2.5rem));
     background: var(--color-sr-surface);   /* = the hero's, flat */
 }
 
@@ -3054,8 +2932,21 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.5rem;
+    gap: 1.25rem;
 }
+
+/* A quiet link to the rooms (the hero's card above does the booking) */
+.rooms__more {
+    display: inline-flex;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-sr-text);
+    transition: color var(--duration-fast) var(--ease-out);
+}
+.rooms__more:hover { color: var(--color-sr-accent); }
+.rooms__more span { transition: translate var(--duration-fast) var(--ease-out); }
+.rooms__more:hover span { translate: 3px 0; }
 
 .rooms__sub {
     max-width: 44ch;
@@ -3065,9 +2956,10 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
 }
 
 /* ── The grid: two big cards a row, tight gutters (as on Artora) ── */
+/* The whole set in one row of upright cards */
 .rooms__grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.5rem;
 }
 
@@ -3081,27 +2973,57 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
     background: var(--color-sr-bg);   /* white on the frosted blue: no border needed */
 }
 
+/* Hover one, the others step back (one calm effect): their stages darken
+   (fading them would show the white card through) and their text fades.
+   Not the card itself: the scroll reveal ([data-scrub]) owns its opacity */
+.room-card__stage { transition: filter 0.35s var(--ease-out); }
+.room-card__body  { transition: opacity 0.35s var(--ease-out); }
+@media (hover: hover) {
+    .rooms__grid:has(.room-card:hover) .room-card:not(:hover) .room-card__stage { filter: brightness(0.45) saturate(0.7); }
+    .rooms__grid:has(.room-card:hover) .room-card:not(:hover) .room-card__body { opacity: 0.45; }
+}
+
+/* In an upright card the mirror panes are narrow: smaller labels that may wrap */
+.room-card .mirror__label {
+    left: 6%;
+    right: 6%;
+    font-size: 0.5625rem;
+    letter-spacing: 0.1em;
+    line-height: 1.35;
+    text-align: center;
+}
+
 /* The illusion, on a flat dark stage */
 .room-card__stage {
     position: relative;
     display: grid;
     place-items: center;
-    aspect-ratio: 632 / 439;   /* Artora's card image */
+    aspect-ratio: 4 / 5;
     overflow: hidden;
     background: #0c1433;
 }
 
 .room-card__stage--dark { background: #02040c; }
 
+/* A real photo of the room, in place of its drawing */
+.room-card__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* What to do with it — a still dot, not a pulsing one */
 .room-card__hint {
     position: absolute;
-    left: 1.25rem;
-    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    bottom: 0.875rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     letter-spacing: 0.04em;
     color: rgba(255, 255, 255, 0.6);
 }
@@ -3115,7 +3037,8 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
 }
 
 .room-card__body {
-    padding: clamp(1.25rem, 2vw, 1.5rem) clamp(1.25rem, 2vw, 1.5rem) clamp(1.5rem, 2.4vw, 1.875rem);
+    flex: 1;
+    padding: 1.125rem 1.125rem 1.375rem;
 }
 
 /* "• Walk on the ceiling…" — after Artora's "• On View  Jan 15 — Apr 30" */
@@ -3124,7 +3047,8 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
     flex-wrap: wrap;
     align-items: baseline;
     gap: 0.25rem 0.75rem;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
     color: var(--color-sr-muted);
 }
 
@@ -3146,9 +3070,9 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
 }
 
 .room-card__title {
-    margin-top: 0.625rem;
+    margin-top: 0.5rem;
     font-family: var(--font-heading);
-    font-size: clamp(1.5rem, 2.3vw, 2rem);
+    font-size: clamp(1.25rem, 1.65vw, 1.625rem);
     font-weight: 400;
     line-height: 1.1;
     letter-spacing: -0.03em;
@@ -3160,7 +3084,28 @@ body:not(.cursor--on) .cursor-ring { opacity: 0; }
 
 @media (max-width: 900px) {
     .rooms__intro { grid-template-columns: 1fr; }
-    .rooms__grid  { grid-template-columns: 1fr; }
+}
+
+/* Tablets: two by two */
+@media (max-width: 1100px) and (min-width: 601px) {
+    .rooms__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Phones: a swipe row — one card and the edge of the next */
+@media (max-width: 600px) {
+    .rooms__grid {
+        grid-template-columns: none;
+        grid-auto-flow: column;
+        grid-auto-columns: 80%;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: var(--head-edge);
+        margin-inline: calc(var(--head-edge) * -1);
+        padding-inline: var(--head-edge);
+        scrollbar-width: none;
+    }
+    .rooms__grid::-webkit-scrollbar { display: none; }
+    .room-card { scroll-snap-align: start; }
 }
 
 /* ── Visitor moments — after Artora's "Permanent Collections" ──

@@ -71,7 +71,11 @@ return [
             'title'       => 'Upside Down Room',
             'slug'        => 'upside-down',
             'image'       => 'images/hero/hero-1-1200.webp',
-            'photo'       => 'images/rooms/upside-down-800.webp',   // demo stand-in: spiral staircase, Faris Mohammed (Unsplash)
+            // Ours: the room itself, recoloured to the brand blues (the -1600 file is the
+            // original's 1086px). 'photo_real': its card on the home page shows the photo, not the drawing
+            'photo'       => 'images/rooms/upside-down-800.webp',
+            'photo_real'  => true,
+            'photo_alt'   => 'A visitor hanging from the ceiling of the Upside Down Room, the café table and chairs below',
             'tagline'     => 'Walk on the ceiling. Question which way is up.',
             'hint'        => 'Scroll — the room turns, you don\'t',
             'description' => 'An entire room flipped 180°. Furniture on the ceiling, lights on the floor — and you standing in the middle of it all.',
@@ -80,7 +84,10 @@ return [
             'title'       => 'Stranger in the Mirror',
             'slug'        => 'mirror',
             'image'       => 'images/hero/hero-2-1200.webp',
-            'photo'       => 'images/rooms/mirror-800.webp',        // demo stand-in: broken-mirror reflection, Fares Hamouche (Unsplash)
+            // Ours: the room itself (the -1600 file is the original's 1086px); its card shows it
+            'photo'       => 'images/rooms/mirror-800.webp',
+            'photo_real'  => true,
+            'photo_alt'   => 'A visitor in a blue T-shirt and sunglasses, repeated dozens of times round the mirror room’s triangular panels',
             // Home hero slide (a -2064 file with a -1000 twin). Rooms without one show
             // their drawn illusion. ⚠ Ours, from socials, AI-upscaled — swap for the original.
             'hero_photo'  => 'images/hero/kaleidoscope-2064.webp',
@@ -92,9 +99,11 @@ return [
             'title'       => 'Infinity Room',
             'slug'        => 'infinity',
             'image'       => 'images/hero/hero-3-1200.webp',
-            // Hero strip photo (an -800 file with a -1600 twin), in place of the drawn illusion.
-            // Experiment / stand-in: "Infinity Window" by Karl Martin Saetren on Unsplash (Unsplash License).
+            // From the user: a rendered visual of the room (not a photo), cropped to the card's 4:5
+            // from a 1672×941 original, so both files are 753px. ⚠ Swap for a real visitor photo.
             'photo'       => 'images/rooms/infinity-800.webp',
+            'photo_real'  => true,
+            'photo_alt'   => 'The Infinity Room: mirrored triangular walls lit in blue around the Reality Shift logo',
             'tagline'     => 'A universe that stretches forever in every direction.',
             'hint'        => 'Move to bend the horizon',
             'description' => 'Floor-to-ceiling LED lights reflected in infinite mirrors. You are both at the centre of everything and impossibly small.',
@@ -103,7 +112,11 @@ return [
             'title'       => 'Beuchet Chair',
             'slug'        => 'beuchet',
             'image'       => 'images/hero/hero-1-1200.webp',
-            'photo'       => 'images/rooms/beuchet-800.webp',       // demo stand-in: walking up a wall, Angela Bailey (Unsplash)
+            // From the user: a rendered visual of the room, cropped to the card's 4:5 (both people
+            // and the chair) from a 1671×941 original, so both files are 753px. ⚠ Swap for a real visitor photo.
+            'photo'       => 'images/rooms/beuchet-800.webp',
+            'photo_real'  => true,
+            'photo_alt'   => 'A visitor towering over the Beuchet chair, pretending to pick up his friend who looks tiny sitting on it',
             'tagline'     => 'One person looks giant. The other looks tiny. Same chair.',
             'hint'        => 'Scroll to line up the chair',
             'description' => 'A forced-perspective illusion that makes two people the wrong size — simultaneously. Perfect for photos.',
@@ -112,9 +125,15 @@ return [
 
     // Homepage "Who It's For" card pile — 'route' is where the card leads.
     // Images are stand-ins (hero shots) until real audience photos are added.
-    // Extra photos in the hero marquee, between the rooms — illusion moments, no label.
-    // ⚠ Demo stand-ins (Unsplash License) until real venue photos replace them.
+    // Extra visitor photos (ours), after the rooms' in Visitor Moments and the visit band
     'hero_extras' => [
+        // Visitors at the vortex wall, cropped near-square (as the carousel shows it)
+        // to the right-hand visitor and the big vortex; the -1600 file is 944px
+        'images/rooms/extra-vortex-800.webp',
+    ],
+    // ⚠ Demo stand-ins (Unsplash License), only to fill the visit band's eight-photo
+    // collage until there are enough of ours; never in Visitor Moments
+    'standin_extras' => [
         'images/rooms/extra-stripes-800.webp',   // striped tunnel, bahareh moradian
         'images/rooms/extra-lights-800.webp',    // tunnel of lights, Alexandra Nicolae
         'images/rooms/extra-mirrors-800.webp',   // two in the mirror, TinPics_

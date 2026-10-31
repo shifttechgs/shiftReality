@@ -5,24 +5,31 @@
  * factor of 1/F lands exactly where it started. `depth` counts floors
  * descended (any real number; up the stairs is negative).
  *
- * The photo is toned to the palette offline (images/walk/stairwell-*.webp).
- * ⚠ Stand-in: Wolfgang Weiser on Unsplash — swap for a real stairwell or
- * the venue's own optics before launch.
+ * Any picture that looks down a well or a tunnel works: the page passes
+ * what was measured on it (its centre, its step in, its outer loop); the
+ * defaults are our stairwell's (images/walk/stairwell-2560.webp). walk.js
+ * dims it on the navy with the canvas's opacity so the white copy reads.
+ * A picture that shows its way in only once (a tunnel to one vanishing
+ * point) can't be drawn inside itself: mode 'zoom' flies straight into its
+ * centre instead, magnified as little as can be: from just over cover to
+ * 1/f of that, where the next step (faded in from the middle, its border
+ * feathered off screen) has grown to take over.
  */
-
-const WELL = [0.49, 0.48];   // the well's centre, as a share of the photo
-const F = 0.6;               // one floor down, the stairwell is this much smaller
+const ZOOM_BLEED = 1.15;     // 'zoom': drawn this much over cover, so a step's feathered border is off screen
+const ZOOM_BAND  = 0.06;     // …that border, as a share of each side
+const WELL = [0.48, 0.465];   // the well's centre, as a share of the photo
+const F = 0.55;              // one floor down, the stairwell is this much smaller
 const LAYERS = 7;            // copies drawn, from a floor above the screen down
 const EDGE = [0.44, 0.47];   // the outer loop's half-size, as a share of the photo
 const FEATHER = 0.72;        // the copy is solid inside this share of that loop
 
-export function createStairwell(canvas, src) {
+export function createStairwell(canvas, src, { well = WELL, f = F, edge = EDGE, mode = 'nest' } = {}) {
     const ctx = canvas.getContext('2d');
     const img = new Image();
     img.decoding = 'async';
     img.src = src;
 
-    let w = 0, h = 0, masked = null;
+    let w = 0, h = 0, masked = null, faded = null;
 
     // The photo with its edge faded out round the outer loop, made once
     const makeMasked = () => {
@@ -32,8 +39,8 @@ export function createStairwell(canvas, src) {
         const m = c.getContext('2d');
         m.drawImage(img, 0, 0);
         m.globalCompositeOperation = 'destination-in';
-        const [cx, cy] = [WELL[0] * c.width, WELL[1] * c.height];
-        const [rx, ry] = [EDGE[0] * c.width, EDGE[1] * c.height];
+        const [cx, cy] = [well[0] * c.width, well[1] * c.height];
+        const [rx, ry] = [edge[0] * c.width, edge[1] * c.height];
         m.translate(cx, cy);
         m.scale(1, ry / rx);
         const g = m.createRadialGradient(0, 0, 0, 0, 0, rx);
@@ -42,6 +49,28 @@ export function createStairwell(canvas, src) {
         g.addColorStop(1, 'rgba(0,0,0,0)');
         m.fillStyle = g;
         m.fillRect(-cx, -cy * (rx / ry), c.width, c.height * (rx / ry));
+        return c;
+    };
+
+    // For 'zoom': the picture with its border feathered out
+    const makeFaded = () => {
+        const c = document.createElement('canvas');
+        const W = (c.width = img.naturalWidth), H = (c.height = img.naturalHeight);
+        const m = c.getContext('2d');
+        m.drawImage(img, 0, 0);
+        m.globalCompositeOperation = 'destination-out';
+        const bx = W * ZOOM_BAND, by = H * ZOOM_BAND;
+        const side = (x0, y0, x1, y1, rx, ry, rw, rh) => {
+            const g = m.createLinearGradient(x0, y0, x1, y1);
+            g.addColorStop(0, '#000');
+            g.addColorStop(1, 'rgba(0,0,0,0)');
+            m.fillStyle = g;
+            m.fillRect(rx, ry, rw, rh);
+        };
+        side(0, 0, bx, 0, 0, 0, bx, H);
+        side(W, 0, W - bx, 0, W - bx, 0, bx, H);
+        side(0, 0, 0, by, 0, 0, W, by);
+        side(0, H, 0, H - by, 0, H - by, W, by);
         return c;
     };
 
@@ -67,15 +96,31 @@ export function createStairwell(canvas, src) {
             const iw = img.naturalWidth, ih = img.naturalHeight;
             // the smallest scale at which the photo still covers the screen from (ax, ay)
             const cover = Math.max(
-                ax / (WELL[0] * iw), (w - ax) / ((1 - WELL[0]) * iw),
-                ay / (WELL[1] * ih), (h - ay) / ((1 - WELL[1]) * ih),
+                ax / (well[0] * iw), (w - ax) / ((1 - well[0]) * iw),
+                ay / (well[1] * ih), (h - ay) / ((1 - well[1]) * ih),
             );
             const floor = Math.floor(depth), frac = depth - floor;
             const place = (source, n, a) => {
-                const s = cover * Math.pow(F, n - frac);
+                const s = cover * Math.pow(f, n - frac);
                 ctx.globalAlpha = a;
-                ctx.drawImage(source, ax - WELL[0] * iw * s, ay - WELL[1] * ih * s, iw * s, ih * s);
+                ctx.drawImage(source, ax - well[0] * iw * s, ay - well[1] * ih * s, iw * s, ih * s);
             };
+
+            if (mode === 'zoom') {
+                // this step growing from just over cover to 1/f of it, and the
+                // next fading in over it from the middle, to take over at that size
+                faded ??= makeFaded();
+                const t = frac * frac * (3 - 2 * frac);
+                const at = (source, s, a) => {
+                    ctx.globalAlpha = a;
+                    ctx.drawImage(source, ax - well[0] * iw * s, ay - well[1] * ih * s, iw * s, ih * s);
+                };
+                ctx.imageSmoothingQuality = 'high';
+                at(img, cover * ZOOM_BLEED * Math.pow(f, -frac), 1);
+                at(faded, cover * ZOOM_BLEED * Math.pow(f, 1 - frac), t);
+                ctx.globalAlpha = 1;
+                return;
+            }
 
             // a floor above, whole; then this floor, its feathered edge
             // filling in as it grows to replace the one above; then the floors below
