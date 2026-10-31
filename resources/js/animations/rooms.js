@@ -8,7 +8,7 @@ import beuchet    from '../rooms/beuchet.js';
 const ILLUSIONS = { 'upside-down': upsideDown, mirror, infinity, beuchet };
 
 /**
- * The four rooms, as a grid of cards. Each card's stage holds that room's
+ * The rooms, as a grid of cards. Each card's stage holds that room's
  * illusion and gets a 0→1 progress as the stage travels up the screen
  * (0.5 = centred): the room turns over, the chair lines up. The loops
  * (mirror, infinity) only run while their card is on screen.

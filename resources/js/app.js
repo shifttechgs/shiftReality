@@ -1,14 +1,14 @@
 // ─── Critical path — no GSAP, runs immediately ───────────────────────────────
 import { initScroll }  from './animations/scroll.js';
 import { initComet } from './animations/comet.js';
-import { initHeroRing } from './animations/hero-ring.js';
 import { initMoments } from './animations/moments.js';
 import { initCountUp } from './animations/count-up.js';
 import { initLocalClock } from './local-clock.js';
 import { initLazyEmbeds } from './lazy-embeds.js';
 import { initBooking } from './booking.js';
+import { initHeroBook } from './hero-book.js';
 import { initNavMore } from './nav-more.js';
-import { isTouchDevice } from './utils/motion.js';
+import { isTouchDevice, prefersReducedMotion } from './utils/motion.js';
 
 // ─── Custom Cursor (no GSAP — pure rAF) ──────────────────────────────────────
 function initCursor() {
@@ -24,6 +24,12 @@ function initCursor() {
     document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
+        // first move: show both, the ring starting under the mouse rather than flying in from 0,0
+        if (!document.body.classList.contains('cursor--on')) {
+            ringX = mouseX;
+            ringY = mouseY;
+            document.body.classList.add('cursor--on');
+        }
     }, { passive: true });
 
     const tick = () => {
@@ -116,6 +122,12 @@ function initFaq() {
     });
 }
 
+// ─── Walk in: mark it live before GSAP arrives, so the stage doesn't jump ─────
+function prepWalk() {
+    const walk = document.querySelector('[data-walk]');
+    if (walk && !prefersReducedMotion()) walk.classList.add('walk--live');
+}
+
 // ─── Boot critical path ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     initCursor();
@@ -124,12 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initFaq();
     initScroll();   // nav scroll class + parallax — no GSAP
     initComet();
-    initHeroRing();
+    prepWalk();
     initMoments();
     initCountUp();
     initLocalClock();
     initLazyEmbeds();
     initBooking();
+    initHeroBook();
 
     // ── Defer GSAP bundle until after page is visible and idle ────────────────
     const loadAnimations = async () => {
@@ -149,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { initFooterMotion },
             { initSplitHeadings },
             { initScrubReveal },
+            { initWalk },
         ] = await Promise.all([
             import('./animations/reveals.js'),
             import('./animations/rooms.js'),
@@ -156,9 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
             import('./animations/footer-motion.js'),
             import('./animations/split-headings.js'),
             import('./animations/scrub-reveal.js'),
+            import('./animations/walk.js'),
         ]);
 
         initTransitions();
+        initWalk();
         initRooms();
         initFooterMotion();
         initSplitHeadings();

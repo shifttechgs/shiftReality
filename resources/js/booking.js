@@ -3,7 +3,7 @@ import { prefersReducedMotion } from './utils/motion.js';
 /**
  * Booking form (/book): one question at a time — day, time, guests, name —
  * with Continue / Back, a progress count, and the visit pass beside it filling
- * in as each answer comes. The form works without it (all four questions show
+ * in as each answer comes. The day calendar shows four weeks at a time. The form works without it (all four questions show
  * and the server checks everything on submit).
  */
 export function initBooking() {
@@ -130,6 +130,31 @@ export function initBooking() {
         e.preventDefault();
         panels[current].querySelector('[data-next]')?.click();
     });
+
+    // ── Calendar pages: four weeks at a time, the picked day's page first ──
+    const pages = [...form.querySelectorAll('[data-cal-page]')];
+    let page = -1;
+    const showPage = (k) => {
+        page = Math.max(0, Math.min(pages.length - 1, k));
+        pages.forEach((p, j) => {
+            p.hidden = j !== page;
+            p.querySelectorAll('[data-cal-step]').forEach((btn) => {
+                btn.hidden = pages.length < 2;
+                btn.disabled = btn.dataset.calStep === '-1' ? page === 0 : page === pages.length - 1;
+            });
+        });
+    };
+    const pageOfPick = () => Math.max(0, pages.findIndex((p) => p.querySelector('input[name="date"]:checked')));
+    if (pages.length) {
+        showPage(pageOfPick());
+        form.querySelectorAll('[data-cal-step]').forEach((btn) => btn.addEventListener('click', () => {
+            showPage(page + Number(btn.dataset.calStep));
+            pages[page].querySelector('[data-cal-step="' + btn.dataset.calStep + '"]:not(:disabled)')?.focus()
+                ?? pages[page].querySelector('[data-cal-step]:not(:disabled)')?.focus();
+        }));
+        // arrow keys can walk the day off this page: follow it
+        form.addEventListener('change', (e) => { if (e.target.name === 'date') showPage(pageOfPick()); });
+    }
 
     update();
     // Coming back with a server error: open the first step that has one

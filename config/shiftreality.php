@@ -38,20 +38,20 @@ return [
     // Google's structured data — see App\Support\OpeningHours.
     'timezone' => 'Africa/Harare',
     'hours' => [
-        1 => null,
-        2 => ['10:00', '19:00'],
-        3 => ['10:00', '19:00'],
-        4 => ['10:00', '19:00'],
-        5 => ['10:00', '19:00'],
-        6 => ['09:00', '20:00'],
-        7 => ['09:00', '20:00'],
+        1 => ['09:00', '19:00'],
+        2 => ['09:00', '19:00'],
+        3 => ['09:00', '19:00'],
+        4 => ['09:00', '19:00'],
+        5 => ['09:00', '19:00'],
+        6 => ['09:00', '19:00'],
+        7 => ['09:00', '19:00'],
     ],
 
     // Booking requests (/book): visitors pick a day, an entry slot and a group size,
     // then the request opens in WhatsApp for the team to confirm. Nothing is paid online.
     // ⚠ Slot length, last entry and the group-size cap are first guesses — confirm them.
     'booking' => [
-        'days_ahead'         => 14,   // how far ahead the date picker reaches, today included
+        'days_ahead'         => 60,   // how far ahead the date picker reaches, today included (owner's choice, 2026-10-31)
         'slot_minutes'       => 60,   // an entry slot every hour from opening…
         'last_entry_minutes' => 60,   // …until this long before closing
         'max_people'         => 10,   // more than this is a group: pointed to group enquiries
@@ -68,7 +68,6 @@ return [
     // 'image' is a stand-in (hero shots) until real photos of each room are added
     'shifts' => [
         [
-            'number'      => '01',
             'title'       => 'Upside Down Room',
             'slug'        => 'upside-down',
             'image'       => 'images/hero/hero-1-1200.webp',
@@ -78,7 +77,6 @@ return [
             'description' => 'An entire room flipped 180°. Furniture on the ceiling, lights on the floor — and you standing in the middle of it all.',
         ],
         [
-            'number'      => '02',
             'title'       => 'Stranger in the Mirror',
             'slug'        => 'mirror',
             'image'       => 'images/hero/hero-2-1200.webp',
@@ -91,7 +89,6 @@ return [
             'description' => 'A multi-mirror installation that splits, multiplies and distorts your image in ways your brain cannot reconcile.',
         ],
         [
-            'number'      => '03',
             'title'       => 'Infinity Room',
             'slug'        => 'infinity',
             'image'       => 'images/hero/hero-3-1200.webp',
@@ -103,7 +100,6 @@ return [
             'description' => 'Floor-to-ceiling LED lights reflected in infinite mirrors. You are both at the centre of everything and impossibly small.',
         ],
         [
-            'number'      => '04',
             'title'       => 'Beuchet Chair',
             'slug'        => 'beuchet',
             'image'       => 'images/hero/hero-1-1200.webp',
@@ -171,7 +167,7 @@ return [
         'price'    => ':price',
         'unit'     => 'per person',
         'includes' => [
-            'All four rooms',
+            'Every room',
             'Go at your own pace — most visits take :duration',
             'Photos encouraged',
             'Ages :min_age and up',

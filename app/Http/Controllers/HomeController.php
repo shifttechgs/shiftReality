@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\BookingSlots;
 use App\Support\OpeningHours;
 
 class HomeController extends Controller
@@ -15,6 +16,9 @@ class HomeController extends Controller
             'faq'          => config('shiftreality.faq'),
             'openingHours' => OpeningHours::fromConfig(),
             'visit'        => config('shiftreality.visit'),
+            // the hero's booking card
+            'days'         => BookingSlots::fromConfig()->days(),
+            'booking'      => config('shiftreality.booking'),
         ]);
     }
 }

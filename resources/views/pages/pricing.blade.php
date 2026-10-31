@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Pricing — ' . config('shiftreality.name') . ' · Tickets from $' . $visit['price_from'])
-@section('description', 'One ticket, every room: $' . $visit['price_from'] . ' per person for all ' . count($shifts) . ' optical illusion rooms at ' . config('shiftreality.location.address') . ', ' . config('shiftreality.location.city') . '. Group rates on request.')
+@section('description', 'One ticket, every room: $' . $visit['price_from'] . ' per person for every optical illusion room at ' . config('shiftreality.location.address') . ', ' . config('shiftreality.location.city') . '. Group rates on request.')
 
 @php
     $status   = $openingHours->status();
@@ -55,7 +55,7 @@
 @include('partials.page-banner', [
     'crumb' => 'Pricing',
     'title' => "The only thing in here\nthat isn't an illusion.",
-    'intro' => 'One ticket, all ' . count($shifts) . ' rooms. Here\'s exactly what it costs and what you get for it.',
+    'intro' => 'One ticket, every room. Here\'s exactly what it costs and what you get for it.',
 ])
 
 {{-- ══════════════════════════════════════════════════════════
@@ -82,7 +82,7 @@
 
             <div class="pp-hero__actions" data-scrub>
                 <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
-                    <span>Book Your Spot</span>
+                    <span>Book My Spot</span>
                     <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
                 <a href="#pp-groups" class="visit__more">Coming as a group? ↓</a>
@@ -106,15 +106,14 @@
             </h2>
 
             <p class="pp-value__sub" data-scrub>
-                Every ticket covers all {{ count($shifts) }} rooms. Here's how the ${{ $visit['price_from'] }} breaks down.
+                Every ticket covers every room. Here's how the ${{ $visit['price_from'] }} breaks down.
             </p>
         </div>
 
-        {{-- Each room: number, photo (stand-ins until real room photos), name, tagline --}}
+        {{-- Each room: photo (stand-ins until real room photos), name, tagline --}}
         <ol class="pp-receipt">
             @foreach ($shifts as $shift)
                 <li class="pp-receipt__row" data-scrub>
-                    <span class="pp-receipt__no">{{ $shift['number'] }}</span>
                     <span class="pp-receipt__thumb">
                         <img src="{{ asset($shift['image']) }}" alt="" loading="lazy" decoding="async">
                     </span>
@@ -124,7 +123,7 @@
             @endforeach
         </ol>
         <p class="pp-receipt__total" data-scrub>
-            <span>{{ count($shifts) }} rooms, one ticket</span>
+            <span>Every room, one ticket</span>
             <span class="pp-receipt__sum">${{ $visit['price_from'] }}</span>
         </p>
 

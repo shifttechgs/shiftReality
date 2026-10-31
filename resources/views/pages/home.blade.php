@@ -1,11 +1,10 @@
 @extends('layouts.app')
 
-{{-- The hero sits on a dark blurred-photo field, so the header rests in its
-     light-on-dark look until scrolled (under the same top bar as every page). --}}
+{{-- The hero is the Infinity Room, deep navy: the header rests light-on-dark. --}}
 @section('body_class', 'has-hero-photo')
 
 @section('title', 'Reality Shift — Zimbabwe\'s Optical Illusion Experience · Harare')
-@section('description', 'Your brain is about to be lied to. 4 mind-bending rooms at Westgate Shopping Complex, Harare. Zimbabwe\'s first optical illusion experience. Entry from $15. Book now.')
+@section('description', 'Your brain is about to be lied to. Mind-bending illusion rooms at Westgate Shopping Complex, Harare. Zimbabwe\'s first optical illusion experience. Entry from $15. Book now.')
 
 @push('head')
 <script type="application/ld+json">
@@ -36,87 +35,234 @@
 @section('content')
 
 {{-- ══════════════════════════════════════════════════════════
-     01 — HERO
+     01 — HERO: THE WALK IN
+     You land on a stairwell that never ends, drifting slowly down, with
+     the rating, title and line bottom left, a booking card on the right
+     (partials/hero-book: day, time, guests, name → WhatsApp), and under a
+     faint line a link to every date (on phones, a short day + guests form).
+     Built as slides after arlink28.com: add
+     a room to $heroSlides and they take turns every 7s, switching through
+     30 horizontal blinds opening from the bottom up, with the count,
+     thumbnails with progress lines and pause in the bar. Scrolling pins the hero (walk.js): the copy lifts
+     away, you go down floor after floor, and the logo's impossible
+     triangle comes up out of the well as a real 3D object
+     (impossible.js), three beams that don't
+     meet. The camera turns until, from the one angle where it works,
+     they close into the logo; the flat mark takes over, its hole lights
+     up on the reception, and the camera flies through it, pushes in on
+     the desk, then through the desk sign's triangle onto the illusion
+     entrance — and on into the rooms.
+     The chapter copy changes as it goes (masked rows rise, the eyebrow
+     decodes — after MotionSites' Monolith).
+     Without motion it's the headline, then the two photos side by side.
+     ⚠ Both photos are one AI-rendered visual (reception | entrance),
+     split in two and upscaled 4× (Real-ESRGAN) to fill the screen —
+     replace with real venue photos before launch.
      ══════════════════════════════════════════════════════════ --}}
-{{-- Hero after Artora (artora.framer.website): a centred headline and one action,
-     over a ring of photo cards seen from inside a turning cylinder — the cards at
-     the edges come closer and lean in (hero-ring.js). The background is a
-     blurred duotone photo field; white type, the white pill. As on Artora, the ring runs off the bottom of the
-     first screen and the big edge cards rise beside the headline.
-     ⚠ Cards are stand-ins except the kaleidoscope room (ours, from socials,
-     AI-upscaled from a 387px copy, shown upside down as a wink) — replace them
-     with real venue photos, and confirm the visitors' consent. --}}
-@php
-    $rating = config('shiftreality.google_rating');
-    // [src, srcset, upside down?] — our photo first, then each room's stand-in, then the extras
-    $ours = collect($shifts)
-        ->filter(fn ($s) => ! empty($s['hero_photo']))
-        ->map(fn ($s) => [$s['hero_photo'], asset(str_replace('-2064.', '-1000.', $s['hero_photo'])) . ' 750w, ' . asset($s['hero_photo']) . ' 1548w', true])
-        ->values();
-    $standIns = collect($shifts)->pluck('photo')->merge(config('shiftreality.hero_extras'))->filter()
-        ->map(fn ($p) => [$p, asset($p) . ' 800w, ' . asset(str_replace('-800.', '-1600.', $p)) . ' 1600w', false])
-        ->values();
-    // Twelve cards fill the ring. Our photos appear once each; the stand-ins
-    // repeat to fill the rest (short screens show up to ten cards at once)
-    $ringCards = $ours->merge(collect(range(0, 11 - $ours->count()))->map(fn ($i) => $standIns[$i % $standIns->count()]));
-@endphp
-<section class="wh-hero" id="hero" aria-labelledby="hero-heading">
+@php $rating = config('shiftreality.google_rating'); @endphp
+<section class="walk" id="hero" aria-labelledby="hero-heading" data-walk>
+    <div class="walk__stage">
 
-    {{-- Background: one of our photos blurred until only its light is left,
-         mapped into the brand palette (navy shadows, soft-blue mid-tones,
-         white highlights) — after a blurred-portrait reference. Decorative. --}}
-    <div class="wh-hero__field" aria-hidden="true">
-        @if ($ours->isNotEmpty())
-            <img src="{{ asset(str_replace('-2064.', '-1000.', $ours[0][0])) }}" alt="" decoding="async" fetchpriority="high">
-        @endif
-    </div>
+        {{-- The landing's slides. One for now: the stairwell (slide 1, whose copy
+             holds the h1, is written out below). Each further slide is a room,
+             added here once there are real venue photos — 'rows' is its
+             two-line title (the last row's 'accent' in blue), 'line' its line,
+             'bg' its full-screen photo. With two or more, the bar shows the
+             count, thumbnails with progress lines and pause, and they take turns. --}}
+        @php
+            $heroSlides = [
+                ['label' => 'The endless stair', 'blurb' => 'A stairwell that keeps going down, however far you go.', 'thumb' => 'images/walk/stairwell-thumb.webp'],
+                // ['label' => 'Infinity Room', 'blurb' => '…', 'thumb' => 'images/…-thumb.webp', 'bg' => 'images/…-2000.webp',
+                //  'rows' => ['…', '…'], 'accent' => '…', 'line' => '…'],
+            ];
+            $multiSlide = count($heroSlides) > 1;
+            $slideCount = str_pad(count($heroSlides), 2, '0', STR_PAD_LEFT);
+        @endphp
+        <div class="walk__intro" data-walk-intro>
+            <div class="walk__lead">
+                <span class="walk__rating" role="img" aria-label="Rated {{ $rating }} out of 5, based on Google Reviews">
+                    @include('partials.google-g', ['size' => 18, 'class' => 'walk__rating-g'])
+                    <span class="walk__rating-score">{{ number_format($rating, 1) }}</span>
+                    @include('partials.stars', ['rating' => $rating, 'size' => 14])
+                    <span>Google Reviews</span>
+                </span>
 
-    <div class="wh-hero__intro">
-        <p class="wh-hero__eyebrow">Zimbabwe&rsquo;s first optical illusion experience</p>
-
-        <h1 class="wh-hero__title" id="hero-heading">
-            <span class="wh-hero__line"><span>Your brain is about</span></span>
-            <span class="wh-hero__line"><span>to be <span class="wh-hero__accent">lied to.</span></span></span>
-        </h1>
-
-        <div class="wh-hero__actions">
-            <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
-                <span>Book Your Spot</span>
-                <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-
-            <span class="wh-hero__rating" role="img" aria-label="Rated {{ $rating }} out of 5, based on Google Reviews">
-                @include('partials.google-g', ['size' => 20, 'class' => 'wh-hero__rating-g'])
-                <span class="wh-hero__rating-score">{{ number_format($rating, 1) }}</span>
-                @include('partials.stars', ['rating' => $rating, 'size' => 16])
-                <span>Google Reviews</span>
-            </span>
-        </div>
-    </div>
-
-    <div class="wh-hero__ring" data-hero-ring>
-        <div class="wh-hero__ring-stage" aria-hidden="true">
-            @foreach ($ringCards as $i => [$src, $srcset, $flip])
-                <div @class(['wh-hero__card', 'wh-hero__card--flip' => $flip]) style="--i: {{ $i }}">
-                    <img
-                        src="{{ asset($src) }}"
-                        srcset="{{ $srcset }}"
-                        sizes="(max-width: 900px) 220px, 360px"
-                        alt=""
-                        decoding="async"
-                        @if ($i > 5) loading="lazy" @endif
-                    >
+                <div class="walk__slides">
+                    <div class="walk__slide is-on" data-walk-slide>
+                        <h1 class="walk__intro-title" id="hero-heading">
+                            <span class="walk__row"><span>Your brain is about</span></span>
+                            <span class="walk__row"><span>to be <span class="walk__accent">lied to.</span></span></span>
+                        </h1>
+                        <p class="walk__intro-sub">Zimbabwe&rsquo;s first optical illusion experience, at {{ config('shiftreality.location.address') }}, {{ config('shiftreality.location.city') }}.</p>
+                    </div>
+                    @foreach (array_slice($heroSlides, 1) as $s)
+                        <div class="walk__slide walk__slide--live" data-walk-slide aria-hidden="true">
+                            <p class="walk__intro-title">
+                                <span class="walk__row"><span>{{ $s['rows'][0] }}</span></span>
+                                <span class="walk__row"><span>{{ $s['rows'][1] }} <span class="walk__accent">{{ $s['accent'] }}</span></span></span>
+                            </p>
+                            <p class="walk__intro-sub">{{ $s['line'] }}</p>
+                        </div>
+                    @endforeach
                 </div>
-            @endforeach
+
+            </div>
+
+            {{-- Book right here: the card on the right (partials/hero-book) --}}
+            @include('partials.hero-book')
+
+            {{-- Under the faint line (with two or more slides the line is the
+                 bar's): every date and groups on /book; on phones, where the card
+                 doesn't fit, a short form instead — day and guests, then /book
+                 opens with them filled in --}}
+            @php $openDays = collect($days)->filter(fn ($d) => $d['slots'])->values(); @endphp
+            <div class="walk__cta">
+                <a href="{{ route('book') }}" class="walk__all">See all dates &amp; group visits <span aria-hidden="true">&rarr;</span></a>
+                @if ($openDays->isNotEmpty())
+                    <form class="walk__quick" method="GET" action="{{ route('book') }}" aria-label="Start a booking">
+                        <label class="walk__field">
+                            <span class="walk__field-label">Day</span>
+                            <select name="date">
+                                @foreach ($openDays as $day)
+                                    <option value="{{ $day['date'] }}">{{ $day['today'] ? 'Today' : \Carbon\Carbon::parse($day['date'])->format('D j M') }}</option>
+                                @endforeach
+                            </select>
+                        </label>
+                        <label class="walk__field walk__field--guests">
+                            <span class="walk__field-label">Guests</span>
+                            <select name="people">
+                                @for ($n = 1; $n <= $booking['max_people']; $n++)
+                                    <option value="{{ $n }}">{{ $n }}</option>
+                                @endfor
+                            </select>
+                        </label>
+                        <button type="submit" class="pill pill--amber pill--lg walk__book"><span>Book My Spot</span><svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                    </form>
+                @endif
+            </div>
+
+            {{-- The slider bar, after arlink28.com's: under a faint line, the slide's
+                 caption and count (rolling in) and blurb on the left; thumbnails
+                 with a filling progress line, and pause, on the right. Only with
+                 two or more slides --}}
+            @if ($multiSlide)
+            <div class="walk__bar" data-walk-bar>
+                <div class="walk__bar-info" aria-live="polite">
+                    <p class="walk__bar-line">
+                        <span class="walk__roll" data-walk-roll>
+                            @foreach ($heroSlides as $i => $s)
+                                <span @class(['is-on' => $i === 0])>Illusion <i>|</i> {{ $s['label'] }}</span>
+                            @endforeach
+                        </span>
+                        <span class="walk__bar-count">
+                            <span class="walk__roll" data-walk-roll>
+                                @foreach ($heroSlides as $i => $s)
+                                    <span @class(['is-on' => $i === 0])>{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                                @endforeach
+                            </span>
+                            <i>&mdash;</i> {{ $slideCount }}
+                        </span>
+                    </p>
+                    <p class="walk__bar-blurb walk__roll" data-walk-roll>
+                        @foreach ($heroSlides as $i => $s)
+                            <span @class(['is-on' => $i === 0])>{{ $s['blurb'] }}</span>
+                        @endforeach
+                    </p>
+                </div>
+                <div class="walk__bar-nav">
+                    <ul class="walk__thumbs">
+                        @foreach ($heroSlides as $i => $s)
+                            <li>
+                                <button type="button" @class(['is-on' => $i === 0]) data-walk-thumb="{{ $i }}" aria-label="Show slide {{ $i + 1 }}: {{ $s['label'] }}">
+                                    <span class="walk__thumb-num">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}.</span>
+                                    <span class="walk__thumb-frame"><img src="{{ asset($s['thumb']) }}" alt="" width="240" height="160" loading="lazy"></span>
+                                    <span class="walk__thumb-bar"><span data-walk-progress></span></span>
+                                </button>
+                            </li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="walk__pause" aria-label="Pause slides" aria-pressed="false" data-walk-pause>
+                        <svg class="walk__pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+                        <svg class="walk__play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg>
+                    </button>
+                </div>
+            </div>
+            @endif
         </div>
+
+        {{-- The stairwell that never ends (stairwell.js): a photo looking down an
+             oval stairwell, toned to the palette and drawn inside itself.
+             ⚠ Stand-in: Wolfgang Weiser on Unsplash — replace before launch. --}}
+        <canvas class="walk__well is-on" aria-hidden="true" data-walk-well data-walk-bg
+                data-src="{{ asset('images/walk/stairwell-2000.webp') }}"></canvas>
+
+        {{-- Each further slide's photo, under the copy (see $heroSlides) --}}
+        @foreach (array_slice($heroSlides, 1) as $s)
+            <img class="walk__slide-bg" data-walk-bg src="{{ asset($s['bg']) }}" alt="" aria-hidden="true" decoding="async" loading="lazy">
+        @endforeach
+
+        <div class="walk__frame" data-walk-frame>
+            <div class="walk__scene" data-walk-scene>
+                <img src="{{ asset('images/walk/reception-1528.webp') }}"
+                     srcset="{{ asset('images/walk/reception-764.webp') }} 764w, {{ asset('images/walk/reception-1528.webp') }} 1528w, {{ asset('images/walk/reception-2292.webp') }} 2292w"
+                     sizes="(max-aspect-ratio: 764/1024) 75vh, 100vw" width="1528" height="2048"
+                     alt="Visitors checking in at the Reality Shift front desk, under the triangle logo" decoding="async" fetchpriority="high">
+            </div>
+            <div class="walk__scene" data-walk-scene>
+                <img src="{{ asset('images/walk/entrance-1528.webp') }}"
+                     srcset="{{ asset('images/walk/entrance-762.webp') }} 762w, {{ asset('images/walk/entrance-1528.webp') }} 1528w, {{ asset('images/walk/entrance-2292.webp') }} 2292w"
+                     sizes="(max-aspect-ratio: 764/1024) 75vh, 100vw" width="1528" height="2048"
+                     alt="A host showing two visitors into the Illusion Experience entrance" decoding="async">
+            </div>
+        </div>
+
+        <div class="walk__shade" aria-hidden="true"></div>
+
+        <canvas class="walk__solid" aria-hidden="true" data-walk-solid></canvas>
+
+        {{-- The logo's impossible triangle, flat: the 3D one's nine faces as seen
+             from the one view (beams x, y, then z on top), in the two blues
+             and frosted white, line for line --}}
+        <svg class="walk__mark" width="280" height="243" viewBox="0 0 280 242.48" aria-hidden="true" focusable="false" data-walk-mark>
+            <path fill="#3D74F5" d="M155.35 0.00 170.71 26.60 140.00 26.60 124.64 0.00Z"/>
+            <path fill="#F1F5FE" d="M46.07 242.48 170.71 26.60 140.00 26.60 15.36 242.48Z"/>
+            <path fill="#1855E8" d="M0.00 215.88 124.64 0.00 140.00 26.60 15.36 242.48Z"/>
+            <path fill="#3D74F5" d="M155.35 0.00 279.99 215.88 249.28 215.88 124.64 0.00Z"/>
+            <path fill="#F1F5FE" d="M264.63 242.48 279.99 215.88 249.28 215.88 233.92 242.48Z"/>
+            <path fill="#1855E8" d="M109.28 26.60 124.64 0.00 249.28 215.88 233.92 242.48Z"/>
+            <path fill="#3D74F5" d="M264.63 189.28 279.99 215.88 30.72 215.88 15.36 189.28Z"/>
+            <path fill="#F1F5FE" d="M264.63 242.48 279.99 215.88 30.72 215.88 15.36 242.48Z"/>
+            <path fill="#1855E8" d="M0.00 215.88 15.36 189.28 30.72 215.88 15.36 242.48Z"/>
+        </svg>
+
+        <div class="walk__copy">
+            <div class="walk__chapter walk__chapter--live" data-walk-chapter aria-hidden="true">
+                <p class="walk__eyebrow" data-decode>The impossible triangle</p>
+                <p class="walk__title">
+                    <span class="walk__row"><span>Three beams.</span></span>
+                    <span class="walk__row"><span>They never meet.</span></span>
+                </p>
+                <p class="walk__sub">Except from exactly here, which is all your brain needs.</p>
+            </div>
+            <div class="walk__chapter" data-walk-chapter>
+                <p class="walk__eyebrow" data-decode>01 — Reception</p>
+                <h2 class="walk__title">
+                    <span class="walk__row"><span>It starts at</span></span>
+                    <span class="walk__row"><span>the front desk.</span></span>
+                </h2>
+                <p class="walk__sub">Check in at {{ config('shiftreality.location.address') }}, then follow the triangle inside.</p>
+            </div>
+            <div class="walk__chapter walk__chapter--end" data-walk-chapter>
+                <p class="walk__eyebrow" data-decode>02 — The rooms</p>
+                <p class="walk__title">
+                    <span class="walk__row"><span>Step in.</span></span>
+                    <span class="walk__row"><span>Question everything.</span></span>
+                </p>
+                <p class="walk__sub">From here on, see reality differently.</p>
+            </div>
+        </div>
+
     </div>
-
-    {{-- Scroll down: floats over the cards just above the foot of the first
-         screen, so it's seen on arrival (not only once you've scrolled) --}}
-    <a href="#rooms" class="wh-hero__down" aria-label="Scroll down to the rooms">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-    </a>
-
 </section>
 
 {{-- ══════════════════════════════════════════════════════════
@@ -125,7 +271,7 @@
      two run together: eyebrow + heading left, a line and Book right, then
      a 2×2 grid of room cards. Each card's stage is that room's live
      illusion (rooms.js plays it as the card scrolls up, or runs it while
-     it's on screen), with "• Room 01 · tagline" and the room's name.
+     it's on screen), with "• tagline" and the room's name.
      ══════════════════════════════════════════════════════════ --}}
 <section class="rooms" id="rooms" aria-labelledby="rooms-heading">
     <div class="container">
@@ -134,7 +280,7 @@
             <div>
                 <p class="rooms__eyebrow">The rooms</p>
                 <h2 class="rooms__heading" id="rooms-heading" data-split>
-                    Four rooms.<br>Zero explanations.
+                    Rooms that lie.<br>Zero explanations.
                 </h2>
             </div>
             <div class="rooms__aside">
@@ -143,7 +289,7 @@
                     You'll walk out differently than you walked in.
                 </p>
                 <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
-                    <span>Book Your Spot</span>
+                    <span>Book My Spot</span>
                     <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
             </div>
@@ -158,8 +304,7 @@
                     </div>
                     <div class="room-card__body">
                         <p class="room-card__meta">
-                            <span class="room-card__num">Room {{ $shift['number'] }}</span>
-                            <span>{{ $shift['tagline'] }}</span>
+                            <span class="room-card__tag">{{ $shift['tagline'] }}</span>
                         </p>
                         <h3 class="room-card__title" id="room-{{ $shift['slug'] }}">
                             <a href="{{ route('experience') }}">{{ $shift['title'] }}</a>
@@ -177,16 +322,16 @@
      After Artora's "Permanent Collections": eyebrow + heading centred, then
      a stacked carousel — one big photo in the middle, the next ones each
      side smaller and behind it — with prev/next round the caption
-     ("• Room 02" + the room). Moves only when asked (moments.js).
+     ("• In the room" + the room). Moves only when asked (moments.js).
      ⚠ Only the kaleidoscope photo is ours (visitors, from socials); the rest
      are the Unsplash stand-ins — replace with real visitor photos.
      ══════════════════════════════════════════════════════════ --}}
 @php
     // [image, srcset, upside down?, meta, title]
     $momentSlides = collect($shifts)->filter(fn ($s) => ! empty($s['hero_photo']))
-        ->map(fn ($s) => [str_replace('-2064.', '-1000.', $s['hero_photo']), asset(str_replace('-2064.', '-1000.', $s['hero_photo'])) . ' 750w, ' . asset($s['hero_photo']) . ' 1548w', true, 'Room ' . $s['number'], $s['title']])
+        ->map(fn ($s) => [str_replace('-2064.', '-1000.', $s['hero_photo']), asset(str_replace('-2064.', '-1000.', $s['hero_photo'])) . ' 750w, ' . asset($s['hero_photo']) . ' 1548w', true, 'In the room', $s['title']])
         ->merge(collect($shifts)->filter(fn ($s) => ! empty($s['photo']))
-            ->map(fn ($s) => [$s['photo'], asset($s['photo']) . ' 800w, ' . asset(str_replace('-800.', '-1600.', $s['photo'])) . ' 1600w', false, 'Room ' . $s['number'], $s['title']]))
+            ->map(fn ($s) => [$s['photo'], asset($s['photo']) . ' 800w, ' . asset(str_replace('-800.', '-1600.', $s['photo'])) . ' 1600w', false, 'In the room', $s['title']]))
         ->merge(collect(config('shiftreality.hero_extras'))
             ->map(fn ($p) => [$p, asset($p) . ' 800w, ' . asset(str_replace('-800.', '-1600.', $p)) . ' 1600w', false, 'Photos encouraged', 'Every corner is a backdrop']))
         ->values();
@@ -280,7 +425,7 @@
                 @endif
 
                 <a href="{{ route('book') }}" class="pill pill--amber pill--lg reviews__cta">
-                    <span>Book Your Spot</span>
+                    <span>Book My Spot</span>
                     <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
             </div>
@@ -319,12 +464,13 @@
      After Artora's About band: solid deep navy, full bleed. Left: the
      eyebrow, a photo and where we are. Right: the line, a paragraph, one
      white pill, a hairline and two numbers that count up. Facts only from
-     config (four rooms, the Google rating) — no invented history.
+     config (days open a week, the Google rating) — no invented history.
      ⚠ The photo is ours (visitors, from socials, AI-upscaled).
      ══════════════════════════════════════════════════════════ --}}
 @php
     $aboutPhoto = collect($shifts)->firstWhere(fn ($s) => ! empty($s['hero_photo']))['hero_photo'] ?? null;
     $aboutRating = config('shiftreality.google_rating');
+    $aboutDaysOpen = collect(config('shiftreality.hours'))->filter()->count();
 @endphp
 <section class="about" id="about" aria-labelledby="about-heading">
     <div class="container about__grid">
@@ -354,7 +500,7 @@
                 More than a museum.<br>Where reality bends.
             </h2>
             <p class="about__text">
-                Reality Shift is Zimbabwe's first optical illusion experience: {{ count($shifts) }} rooms built to make you
+                Reality Shift is Zimbabwe's first optical illusion experience: rooms built to make you
                 question something you've taken for granted your entire life. No experience needed, no age too old —
                 bring your eyes, your people and a camera.
             </p>
@@ -365,8 +511,8 @@
 
             <dl class="about__stats">
                 <div>
-                    <dt>Mind-bending rooms</dt>
-                    <dd data-count-to="{{ count($shifts) }}">{{ count($shifts) }}</dd>
+                    <dt>Days a week, open</dt>
+                    <dd data-count-to="{{ $aboutDaysOpen }}">{{ $aboutDaysOpen }}</dd>
                 </div>
                 <div>
                     <dt>Google rating</dt>
@@ -418,7 +564,7 @@
                     <span class="ticket__unit">{{ $ticket['unit'] }}</span>
                 </p>
                 <a href="{{ route('book') }}" class="pill pill--amber pill--lg ticket__pill">
-                    <span>Book Your Spot</span>
+                    <span>Book My Spot</span>
                     <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
                 <p @class(['ticket__status', 'is-open' => $ticketStatus['open']])>
@@ -528,9 +674,9 @@
     'headingId' => 'final-heading',
     'eyebrow'   => 'Visit today',
     'title'     => 'Question everything.<br>Starting today.',
-    'sub'       => count($shifts) . ' rooms at ' . e(config('shiftreality.location.address')) . ', ' . e(config('shiftreality.location.city'))
+    'sub'       => 'At ' . e(config('shiftreality.location.address')) . ', ' . e(config('shiftreality.location.city'))
                  . '. Entry from $' . $visit['price_from'] . ', ages ' . $visit['min_age'] . '&nbsp;and&nbsp;up.',
-    'pill'      => 'Book Your Spot',
+    'pill'      => 'Book My Spot',
     'offset'    => 4,
 ])
 

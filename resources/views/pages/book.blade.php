@@ -9,14 +9,17 @@
 @php
     $price    = (float) $visit['price_from'];
     $max      = $booking['max_people'];
-    $people   = (int) old('people', 1);
-    // Preselect the day they picked before, else the first day with times left
+    // A day and guests can arrive in the link (the home hero's card on phones)
+    $people   = max(1, min($max, (int) old('people', request()->integer('people', 1))));
+    // Preselect the day they picked before (or in the link), else the first day with times left
     $firstOpen = collect($days)->first(fn ($d) => $d['slots'])['date'] ?? null;
-    $selected  = old('date', $firstOpen);
+    $linked    = collect($days)->first(fn ($d) => $d['slots'] && $d['date'] === request('date'))['date'] ?? null;
+    $selected  = old('date', $linked ?? $firstOpen);
     $money     = fn ($n) => '$' . rtrim(rtrim(number_format($n, 2), '0'), '.');
     // The calendar runs Mon … Sun, so the first week starts with blanks before today
-    $months    = collect($days)->pluck('month')->unique()->implode(' – ');
     $lead      = $days[0]['iso'] - 1;
+    // …and runs in pages of four weeks (booking.js shows one at a time)
+    $calPages  = collect($days)->values()->groupBy(fn ($d, $i) => intdiv($lead + $i, 28));
     $status    = $openingHours->status();
     $location  = config('shiftreality.location');
     $pickedDay = collect($days)->firstWhere('date', $selected);
@@ -50,30 +53,47 @@
                 {{-- 01 — Day --}}
                 <fieldset class="bk-step" data-step-panel>
                     <legend class="bk-step__title" tabindex="-1">Which <em>day</em> suits you?</legend>
-                    <p class="bk-cal__month">{{ $months }}</p>
-                    <div class="bk-cal">
-                        @foreach (['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as $wd)
-                            <span class="bk-cal__wd" aria-hidden="true">{{ $wd }}</span>
-                        @endforeach
-                        @for ($i = 0; $i < $lead; $i++)
-                            <span aria-hidden="true"></span>
-                        @endfor
-                        @foreach ($days as $day)
-                            @if ($day['slots'])
-                                <label class="bk-day">
-                                    <input type="radio" name="date" value="{{ $day['date'] }}" data-label="{{ $day['label'] }}"
-                                           @checked($selected === $day['date']) required>
-                                    <span class="bk-day__d">{{ $day['day'] }}</span>
-                                    <span class="sr-only">{{ $day['label'] }}</span>
-                                    @if ($day['today'])<span class="bk-day__today">Today</span>@endif
-                                </label>
-                            @else
-                                {{-- Closed, or no times left today --}}
-                                <span class="bk-day is-off">
-                                    <span class="bk-day__d" aria-hidden="true">{{ $day['day'] }}</span>
-                                    <span class="sr-only">{{ $day['label'] }}, unavailable</span>
-                                </span>
-                            @endif
+                    {{-- Four weeks to a page from today's week (booking.js shows one at
+                         a time, with ‹ ›); without JS every page shows, each titled --}}
+                    <div class="bk-cal-pages" data-cal>
+                        @foreach ($calPages as $p => $pageDays)
+                            <div class="bk-cal-page" data-cal-page>
+                                <div class="bk-cal__head">
+                                    <button type="button" class="bk-cal__nav" data-cal-step="-1" aria-label="Earlier dates" hidden>&lsaquo;</button>
+                                    <p class="bk-cal__month">{{ $pageDays->pluck('month')->unique()->implode(' – ') }}</p>
+                                    <button type="button" class="bk-cal__nav" data-cal-step="1" aria-label="Later dates" hidden>&rsaquo;</button>
+                                </div>
+                                <div class="bk-cal">
+                                    @foreach (['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as $wd)
+                                        <span class="bk-cal__wd" aria-hidden="true">{{ $wd }}</span>
+                                    @endforeach
+                                    @if ($p === 0)
+                                        @for ($i = 0; $i < $lead; $i++)
+                                            <span aria-hidden="true"></span>
+                                        @endfor
+                                    @endif
+                                    @foreach ($pageDays as $day)
+                                        @php $firstOfMonth = $day['day'] === '1'; @endphp
+                                        @if ($day['slots'])
+                                            <label class="bk-day">
+                                                <input type="radio" name="date" value="{{ $day['date'] }}" data-label="{{ $day['label'] }}"
+                                                       @checked($selected === $day['date']) required>
+                                                @if ($firstOfMonth)<span class="bk-day__mon" aria-hidden="true">{{ substr($day['month'], 0, 3) }}</span>@endif
+                                                <span class="bk-day__d">{{ $day['day'] }}</span>
+                                                <span class="sr-only">{{ $day['label'] }}</span>
+                                                @if ($day['today'])<span class="bk-day__today">Today</span>@endif
+                                            </label>
+                                        @else
+                                            {{-- Closed, or no times left today --}}
+                                            <span class="bk-day is-off">
+                                                @if ($firstOfMonth)<span class="bk-day__mon" aria-hidden="true">{{ substr($day['month'], 0, 3) }}</span>@endif
+                                                <span class="bk-day__d" aria-hidden="true">{{ $day['day'] }}</span>
+                                                <span class="sr-only">{{ $day['label'] }}, unavailable</span>
+                                            </span>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
                         @endforeach
                     </div>
                     <p class="bk-step__note">@if ($closedOn)Closed on {{ $closedOn }}. @endif Weekends and public holidays are the busiest.</p>

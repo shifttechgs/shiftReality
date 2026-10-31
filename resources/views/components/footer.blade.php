@@ -29,7 +29,7 @@
                     <img src="{{ asset('images/logo-dark.png') }}" alt="{{ config('shiftreality.name') }}" width="88" height="88" loading="lazy">
                 </a>
                 <p class="footer__tagline">
-                    Zimbabwe's optical illusion experience. Four rooms built to make your eyes argue with your brain.
+                    Zimbabwe's optical illusion experience. Rooms built to make your eyes argue with your brain.
                 </p>
                 @if ($footSocial)
                     <ul class="footer__social" role="list">

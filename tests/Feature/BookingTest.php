@@ -50,6 +50,8 @@ class BookingTest extends TestCase
 
     public function test_closed_day_is_sent_back(): void
     {
+        config(['shiftreality.hours.1' => null]);   // Monday closed
+
         $this->from('/book')->post('/book', [
             'date' => '2026-10-26', 'time' => '12:00', 'people' => 2, 'name' => 'Rudo',
         ])->assertRedirect('/book')->assertSessionHasErrors('time');
