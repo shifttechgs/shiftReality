@@ -60,8 +60,8 @@
 
 {{-- ══════════════════════════════════════════════════════════
      01 — THE PRICE
-     The figure on the left; what's included and the one action
-     on the right.
+     The figure on the left; the ticket's printed terms (as the home
+     ticket's) and the one action on the right.
      ══════════════════════════════════════════════════════════ --}}
 <section class="pp-hero" aria-label="Ticket price">
     <div class="container pp-hero__grid">
@@ -74,11 +74,15 @@
         </div>
 
         <div class="pp-hero__aside">
-            <ul class="pp-hero__list" aria-label="Included with every ticket">
-                @foreach ($ticket['includes'] as $line)
-                    <li data-scrub>{{ $line }}</li>
+            <p class="pp-label">Every ticket</p>
+            <dl class="ticket__terms pp-hero__terms">
+                @foreach ($ticket['terms'] as [$term, $fact])
+                    <div class="ticket__term" data-scrub>
+                        <dt>{{ $term }}</dt>
+                        <dd>{{ $fact }}</dd>
+                    </div>
                 @endforeach
-            </ul>
+            </dl>
 
             <div class="pp-hero__actions" data-scrub>
                 <a href="{{ route('book') }}" class="pill pill--amber pill--lg">
@@ -101,21 +105,24 @@
     <div class="container">
 
         <div class="pp-value__intro">
+            <div>
+            <p class="pp-label">What's included</p>
             <h2 class="pp-value__title" id="pp-value-heading" data-split>
                 What ${{ $visit['price_from'] }}<br>actually buys.
             </h2>
+            </div>
 
             <p class="pp-value__sub" data-scrub>
                 Every ticket covers every room. Here's how the ${{ $visit['price_from'] }} breaks down.
             </p>
         </div>
 
-        {{-- Each room: photo (stand-ins until real room photos), name, tagline --}}
+        {{-- Each room: its photo (as its card on the home page), name, tagline --}}
         <ol class="pp-receipt">
             @foreach ($shifts as $shift)
                 <li class="pp-receipt__row" data-scrub>
                     <span class="pp-receipt__thumb">
-                        <img src="{{ asset($shift['image']) }}" alt="" loading="lazy" decoding="async">
+                        <img src="{{ asset($shift['photo'] ?? $shift['image']) }}" alt="" loading="lazy" decoding="async">
                     </span>
                     <span class="pp-receipt__name">{{ $shift['title'] }}</span>
                     <span class="pp-receipt__line">{{ $shift['tagline'] }}</span>
@@ -152,16 +159,17 @@
 
 {{-- ══════════════════════════════════════════════════════════
      03 — GROUPS
-     Photo on one side (stand-in), the group pitch on the other.
+     Our photo on one side, the group pitch on the other.
      ══════════════════════════════════════════════════════════ --}}
 <section class="pp-groups" id="pp-groups" aria-labelledby="pp-groups-heading">
     <div class="container pp-groups__grid">
 
         <figure class="pp-photo pp-groups__media" data-reveal>
-            <img src="{{ asset($groups['image']) }}" alt="" class="pp-photo__img" loading="lazy" decoding="async">
+            <img src="{{ asset($groups['image']) }}" alt="A mum leaning over her daughter, who looks tiny on the Beuchet chair" class="pp-photo__img" loading="lazy" decoding="async">
         </figure>
 
         <div class="pp-groups__content">
+            <p class="pp-label">Groups</p>
             <h2 class="pp-groups__title" id="pp-groups-heading" data-split>Bringing a group?</h2>
             <p class="pp-groups__sub" data-scrub>
                 Groups get their own rates and priority entry. Tell us your date and
@@ -202,13 +210,14 @@
     <div class="container pp-when__grid">
 
         <div class="pp-when__copy">
+            <p class="pp-label pp-label--dark">Opening hours</p>
             <h2 class="pp-when__title" id="pp-when-heading" data-split>Book ahead,<br>or chance it.</h2>
             <p class="pp-when__sub" data-scrub>
                 Same price either way. Booking online guarantees your slot; walk&#8209;ins
                 are welcome when there's space. Weekends and public holidays are the busiest.
             </p>
             <a href="{{ route('book') }}" class="pill pill--amber pill--lg" data-scrub>
-                <span>Guarantee Your Slot</span>
+                <span>Book My Spot</span>
                 <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
         </div>
@@ -242,6 +251,7 @@
 
         <div class="visit-faq">
             <div class="visit-faq__aside" data-scrub>
+                <p class="pp-label">FAQ</p>
                 <h2 class="visit-faq__title" id="faq-heading" data-split>Before you pay.</h2>
                 <p class="visit-faq__sub">The questions people ask most about tickets and booking.</p>
                 <span class="visit-faq__links">
@@ -272,20 +282,31 @@
 
 {{-- ══════════════════════════════════════════════════════════
      06 — CLOSE
+     The home page's final call to action (partials/visit-band): the card
+     on our vortex photo, the visit's facts beside the headline, and the
+     bar with the ask and the pill. Hands over to the footer.
      ══════════════════════════════════════════════════════════ --}}
-<section class="pp-close" aria-labelledby="pp-close-heading">
-    <div class="container pp-close__inner">
-        <h2 class="pp-close__title" id="pp-close-heading" data-split>
-            See you <em>inside.</em>
-        </h2>
-        <div class="pp-close__actions" data-scrub>
-            <a href="{{ route('book') }}" class="pill pill--amber pill--xl">
-                <span>Book My Spot</span>
-                <svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-            <a href="{{ route('home') }}#rooms" class="visit__more">See the rooms first →</a>
-        </div>
-    </div>
-</section>
+@php
+    $finalDays = collect(config('shiftreality.hours'))->filter()->count();
+    $finalMap  = 'https://www.google.com/maps/search/?api=1&query='
+        . rawurlencode(config('shiftreality.location.address') . ', ' . config('shiftreality.location.city'));
+@endphp
+@include('partials.visit-band', [
+    'id'        => 'visit-today',
+    'headingId' => 'final-heading',
+    'eyebrow'   => 'Your visit',
+    {{-- each phrase kept whole --}}
+    'title'     => '<span class="nowrap">Question everything.</span><br><span class="nowrap">Starting today.</span>',
+    'sub'       => 'Zimbabwe\'s first optical illusion experience. Come with your people and a camera.',
+    'list'      => [
+        [config('shiftreality.location.address') . ', ' . config('shiftreality.location.city'), $finalMap],
+        ['Entry from $' . $visit['price_from'], null],
+        ['Ages ' . $visit['min_age'] . ' and up', null],
+        [$finalDays === 7 ? 'Open every day' : 'Open ' . $finalDays . ' days a week', null],
+    ],
+    'ask'       => 'Pick a day and time.',
+    'pill'      => 'Book My Spot',
+    'bg'        => config('shiftreality.band_bg'),
+])
 
 @endsection

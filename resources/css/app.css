@@ -3918,7 +3918,18 @@
 }
 
 /* ── The price ────────────────────────────────────────────── */
-.pp-hero { padding-block: clamp(4rem, 8vw, 7rem); }
+/* Section labels, as on the home page: plain blue capitals (white on navy) */
+.pp-label {
+    margin-bottom: 1.25rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-sr-accent);
+}
+.pp-label--dark { color: var(--color-sr-on-dark); }
+
+.pp-hero { padding-block: clamp(4rem, 8vw, 7rem) clamp(2rem, 4vw, 3.5rem); }
+.pp-hero__terms { margin-top: 0; }
 
 .pp-hero__grid {
     display: grid;
@@ -3974,7 +3985,7 @@
 
 /* ── What it buys ─────────────────────────────────────────── */
 .pp-value {
-    padding-block: clamp(4rem, 8vw, 7rem);
+    padding-block: clamp(2rem, 4vw, 3.5rem) clamp(2rem, 4vw, 3.5rem);   /* white after white: one gap, not two */
     background: var(--color-sr-bg);
 }
 
@@ -4095,7 +4106,7 @@
 
 /* ── Groups ───────────────────────────────────────────────── */
 .pp-groups {
-    padding-block: clamp(4rem, 8vw, 7rem);
+    padding-block: clamp(2rem, 4vw, 3.5rem) clamp(2rem, 4vw, 3.5rem);   /* white after white: one gap, not two */
     scroll-margin-top: 40px;
 }
 
@@ -4253,33 +4264,6 @@
 }
 
 /* ── Close ────────────────────────────────────────────────── */
-.pp-close {
-    padding-block: clamp(5rem, 10vw, 8rem);
-    background: var(--color-sr-bg);
-}
-
-.pp-close__inner {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: clamp(2rem, 4vw, 3rem);
-}
-
-.pp-close__title {
-    font-size: clamp(3rem, 9vw, 7.5rem);
-    font-weight: 400;
-    line-height: 1;
-    letter-spacing: -0.05em;
-}
-
-.pp-close__title em { font-style: italic; color: var(--color-sr-accent); }
-
-.pp-close__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem 1.75rem;
-}
 
 /* ── Pricing page: smaller screens ────────────────────────── */
 @media (max-width: 1023px) {

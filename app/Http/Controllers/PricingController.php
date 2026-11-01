@@ -17,11 +17,13 @@ class PricingController extends Controller
             ':price'    => $visit['price_from'],
             ':duration' => str_replace(' ', "\u{00A0}", $visit['duration']),   // never split "1.5 – 2.5 hours"
             ':min_age'  => $visit['min_age'],
+            ':rooms'    => collect($shifts)->pluck('title')->implode(', '),
         ]);
 
         $ticket = config('shiftreality.pricing');
         $ticket['price']    = $ticket['price'] === null ? null : $fill($ticket['price']);
         $ticket['includes'] = array_map($fill, $ticket['includes']);
+        $ticket['terms']    = array_map(fn ($t) => [$t[0], $fill($t[1])], $ticket['terms']);
 
         // The value math comes only from real config: the price, the rooms, the visit length.
         // "1.5 – 2.5 hours" → cost per minute at the longest and shortest visit, in cents.
