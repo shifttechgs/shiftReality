@@ -48,12 +48,12 @@
             <nav class="footer__col" aria-label="Footer navigation">
                 <p class="footer__title">Explore</p>
                 <ul class="footer__links" role="list">
-                    <li><a href="{{ route('experience') }}" class="footer__link">The Experience</a></li>
+                    <li><a href="{{ route('experience') }}" class="footer__link">Exhibits</a></li>
                     <li><a href="{{ route('pricing') }}"    class="footer__link">Pricing</a></li>
                     <li><a href="{{ route('visit') }}"      class="footer__link">Plan Your Visit</a></li>
-                    <li><a href="{{ route('groups') }}"     class="footer__link">Groups &amp; Events</a></li>
+                    <li><a href="{{ route('groups') }}"     class="footer__link">Group Visits</a></li>
                     <li><a href="{{ route('faq') }}"        class="footer__link">FAQ</a></li>
-                    <li><a href="{{ route('book') }}"       class="footer__link">Book Tickets</a></li>
+                    <li><a href="{{ route('book') }}"       class="footer__link">Book My Spot</a></li>
                 </ul>
             </nav>
 

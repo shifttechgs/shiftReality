@@ -1,7 +1,7 @@
-{{-- The hero's booking card: day, time, guests and name in one go, then the
-     request opens in WhatsApp — the same route and checks as /book
-     (BookingController@send), so nothing is paid online. A failed check
-     comes back here with the answers kept. hero-book.js fills the time list
+{{-- The hero's booking card: day, time, guests and name in one go, then it
+     hands them to /book (a GET link), which opens on the last step for the
+     phone number and sends the request by email (BookingController@send).
+     Nothing is paid online. hero-book.js fills the time list
      for the picked day and keeps the total; the day opens as a calendar of
      the bookable fortnight (ui/date-picker.js), the time as the site's own
      dropdown (ui/select.js). Without JS the first day's times show and the server still
@@ -17,9 +17,8 @@
     $people   = max(1, min($max, (int) old('people', 1)));
     $arrow    = '<svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
 @endphp
-<form class="walk__card" method="POST" action="{{ route('book.send') }}" aria-labelledby="hero-book-title"
+<form class="walk__card" method="GET" action="{{ route('book') }}" aria-labelledby="hero-book-title"
       data-hero-book data-price="{{ $price }}">
-    @csrf
     <div class="walk__card-head">
         <p class="walk__card-title" id="hero-book-title">Book your visit</p>
         <p class="walk__card-price"><strong>{{ $money($price) }}</strong> per person</p>
@@ -77,6 +76,6 @@
             <p class="walk__card-total">Total <strong data-hero-total>{{ $money($price * $people) }}</strong></p>
             <button type="submit" class="pill pill--amber pill--lg"><span>Book My Spot</span>{!! $arrow !!}</button>
         </div>
-        <p class="walk__card-note">Nothing to pay now. WhatsApp opens with your booking written out, and the team replies to confirm. More than {{ $max }}? <a href="{{ route('groups') }}">Group rates</a></p>
+        <p class="walk__card-note">Nothing to pay now. Next, add your phone number and send the request. We'll call to confirm. More than {{ $max }}? <a href="{{ route('groups') }}">Group rates</a></p>
     @endif
 </form>

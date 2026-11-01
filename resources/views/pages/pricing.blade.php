@@ -98,8 +98,7 @@
 
 {{-- ══════════════════════════════════════════════════════════
      02 — WHAT IT BUYS
-     The rooms as a receipt with one total, then the sums — all
-     worked out from config, never invented.
+     The rooms as a receipt with one total.
      ══════════════════════════════════════════════════════════ --}}
 <section class="pp-value" aria-labelledby="pp-value-heading">
     <div class="container">
@@ -113,7 +112,7 @@
             </div>
 
             <p class="pp-value__sub" data-scrub>
-                Every ticket covers every room. Here's how the ${{ $visit['price_from'] }} breaks down.
+                Every ticket covers every room. Here's what's on it.
             </p>
         </div>
 
@@ -133,26 +132,6 @@
             <span>Every room, one ticket</span>
             <span class="pp-receipt__sum">${{ $visit['price_from'] }}</span>
         </p>
-
-        {{-- The sums, as plain facts split by hairlines --}}
-        <dl class="pp-sums">
-            @if ($perRoom)
-                <div class="pp-sum" data-scrub>
-                    <dt>Per room</dt>
-                    <dd>${{ rtrim(rtrim(number_format($perRoom, 2), '0'), '.') }}</dd>
-                </div>
-            @endif
-            @if ($perMinute)
-                <div class="pp-sum" data-scrub>
-                    <dt>Per minute</dt>
-                    <dd>{{ $perMinute[0] }} to {{ $perMinute[1] }}¢</dd>
-                </div>
-            @endif
-            <div class="pp-sum" data-scrub>
-                <dt>Time inside</dt>
-                <dd>{{ $visit['duration'] }}</dd>
-            </div>
-        </dl>
 
     </div>
 </section>
@@ -213,8 +192,8 @@
             <p class="pp-label pp-label--dark">Opening hours</p>
             <h2 class="pp-when__title" id="pp-when-heading" data-split>Book ahead,<br>or chance it.</h2>
             <p class="pp-when__sub" data-scrub>
-                Same price either way. Booking online guarantees your slot; walk&#8209;ins
-                are welcome when there's space. Weekends and public holidays are the busiest.
+                Same price either way. Send a booking request and we'll call to hold your
+                time; walk&#8209;ins are welcome when there's space. Weekends and public holidays are the busiest.
             </p>
             <a href="{{ route('book') }}" class="pill pill--amber pill--lg" data-scrub>
                 <span>Book My Spot</span>
@@ -281,32 +260,8 @@
 </section>
 
 {{-- ══════════════════════════════════════════════════════════
-     06 — CLOSE
-     The home page's final call to action (partials/visit-band): the card
-     on our vortex photo, the visit's facts beside the headline, and the
-     bar with the ask and the pill. Hands over to the footer.
+     06 — CLOSE  (partials/inner-close, shared by every inner page)
      ══════════════════════════════════════════════════════════ --}}
-@php
-    $finalDays = collect(config('shiftreality.hours'))->filter()->count();
-    $finalMap  = 'https://www.google.com/maps/search/?api=1&query='
-        . rawurlencode(config('shiftreality.location.address') . ', ' . config('shiftreality.location.city'));
-@endphp
-@include('partials.visit-band', [
-    'id'        => 'visit-today',
-    'headingId' => 'final-heading',
-    'eyebrow'   => 'Your visit',
-    {{-- each phrase kept whole --}}
-    'title'     => '<span class="nowrap">Question everything.</span><br><span class="nowrap">Starting today.</span>',
-    'sub'       => 'Zimbabwe\'s first optical illusion experience. Come with your people and a camera.',
-    'list'      => [
-        [config('shiftreality.location.address') . ', ' . config('shiftreality.location.city'), $finalMap],
-        ['Entry from $' . $visit['price_from'], null],
-        ['Ages ' . $visit['min_age'] . ' and up', null],
-        [$finalDays === 7 ? 'Open every day' : 'Open ' . $finalDays . ' days a week', null],
-    ],
-    'ask'       => 'Pick a day and time.',
-    'pill'      => 'Book My Spot',
-    'bg'        => config('shiftreality.band_bg'),
-])
+@include('partials.inner-close')
 
 @endsection

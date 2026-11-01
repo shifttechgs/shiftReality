@@ -48,9 +48,13 @@ return [
     ],
 
     // Booking requests (/book): visitors pick a day, an entry slot and a group size,
-    // then the request opens in WhatsApp for the team to confirm. Nothing is paid online.
+    // then the request is emailed to the team, who call to confirm. Nothing is paid online.
+    // /groups enquiries go to the same inbox.
     // ⚠ Slot length, last entry and the group-size cap are first guesses — confirm them.
     'booking' => [
+        // Every booking request from /book is emailed here (owner's choice, 2026-11-01).
+        // BOOKING_EMAIL in .env can list several, comma-separated (e.g. a tester's inbox too)
+        'email'              => array_values(array_filter(array_map('trim', explode(',', env('BOOKING_EMAIL', 'bookings@realityshift.co.zw'))))),
         'days_ahead'         => 60,   // how far ahead the date picker reaches, today included (owner's choice, 2026-10-31)
         'slot_minutes'       => 60,   // an entry slot every hour from opening…
         'last_entry_minutes' => 60,   // …until this long before closing

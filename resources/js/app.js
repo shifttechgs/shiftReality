@@ -9,6 +9,7 @@ import { initLazyEmbeds } from './lazy-embeds.js';
 import { initBooking } from './booking.js';
 import { initHeroBook } from './hero-book.js';
 import { initNavMore } from './nav-more.js';
+import { initExhibits } from './animations/exhibits.js';
 import { prefersReducedMotion } from './utils/motion.js';
 
 // ─── Nav overlay (no GSAP) ────────────────────────────────────────────────────
@@ -126,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLazyEmbeds();
     initBooking();
     initHeroBook();
+    initExhibits();
 
     // ── Defer GSAP bundle until after page is visible and idle ────────────────
     const loadAnimations = async () => {

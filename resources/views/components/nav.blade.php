@@ -67,13 +67,13 @@
             {{-- Two plain columns of links, as on Artora --}}
             <ul class="nav-more__col" role="list">
                 <li><a href="{{ route('visit') }}">Plan your visit</a></li>
-                <li><a href="{{ route('experience') }}">The rooms</a></li>
+                <li><a href="{{ route('experience') }}">Exhibits</a></li>
                 <li><a href="{{ route('pricing') }}">Tickets &amp; pricing</a></li>
-                <li><a href="{{ route('groups') }}">Groups &amp; events</a></li>
+                <li><a href="{{ route('groups') }}">Group visits</a></li>
                 <li><a href="{{ route('faq') }}">FAQ</a></li>
             </ul>
             <ul class="nav-more__col" role="list">
-                <li><a href="{{ route('book') }}">Book tickets</a></li>
+                <li><a href="{{ route('book') }}">Book my spot</a></li>
                 <li><a href="https://wa.me/{{ $navContact['whatsapp'] }}" target="_blank" rel="noopener">WhatsApp us</a></li>
                 <li><a href="tel:{{ $navTel }}">{{ $navPhone }}</a></li>
                 <li><a href="mailto:{{ $navContact['email'] }}">Email us</a></li>
@@ -115,6 +115,7 @@
         <li class="nav-overlay__item"><a href="{{ route('experience') }}" class="nav-overlay__link">Exhibits</a></li>
         <li class="nav-overlay__item"><a href="{{ route('pricing') }}"   class="nav-overlay__link">Pricing</a></li>
         <li class="nav-overlay__item"><a href="{{ route('groups') }}"     class="nav-overlay__link">Group Visits</a></li>
+        <li class="nav-overlay__item"><a href="{{ route('visit') }}"      class="nav-overlay__link">Plan Your Visit</a></li>
         <li class="nav-overlay__item"><a href="{{ route('faq') }}"        class="nav-overlay__link">FAQ</a></li>
     </ul>
 

@@ -38,7 +38,7 @@
      01 — HERO
      You land on a stairwell that never ends, drifting slowly down, with
      the rating, title and line bottom left, a booking card on the right
-     (partials/hero-book: day, time, guests, name → WhatsApp), and under a
+     (partials/hero-book: day, time, guests, name → /book), and under a
      faint line a link to every date (on phones, a short day + guests form).
      Built as slides after arlink28.com: add a room to $heroSlides and they
      take turns every 7s, switching through 30 horizontal blinds opening

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Book Your Visit · ' . config('shiftreality.name') . ' · Harare')
-@section('description', 'Book your visit to ' . config('shiftreality.name') . ' at ' . config('shiftreality.location.address') . ', ' . config('shiftreality.location.city') . '. Pick a day and time. $' . $visit['price_from'] . ' per person, confirmed on WhatsApp.')
+@section('description', 'Book your visit to ' . config('shiftreality.name') . ' at ' . config('shiftreality.location.address') . ', ' . config('shiftreality.location.city') . '. Pick a day and time. $' . $visit['price_from'] . ' per person. Send a request and we confirm by phone.')
 
 {{-- The banner is deep navy, so the nav rests in its light variant --}}
 @section('body_class', 'has-hero-photo')
@@ -15,6 +15,12 @@
     $firstOpen = collect($days)->first(fn ($d) => $d['slots'])['date'] ?? null;
     $linked    = collect($days)->first(fn ($d) => $d['slots'] && $d['date'] === request('date'))['date'] ?? null;
     $selected  = old('date', $linked ?? $firstOpen);
+    // The home card hands over its time and name as well; with a valid day and
+    // time in the link, the form opens on the last step (contact details)
+    $linkedDay = collect($days)->firstWhere('date', $linked);
+    $linkTime  = $linkedDay && in_array(request('time'), $linkedDay['slots'], true) ? request('time') : null;
+    $pickTime  = old('time', $linkTime);
+    $startStep = (! $errors->any() && $linkTime) ? 3 : 0;
     $money     = fn ($n) => '$' . rtrim(rtrim(number_format($n, 2), '0'), '.');
     // The calendar runs Mon … Sun, so the first week starts with blanks before today
     $lead      = $days[0]['iso'] - 1;
@@ -36,12 +42,47 @@
 @include('partials.page-banner', [
     'crumb' => 'Book',
     'title' => 'Book your visit.',
-    'intro' => 'Four quick questions, then your booking opens in WhatsApp. We\'ll reply to confirm.',
+    'intro' => $sent ? 'Your request is with our bookings team.' : 'Four quick questions, then send your request. We\'ll call or WhatsApp you to confirm.',
 ])
 
 <section class="bk" aria-label="Booking">
     <div class="container">
-        <form class="bk__grid" method="POST" action="{{ route('book.send') }}" data-booking data-price="{{ $price }}">
+        @if ($sent)
+            {{-- Sent: what they asked for, and what happens next --}}
+            <div class="bk__grid bk-done">
+                <div class="bk-done__main" role="status">
+                    <p class="bk-done__label">Request sent</p>
+                    <h2 class="bk-done__title">Thanks, {{ \Illuminate\Support\Str::before($sent['name'], ' ') }}. We've got it.</h2>
+                    <p class="bk-done__text">Your booking request is with our team. We'll call or WhatsApp you on {{ $sent['phone'] }} to confirm your time. Nothing to pay until you visit.</p>
+                    <div class="bk-done__actions">
+                        <a href="{{ route('home') }}" class="pill pill--amber pill--lg"><span>Back to home</span>{!! $arrow !!}</a>
+                        <a href="{{ route('book') }}" class="visit__more">Make another booking →</a>
+                    </div>
+                </div>
+                <aside class="bk-pass" aria-label="Your request">
+                    <div class="bk-pass__head">
+                        <span>{{ config('shiftreality.name') }}</span>
+                        <span>{{ $location['city'] }}</span>
+                    </div>
+                    <p class="bk-pass__day">{{ $sent['day'] }}</p>
+                    <dl class="bk-pass__rows">
+                        <div><dt>Entry</dt><dd>{{ $sent['time'] }}</dd></div>
+                        <div><dt>Guests</dt><dd>{{ $sent['people'] }}</dd></div>
+                        <div><dt>Name</dt><dd>{{ $sent['name'] }}</dd></div>
+                        <div><dt>Reference</dt><dd>{{ $sent['ref'] }}</dd></div>
+                    </dl>
+                    <p class="bk-pass__total">
+                        <span>Total</span>
+                        <span class="bk-pass__amount">{{ $sent['total'] }}</span>
+                    </p>
+                    <dl class="bk-pass__info">
+                        <div><dt>Where</dt><dd>{{ $location['address'] }}</dd></div>
+                        <div><dt>Call</dt><dd><a href="tel:{{ $tel }}">{{ $phone }}</a></dd></div>
+                    </dl>
+                </aside>
+            </div>
+        @else
+        <form class="bk__grid" method="POST" action="{{ route('book.send') }}" data-booking data-price="{{ $price }}" data-start-step="{{ $startStep }}">
             @csrf
 
             {{-- ── The flow: one question at a time once booking.js runs;
@@ -118,7 +159,7 @@
                                 @foreach ($day['slots'] as $slot)
                                     <label class="bk-time">
                                         <input type="radio" name="time" value="{{ $slot }}"
-                                               @checked(old('date') === $day['date'] && old('time') === $slot) required>
+                                               @checked($selected === $day['date'] && $pickTime === $slot) required>
                                         <span>{{ $slot }}</span>
                                     </label>
                                 @endforeach
@@ -151,23 +192,33 @@
 
                 {{-- 04 — Name, then send --}}
                 <fieldset class="bk-step" data-step-panel>
-                    <legend class="bk-step__title" tabindex="-1">Whose name is it under?</legend>
+                    <legend class="bk-step__title" tabindex="-1">How do we reach you?</legend>
                     <div class="bk-fields">
                         <label class="bk-field">
                             <span class="bk-field__label">Full name</span>
-                            <input type="text" name="name" value="{{ old('name') }}" autocomplete="name" maxlength="80" required>
+                            <input type="text" name="name" value="{{ old('name', request('name')) }}" autocomplete="name" maxlength="80" required>
+                        </label>
+                        <label class="bk-field">
+                            <span class="bk-field__label">Phone <em>We'll call or WhatsApp you to confirm</em></span>
+                            <input type="tel" name="phone" value="{{ old('phone') }}" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="077 123 4567" required>
+                        </label>
+                        <label class="bk-field">
+                            <span class="bk-field__label">Email <em>Optional</em></span>
+                            <input type="email" name="email" value="{{ old('email') }}" autocomplete="email" maxlength="120">
                         </label>
                         <label class="bk-field">
                             <span class="bk-field__label">Anything we should know? <em>Optional: a birthday, a surprise</em></span>
                             <textarea name="note" rows="2" maxlength="300">{{ old('note') }}</textarea>
                         </label>
                     </div>
-                    @error('name')<p class="bk-step__error">{{ $message }}</p>@enderror
+                    @foreach (['name', 'phone', 'email', 'send'] as $field)
+                        @error($field)<p class="bk-step__error">{{ $message }}</p>@enderror
+                    @endforeach
                     <div class="bk-nav">
                         <button type="button" class="bk-nav__back" data-prev>← Back</button>
-                        <button type="submit" class="pill pill--amber pill--xl"><span>Send on WhatsApp</span>{!! $arrow !!}</button>
+                        <button type="submit" class="pill pill--amber pill--xl"><span>Send booking request</span>{!! $arrow !!}</button>
                     </div>
-                    <p class="bk-step__note">Nothing to pay now. WhatsApp opens with your booking written out. Press send, and we'll reply to confirm.</p>
+                    <p class="bk-step__note">Nothing to pay now. Your request goes to our bookings team, and we'll call or WhatsApp you to confirm.</p>
                 </fieldset>
 
             </div>
@@ -183,9 +234,9 @@
                 <p class="bk-pass__day" data-sum="day">{{ $pickedDay['label'] ?? 'Pick a day' }}</p>
 
                 <dl class="bk-pass__rows">
-                    <div><dt>Entry</dt><dd data-sum="time">{{ old('time', 'Not picked') }}</dd></div>
+                    <div><dt>Entry</dt><dd data-sum="time">{{ $pickTime ?: 'Not picked' }}</dd></div>
                     <div><dt>Guests</dt><dd data-sum="people">{{ $people }}</dd></div>
-                    <div><dt>Name</dt><dd data-sum="name">{{ old('name') ?: 'Not given' }}</dd></div>
+                    <div><dt>Name</dt><dd data-sum="name">{{ old('name', request('name')) ?: 'Not given' }}</dd></div>
                 </dl>
 
                 <p class="bk-pass__total">
@@ -201,6 +252,7 @@
             </aside>
 
         </form>
+        @endif
     </div>
 </section>
 @endsection

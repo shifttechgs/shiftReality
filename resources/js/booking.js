@@ -1,7 +1,7 @@
 import { prefersReducedMotion } from './utils/motion.js';
 
 /**
- * Booking form (/book): one question at a time — day, time, guests, name —
+ * Booking form (/book): one question at a time — day, time, guests, contact —
  * with Continue / Back, a progress count, and the visit pass beside it filling
  * in as each answer comes. The day calendar shows four weeks at a time. The form works without it (all four questions show
  * and the server checks everything on submit).
@@ -14,6 +14,7 @@ export function initBooking() {
     const price  = parseFloat(form.dataset.price) || 0;
     const people = form.querySelector('input[name="people"]');
     const name   = form.querySelector('input[name="name"]');
+    const phone  = form.querySelector('input[name="phone"]');
     const min    = parseInt(people.min, 10) || 1;
     const max    = parseInt(people.max, 10) || 99;
     const sum    = (key) => form.querySelector(`[data-sum="${key}"]`);
@@ -22,6 +23,9 @@ export function initBooking() {
     const picked = (field) => form.querySelector(`input[name="${field}"]:checked`);
 
     form.classList.add('is-stepped');
+    // The steps check their own answers and say what's missing in the page's own
+    // error line; the browser's popups would get there first. The server checks all.
+    form.noValidate = true;
 
     // ── Summary + times ─────────────────────────────────────────────────────
     const update = () => {
@@ -51,7 +55,8 @@ export function initBooking() {
         () => !picked('date') && 'Pick a day to continue.',
         () => !picked('time') && 'Pick a time to continue.',
         () => false,
-        () => !name.value.trim() && 'Tell us whose name the booking is under.',
+        () => (!name.value.trim() && 'Tell us whose name the booking is under.')
+            || (!phone.value.trim() && 'Add a phone number so we can confirm your booking.'),
     ];
 
     let current = 0;
@@ -121,7 +126,7 @@ export function initBooking() {
     });
     form.addEventListener('input', (e) => {
         if (e.target === people || e.target === name) update();
-        if (e.target === name && name.value.trim()) flag(panels[3], null);
+        if ((e.target === name || e.target === phone) && !missing[3]()) flag(panels[3], null);
     });
 
     // Enter on a pick moves on, like pressing Continue
@@ -158,6 +163,8 @@ export function initBooking() {
 
     update();
     // Coming back with a server error: open the first step that has one
+    // Coming from the home card with a day and time: open on the contact step
     const errored = panels.findIndex((p) => p.querySelector('.bk-step__error'));
-    show(errored === -1 ? 0 : errored, { focus: errored !== -1 });
+    const start   = parseInt(form.dataset.startStep, 10) || 0;
+    show(errored === -1 ? start : errored, { focus: errored !== -1 || start > 0 });
 }
