@@ -355,8 +355,11 @@
 
 {{-- ══════════════════════════════════════════════════════════
      05 — SOCIAL PROOF
-     Real proof: the Google score, one featured quote, the rest under it.
-     No Book button: the visit band just above is the ask.
+     Layout after arlink28.com's "Happy travellers": the intro, then three
+     columns. Left, a tint card: the Google score, the visit's plain facts
+     and the ask. Middle, a visitor photo with the featured quote in a flat
+     navy panel (no scrim). Right, the other reviews rising in a vertical
+     marquee (the user asked for it, 2026-11-01).
      ══════════════════════════════════════════════════════════ --}}
 <section class="reviews-section section" id="reviews" aria-labelledby="reviews-heading">
     <div class="container">
@@ -378,64 +381,105 @@
         @php
             $googleRating = config('shiftreality.google_rating');
             $reviewsUrl   = config('shiftreality.google_reviews_url');
+            $reviewsPhoto = config('shiftreality.reviews_photo');
             [$lead, $others] = [$testimonials[0] ?? null, array_slice($testimonials, 1)];
             // initials for each reviewer's mark: "Tatenda M." → "TM"
             $initials = fn ($name) => collect(preg_split('/\s+/', trim($name)))
                 ->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))->take(2)->implode('');
+            // The card's facts, from config only: when we're open, how long, who can come
+            $openHours = collect(config('shiftreality.hours'))->filter();
+            $sameHours = $openHours->unique(fn ($h) => implode('-', $h))->count() === 1;
+            $openLine  = ($openHours->count() === 7 ? 'Every day' : $openHours->count() . ' days a week')
+                . ($sameHours && $openHours->isNotEmpty() ? ', ' . $openHours->first()[0] . ' to ' . $openHours->first()[1] : '');
+            $reviewFacts = [
+                ['Open',  $openLine],
+                ['Visit', config('shiftreality.visit.duration')],
+                ['Ages',  config('shiftreality.visit.min_age') . ' and up'],
+            ];
         @endphp
 
         <div class="reviews">
-            {{-- The score first: the proof the quotes stand on, and where to read more --}}
-            <div class="reviews__score" data-scrub>
-                <p class="reviews__score-value" aria-hidden="true">
-                    <span data-count-to="{{ $googleRating }}">{{ number_format($googleRating, 1) }}</span><span class="reviews__score-max">/5</span>
-                </p>
-                @include('partials.stars', ['rating' => $googleRating, 'size' => 20])
-                <p class="reviews__score-source">
-                    @include('partials.google-g', ['size' => 18])
-                    <span>Rated {{ number_format($googleRating, 1) }} out of 5 on Google</span>
-                </p>
-                @if ($reviewsUrl)
-                    <a href="{{ $reviewsUrl }}" class="reviews__all" target="_blank" rel="noopener">
-                        Read them all on Google
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
-                    </a>
-                @endif
+            {{-- Left: the score, the facts, the ask --}}
+            <div class="reviews__card" data-scrub>
+                <div class="reviews__score">
+                    <p class="reviews__score-value" aria-hidden="true">
+                        <span data-count-to="{{ $googleRating }}">{{ number_format($googleRating, 1) }}</span><span class="reviews__score-max">/5</span>
+                    </p>
+                    <div class="reviews__score-side">
+                        @include('partials.stars', ['rating' => $googleRating, 'size' => 16])
+                        <p class="reviews__score-source">
+                            @include('partials.google-g', ['size' => 16])
+                            <span>Rated {{ number_format($googleRating, 1) }} out of 5 on Google</span>
+                        </p>
+                    </div>
+                </div>
+
+                <dl class="ticket__terms reviews__facts">
+                    @foreach ($reviewFacts as [$term, $fact])
+                        <div class="ticket__term">
+                            <dt>{{ $term }}</dt>
+                            <dd>{{ $fact }}</dd>
+                        </div>
+                    @endforeach
+                </dl>
+
+                <div class="reviews__ask">
+                    <p>Ready to see it for yourself?</p>
+                    <div class="reviews__actions">
+                        <a href="{{ route('book') }}" class="pill pill--amber"><span>Book My Spot</span><svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                        @if ($reviewsUrl)
+                            <a href="{{ $reviewsUrl }}" class="reviews__all" target="_blank" rel="noopener">
+                                All reviews
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+                            </a>
+                        @endif
+                    </div>
+                </div>
             </div>
 
-            {{-- Quotes: one featured, the rest under it; each appears exactly once.
-                 Each: stars, the words, then who (their initials, name, how they came) --}}
-            <div class="reviews__quotes">
-                @if ($lead)
-                    <figure class="quote quote--lead" data-scrub>
-                        @include('partials.stars', ['rating' => $lead['rating'], 'size' => 16])
+            {{-- Middle: a visitor photo, the featured quote in a flat navy panel on it --}}
+            @if ($lead)
+                <figure class="reviews__feature" data-scrub>
+                    @if ($reviewsPhoto)
+                        <img src="{{ asset($reviewsPhoto[0]) }}"
+                             srcset="{{ asset($reviewsPhoto[0]) }} 800w, {{ asset(str_replace('-800.', '-1600.', $reviewsPhoto[0])) }} 1086w"
+                             sizes="(max-width: 700px) 100vw, (max-width: 1023px) 50vw, 36vw"
+                             alt="{{ $reviewsPhoto[1] }}" loading="lazy" decoding="async">
+                    @endif
+                    <div class="reviews__feature-panel">
+                        @include('partials.stars', ['rating' => $lead['rating'], 'size' => 14])
                         <span class="sr-only">Rated {{ $lead['rating'] }} out of 5.</span>
-                        <blockquote class="quote__text">“{{ $lead['quote'] }}”</blockquote>
-                        <figcaption class="quote__who">
-                            <span class="quote__mark" aria-hidden="true">{{ $initials($lead['name']) }}</span>
-                            <span class="quote__name">{{ $lead['name'] }}</span>
-                            <span class="quote__tag">{{ $lead['detail'] }}</span>
-                        </figcaption>
-                    </figure>
-                @endif
+                        <blockquote class="reviews__feature-text">“{{ $lead['quote'] }}”</blockquote>
+                        <figcaption class="reviews__feature-who">{{ $lead['name'] }} · {{ $lead['detail'] }}</figcaption>
+                    </div>
+                </figure>
+            @endif
 
-                @if ($others)
-                    <div class="reviews__more">
-                        @foreach ($others as $t)
-                            <figure class="quote" data-scrub>
-                                @include('partials.stars', ['rating' => $t['rating'], 'size' => 13])
-                                <span class="sr-only">Rated {{ $t['rating'] }} out of 5.</span>
-                                <blockquote class="quote__text">“{{ $t['quote'] }}”</blockquote>
-                                <figcaption class="quote__who">
-                                    <span class="quote__mark" aria-hidden="true">{{ $initials($t['name']) }}</span>
-                                    <span class="quote__name">{{ $t['name'] }}</span>
-                                    <span class="quote__tag">{{ $t['detail'] }}</span>
-                                </figcaption>
-                            </figure>
+            {{-- Right: the other reviews as a vertical marquee (as arlink28.com's), rising
+                 on a loop. The set is printed twice so the loop is seamless; the copy is
+                 hidden from screen readers. Pauses on hover; still with reduced motion. --}}
+            @if ($others)
+                <div class="reviews__stack" data-scrub style="--marquee-time: {{ count($others) * 9 }}s">
+                    <div class="reviews__track">
+                        @foreach ([false, true] as $copy)
+                            <div class="reviews__set" @if ($copy) aria-hidden="true" @endif>
+                                @foreach ($others as $t)
+                                    <figure class="quote">
+                                        @include('partials.stars', ['rating' => $t['rating'], 'size' => 13])
+                                        <span class="sr-only">Rated {{ $t['rating'] }} out of 5.</span>
+                                        <blockquote class="quote__text">“{{ $t['quote'] }}”</blockquote>
+                                        <figcaption class="quote__who">
+                                            <span class="quote__mark" aria-hidden="true">{{ $initials($t['name']) }}</span>
+                                            <span class="quote__name">{{ $t['name'] }}</span>
+                                            <span class="quote__tag">{{ $t['detail'] }}</span>
+                                        </figcaption>
+                                    </figure>
+                                @endforeach
+                            </div>
                         @endforeach
                     </div>
-                @endif
-            </div>
+                </div>
+            @endif
         </div>
 
     </div>

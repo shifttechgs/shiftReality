@@ -246,6 +246,10 @@ return [
         ],
     ],
 
+    // The Reviews section's middle photo, under the featured quote: [image (-800, with a
+    // -1600 twin), alt]. Ours: friends leaning in the tilted room (the lead review came with friends)
+    'reviews_photo' => ['images/moments/tilted-room-lean-800.webp', 'Three friends leaning at impossible angles in the tilted room'],
+
     // ⚠ STAND-INS — replace with real reviews (from Google) before launch.
     // The first one is shown large as the featured quote; each appears once.
     'testimonials' => [
@@ -265,6 +269,12 @@ return [
             'quote'  => 'Our team-building afternoon became a two-hour debate about reality. 10/10. We\'re already planning to come back.',
             'name'   => 'Farai N.',
             'detail' => 'Corporate group',
+            'rating' => 5,
+        ],
+        [
+            'quote'  => 'We came on a date and spent the whole time taking photos of each other. The Beuchet Chair had us crying with laughter.',
+            'name'   => 'Rumbi C.',
+            'detail' => 'Date night',
             'rating' => 5,
         ],
     ],
