@@ -447,7 +447,7 @@
      eyebrow, a photo and where we are. Right: the line, a paragraph, one
      white pill, a hairline and two numbers that count up. Facts only from
      config (days open a week, the Google rating) — no invented history.
-     ⚠ The photo is ours (visitors, from socials, AI-upscaled).
+     The photo is ours: the walk-in kaleidoscope (config about_photo).
      ══════════════════════════════════════════════════════════ --}}
 @php
     $aboutPhoto = config('shiftreality.about_photo');

@@ -84,10 +84,11 @@ return [
             'title'       => 'Stranger in the Mirror',
             'slug'        => 'mirror',
             'image'       => 'images/hero/hero-2-1200.webp',
-            // Ours: the room itself (the -1600 file is the original's 1086px); its card shows it
+            // Real visitor photo from the user (2026-11-01): the left half of a two-photo collage,
+            // cropped to 4:5. Only 795px wide, so -1600 is 795×994 and -800 is 800×1000.
             'photo'       => 'images/rooms/mirror-800.webp',
             'photo_real'  => true,
-            'photo_alt'   => 'A visitor in a blue T-shirt and sunglasses, repeated dozens of times round the mirror room’s triangular panels',
+            'photo_alt'   => 'A visitor’s face seen through the Stranger in the Mirror’s slatted mirror, her friend’s reflection mixed into the strips between',
             // Home hero slide (a -2064 file with a -1000 twin). Rooms without one show
             // their drawn illusion. ⚠ Ours, from socials, AI-upscaled — swap for the original.
             'hero_photo'  => 'images/hero/kaleidoscope-2064.webp',
@@ -99,11 +100,11 @@ return [
             'title'       => 'Infinity Room',
             'slug'        => 'infinity',
             'image'       => 'images/hero/hero-3-1200.webp',
-            // From the user: a rendered visual of the room (not a photo), cropped to the card's 4:5
-            // from a 1672×941 original, so both files are 753px. ⚠ Swap for a real visitor photo.
+            // Real photo from the user (2026-11-01), centre-cropped to the card's 4:5 from a
+            // 1086×1448 original: -800 is 800×1000, -1600 is the full 1086×1358 crop.
             'photo'       => 'images/rooms/infinity-800.webp',
             'photo_real'  => true,
-            'photo_alt'   => 'The Infinity Room: mirrored triangular walls lit in blue around the Reality Shift logo',
+            'photo_alt'   => 'The Infinity Room: purple wisteria hanging from neon-lit ceilings and purple balloons on the floor, repeated endlessly by the mirrored walls',
             'tagline'     => 'A universe that stretches forever in every direction.',
             'hint'        => 'Move to bend the horizon',
             'description' => 'Floor-to-ceiling LED lights reflected in infinite mirrors. You are both at the centre of everything and impossibly small.',
@@ -112,11 +113,11 @@ return [
             'title'       => 'Beuchet Chair',
             'slug'        => 'beuchet',
             'image'       => 'images/hero/hero-1-1200.webp',
-            // From the user: a rendered visual of the room, cropped to the card's 4:5 (both people
-            // and the chair) from a 1671×941 original, so both files are 753px. ⚠ Swap for a real visitor photo.
+            // Real visitor photo from the user (2026-11-01), cropped to the card's 4:5 from a
+            // 1049×1499 original: -800 is 800×1000, -1600 is the full 1049×1311 crop.
             'photo'       => 'images/rooms/beuchet-800.webp',
             'photo_real'  => true,
-            'photo_alt'   => 'A visitor towering over the Beuchet chair, pretending to pick up his friend who looks tiny sitting on it',
+            'photo_alt'   => 'A visitor in a pink jumpsuit leans over the Beuchet chair, cupping her hand around her friend, who looks tiny sitting cross-legged on the seat',
             'tagline'     => 'One person looks giant. The other looks tiny. Same chair.',
             'hint'        => 'Scroll to line up the chair',
             'description' => 'A forced-perspective illusion that makes two people the wrong size at the same time. Perfect for photos.',
@@ -126,8 +127,8 @@ return [
     // Homepage "Who It's For" card pile — 'route' is where the card leads.
     // Images are stand-ins (hero shots) until real audience photos are added.
     // The About section's photo: [image (≥ 700px wide), alt, where it opens from as it
-    // scrolls in (x y, % of its frame: on the logo)]. The Infinity Room visual (its room card's file)
-    'about_photo' => ['images/rooms/infinity-800.webp', 'The Reality Shift Infinity Room: mirrored triangular walls lit in blue around the logo', '50 27'],
+    // scrolls in (x y, % of its frame: on the logo)]. The walk-in kaleidoscope, shared with Visitor Moments
+    'about_photo' => ['images/moments/walk-in-kaleidoscope-800.webp', 'The walk-in kaleidoscope: a triangular mirrored tunnel with the Reality Shift logo on its back wall, lit by LED strips', '50 40'],
 
     // Visitor Moments opens on this one: [image, meta, title]. Ours: visitors at the front
     // desk, cropped near-square (as the carousel shows it); the -1600 file is 1001px
@@ -145,6 +146,12 @@ return [
         ['images/moments/symmetry-mirror-room-800.webp',     'In the room', 'Symmetry Room'],
         ['images/moments/head-on-platter-display-800.webp',  'In the room', 'Head on a Platter'],
         ['images/moments/interactive-puzzle-zone-800.webp',  'Between the rooms', 'The puzzle zone'],
+        // Added 2026-11-01 from Downloads/reality_shift/enhanced, same 800×868 crop
+        ['images/moments/symmetry-room-star-jump-800.webp',     'In the room', 'Symmetry Room'],
+        ['images/moments/clone-table-800.webp',                 'In the room', 'Clone Table'],
+        ['images/moments/walk-in-kaleidoscope-800.webp',        'In the room', 'Walk-in Kaleidoscope'],
+        ['images/moments/head-on-platter-green-dress-800.webp', 'In the room', 'Head on a Platter'],
+        ['images/moments/tilted-room-lean-800.webp',            'In the room', 'Tilted Room'],
     ],
 
     // Extra visitor photos (ours), after the rooms' in Visitor Moments and the visit band
@@ -219,9 +226,10 @@ return [
         ],
     ],
 
-    // Homepage groups section. The image is a stand-in until a real group photo is added.
+    // Groups. The image is ours: a mum and daughter at the Beuchet chair
+    // (a real group shot would suit it better when there is one)
     'groups' => [
-        'image'     => 'images/hero/hero-1-1200.webp',
+        'image'     => 'images/moments/beuchet-chair-illusion-800.webp',
         'occasions' => [
             [
                 'title' => 'School Trips',
