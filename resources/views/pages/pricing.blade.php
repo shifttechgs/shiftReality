@@ -144,7 +144,9 @@
     <div class="container pp-groups__grid">
 
         <figure class="pp-photo pp-groups__media" data-reveal>
-            <img src="{{ asset($groups['image']) }}" alt="A mum leaning over her daughter, who looks tiny on the Beuchet chair" class="pp-photo__img" loading="lazy" decoding="async">
+            <img src="{{ asset($groups['image']) }}" srcset="{{ asset($groups['image']) }} 800w, {{ asset(str_replace('-800.', '-1600.', $groups['image'])) }} 1600w"
+                 sizes="(max-width: 900px) 100vw, 50vw"
+                 alt="{{ $groups['image_alt'] }}" class="pp-photo__img" loading="lazy" decoding="async">
         </figure>
 
         <div class="pp-groups__content">

@@ -235,10 +235,11 @@ return [
         ],
     ],
 
-    // Groups. The image is ours: a mum and daughter at the Beuchet chair
-    // (a real group shot would suit it better when there is one)
+    // Groups (the pricing and groups pages). The image is ours: three friends
+    // leaning at impossible angles in the tilted room (2026-11-02)
     'groups' => [
-        'image'     => 'images/moments/beuchet-chair-illusion-800.webp',
+        'image'     => 'images/moments/tilted-room-lean-800.webp',
+        'image_alt' => 'Three friends in cowboy hats leaning at impossible angles in the tilted room',
         'occasions' => [
             [
                 'title' => 'School Trips',

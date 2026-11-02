@@ -7,7 +7,6 @@
 @section('body_class', 'has-hero-photo')
 
 @php
-    $arrow = '<svg class="pill__arr" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
     $twin  = fn ($src) => str_replace('-800.', '-1600.', $src);
 @endphp
 
@@ -106,31 +105,6 @@
     </div>
 </section>
 @endif
-
-{{-- ══════════════════════════════════════════════════════════
-     03 — HOW IT WORKS (deep navy)
-     The visit's plain facts, as the ticket prints them.
-     ══════════════════════════════════════════════════════════ --}}
-<section class="pp-when" aria-labelledby="ex-how-heading">
-    <div class="container pp-when__grid">
-        <div class="pp-when__copy">
-            <p class="pp-label pp-label--dark">How it works</p>
-            <h2 class="pp-when__title" id="ex-how-heading" data-split>Go at your<br>own pace.</h2>
-            <p class="pp-when__sub" data-scrub>
-                One ticket opens every room. Wander, go back, take the photo again.
-                Nobody hurries you along.
-            </p>
-            <a href="{{ route('book') }}" class="pill pill--amber pill--lg" data-scrub><span>Book My Spot</span>{!! $arrow !!}</a>
-        </div>
-
-        <dl class="pp-hours ex-facts" data-scrub>
-            <div class="pp-hours__row"><dt>Time inside</dt><dd>{{ $visit['duration'] }}</dd></div>
-            <div class="pp-hours__row"><dt>Entry</dt><dd>${{ $visit['price_from'] }} per person</dd></div>
-            <div class="pp-hours__row"><dt>Ages</dt><dd>{{ $visit['min_age'] }} and up</dd></div>
-            <div class="pp-hours__row"><dt>Photos</dt><dd>Welcome in every room</dd></div>
-        </dl>
-    </div>
-</section>
 
 @include('partials.inner-close')
 
