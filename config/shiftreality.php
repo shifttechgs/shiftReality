@@ -134,6 +134,10 @@ return [
     // scrolls in (x y, % of its frame: on the logo)]. The walk-in kaleidoscope, shared with Visitor Moments
     'about_photo' => ['images/moments/walk-in-kaleidoscope-800.webp', 'The walk-in kaleidoscope: a triangular mirrored tunnel with the Reality Shift logo on its back wall, lit by LED strips', '50 40'],
 
+    // The header's "More" panel card ("Question everything. Visit Reality Shift today."):
+    // the walk-in kaleidoscope's entrance, upright (2026-11-02)
+    'nav_promo_photo' => 'images/moments/walk-in-kaleidoscope-800.webp',
+
     // Visitor Moments opens on this one: [image, meta, title]. Ours: visitors at the front
     // desk, cropped near-square (as the carousel shows it); the -1600 file is 1001px
     'moments_lead' => ['images/rooms/extra-reception-800.webp', 'At the front desk', 'Your visit starts here'],

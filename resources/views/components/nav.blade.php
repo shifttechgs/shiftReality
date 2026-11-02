@@ -46,14 +46,14 @@
 
     {{-- "More": a full-width deep-navy panel under the header (Artora's "Pages") --}}
     @php
-        $navPromo = collect(config('shiftreality.shifts'))->firstWhere(fn ($s) => ! empty($s['hero_photo']))['hero_photo'] ?? null;
+        $navPromo = config('shiftreality.nav_promo_photo');
     @endphp
     <div class="nav-more" id="nav-more-panel" hidden data-nav-more-panel>
         <div class="nav-more__inner">
             {{-- Promo card, after Artora's: a photo, one line, one action --}}
             <div class="nav-more__card">
                 @if ($navPromo)
-                    <img src="{{ asset(str_replace('-2064.', '-1000.', $navPromo)) }}" alt="" class="nav-more__photo" loading="lazy" decoding="async">
+                    <img src="{{ asset($navPromo) }}" alt="" class="nav-more__photo" loading="lazy" decoding="async">
                 @endif
                 <div class="nav-more__card-body">
                     <p class="nav-more__card-title">Question everything. Visit Reality Shift today.</p>

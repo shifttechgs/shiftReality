@@ -384,7 +384,6 @@
     aspect-ratio: 224 / 262;
     object-fit: cover;
     border-radius: var(--radius-card);
-    rotate: 180deg;   /* our kaleidoscope room, upside down as everywhere */
 }
 
 .nav-more__card-body {
