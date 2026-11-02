@@ -75,8 +75,8 @@ return [
             'title'       => 'Upside Down Room',
             'slug'        => 'upside-down',
             'image'       => 'images/hero/hero-1-1200.webp',
-            // Ours: the room itself, recoloured to the brand blues (the -1600 file is the
-            // original's 1086px). 'photo_real': its card on the home page shows the photo, not the drawing
+            // Ours: a visitor on the ceiling, original colours (2026-11-02, upside.jpeg; the
+            // -1600 file is the original's 1086px). 'photo_real': its card on the home page shows the photo, not the drawing
             'photo'       => 'images/rooms/upside-down-800.webp',
             'photo_real'  => true,
             'photo_alt'   => 'A visitor hanging from the ceiling of the Upside Down Room, the café table and chairs below',
@@ -96,7 +96,7 @@ return [
             // Home hero slide (a -2064 file with a -1000 twin). Rooms without one show
             // their drawn illusion. ⚠ Ours, from socials, AI-upscaled — swap for the original.
             'hero_photo'  => 'images/hero/kaleidoscope-2064.webp',
-            'tagline'     => 'Your reflection isn\'t doing what you\'re doing.',
+            'tagline'     => 'Two people, one face.',
             'hint'        => 'Move around and watch them disobey',
             'description' => 'A multi-mirror installation that splits, multiplies and distorts your image in ways your brain cannot reconcile.',
         ],
@@ -144,7 +144,6 @@ return [
     // (a second upside-down, Beuchet, symmetry and platter shot), its second
     // kaleidoscope and its three illusion posters are left out.
     'visitor_photos' => [
-        ['images/moments/upside-down-room-pose-800.webp',    'In the room', 'Upside Down Room'],
         ['images/moments/beuchet-chair-illusion-800.webp',   'In the room', 'Beuchet Chair'],
         ['images/moments/infinity-mirror-room-800.webp',     'In the room', 'Infinity Room'],
         ['images/moments/symmetry-mirror-room-800.webp',     'In the room', 'Symmetry Room'],
@@ -156,6 +155,12 @@ return [
         ['images/moments/walk-in-kaleidoscope-800.webp',        'In the room', 'Walk-in Kaleidoscope'],
         ['images/moments/head-on-platter-green-dress-800.webp', 'In the room', 'Head on a Platter'],
         ['images/moments/tilted-room-lean-800.webp',            'In the room', 'Tilted Room'],
+        // Added 2026-11-02 from Downloads/reality_shift/enhanced/altered, same 800×868 crop
+        // (kick came in at 608px wide, so its -800 is upscaled slightly; cook.jpeg replaced
+        // head-on-platter-display's files in place, above)
+        ['images/moments/beuchet-chair-kick-800.webp',         'In the room', 'Beuchet Chair'],
+        ['images/moments/kaleidoscope-floor-pose-800.webp',    'In the room', 'Walk-in Kaleidoscope'],
+        ['images/moments/upside-down-room-handstand-800.webp', 'In the room', 'Upside Down Room'],
     ],
 
     // Extra visitor photos (ours), after the rooms' in Visitor Moments and the visit band
