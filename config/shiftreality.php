@@ -134,6 +134,20 @@ return [
     // scrolls in (x y, % of its frame: on the logo)]. The walk-in kaleidoscope, shared with Visitor Moments
     'about_photo' => ['images/moments/walk-in-kaleidoscope-800.webp', 'The walk-in kaleidoscope: a triangular mirrored tunnel with the Reality Shift logo on its back wall, lit by LED strips', '50 40'],
 
+    // Every room by name, as the visit band lists them ("The rooms", beside its
+    // headline). Longer than 'shifts', which only holds the rooms with a card.
+    'room_names' => [
+        'Upside Down Room',
+        'Stranger in the Mirror',
+        'Vortex Tunnel',
+        'Infinity Room',
+        'Beuchet Chair',
+        'Walk-in Kaleidoscope',
+        'Tilted Room',
+        'Head on a Platter',
+        'Ames Room',
+    ],
+
     // The header's "More" panel card ("Question everything. Visit Reality Shift today."):
     // the walk-in kaleidoscope's entrance, upright (2026-11-02)
     'nav_promo_photo' => 'images/moments/walk-in-kaleidoscope-800.webp',

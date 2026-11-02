@@ -39,7 +39,7 @@
          headed by `eyebrow`), and along its foot a bar with the ask, the live
          status and the pill --}}
     @php
-        $bandList = $list ?? collect($shifts)->map(fn ($r) => [$r['title'], route('experience')])->all();
+        $bandList = $list ?? collect(config('shiftreality.room_names'))->map(fn ($name) => [$name, route('experience')])->all();
     @endphp
     <div @class(['container' => empty($bleed)])>
         <div @class(['visit-cta__card', 'visit-cta__card--bleed' => ! empty($bleed)])>
@@ -56,7 +56,7 @@
                         <p class="visit-cta__sub">{!! $sub !!}</p>
                     @endif
                 </div>
-                <nav class="visit-cta__list" aria-label="{{ $eyebrow }}">
+                <nav @class(['visit-cta__list', 'visit-cta__list--long' => count($bandList) > 5]) aria-label="{{ $eyebrow }}">
                     <p class="visit-cta__list-head">{{ $eyebrow }}</p>
                     <ul>
                         @foreach ($bandList as [$label, $href])

@@ -2016,6 +2016,8 @@
     color: var(--color-sr-on-dark);
 }
 .visit-cta__list ul { display: grid; gap: 1.1rem; }
+.visit-cta__list--long .visit-cta__list-head { margin-bottom: 1rem; }
+.visit-cta__list--long ul { gap: 0.6rem; }   /* every room by name: tighter, so the card doesn't grow tall */
 .visit-cta__list a {
     font-size: clamp(0.9375rem, 1.2vw, 1.0625rem);
     font-weight: 600;
