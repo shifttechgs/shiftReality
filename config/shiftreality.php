@@ -241,15 +241,15 @@ return [
             'Every room',
             'Go at your own pace. Most visits take :duration',
             'Photos encouraged',
-            'Ages :min_age and up',
+            'All ages',
         ],
         // The home ticket's back, as a real ticket's printed terms: [label, fact].
         // Plain facts, as the venue would print them. :rooms is every room's name, from 'shifts'
         'terms' => [
             ['Rooms',  ':rooms'],
-            ['Time',   'No time limit. Most visits take :duration.'],
+            ['Time',   'Most visits take :duration.'],
             ['Photos', 'Welcome in every room.'],
-            ['Ages',   ':min_age and up.'],
+            ['Ages',   'All ages.'],
         ],
     ],
 
