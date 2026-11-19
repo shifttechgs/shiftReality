@@ -8,7 +8,7 @@ return [
     'url'         => env('APP_URL', 'https://realityshift.co.zw'),
 
     'contact' => [
-        'email'    => 'info@realityshift.co.zw',
+        'email'    => env('CONTACT_EMAIL', 'booking@realityshift.co.zw'),
         'phone'    => '0790034005',
         'whatsapp' => '263790034005',   // international format, no + or leading 0 — wa.me needs this
     ],
@@ -54,7 +54,7 @@ return [
     'booking' => [
         // Every booking request from /book is emailed here (owner's choice, 2026-11-01).
         // BOOKING_EMAIL in .env can list several, comma-separated (e.g. a tester's inbox too)
-        'email'              => array_values(array_filter(array_map('trim', explode(',', env('BOOKING_EMAIL', 'bookings@realityshift.co.zw'))))),
+        'email'              => array_values(array_filter(array_map('trim', explode(',', env('BOOKING_EMAIL', 'booking@realityshift.co.zw'))))),
         'days_ahead'         => 60,   // how far ahead the date picker reaches, today included (owner's choice, 2026-10-31)
         'slot_minutes'       => 60,   // an entry slot every hour from opening…
         'last_entry_minutes' => 60,   // …until this long before closing
@@ -330,7 +330,7 @@ return [
         ],
         [
             'question' => 'Where are you located?',
-            'answer'   => 'We are at Westgate Shopping Complex, Harare. Contact us on 0790034005 or info@realityshift.co.zw for directions.',
+            'answer'   => 'We are at Westgate Shopping Complex, Harare. Contact us on 0790034005 or '.env('CONTACT_EMAIL', 'booking@realityshift.co.zw').' for directions.',
         ],
     ],
 
